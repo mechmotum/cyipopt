@@ -4,7 +4,7 @@ Created on Fri Aug 19 23:33:32 2011
 
 @author: amitibo
 """
-cdef extern from "../include/coin/IpStdCInterface.h":
+cdef extern from "IpStdCInterface.h":
 
     ctypedef double Number
 
