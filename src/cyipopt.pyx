@@ -8,6 +8,7 @@ import numpy as np
 cimport numpy as np
 from ipopt cimport *
 import logging
+import scipy.sparse as sps
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
@@ -63,10 +64,12 @@ cdef class problem:
     the IPOPT package.
     
     It can be used to solve general nonlinear programming problems of the form:
-        \min_{x \in \Real^n} f(x)
-        s.t.
-            g^L \leq g(x) \leq g^U
-            x^L \leq x \leq x^U
+
+            min     f(x)
+            x in R^n
+            
+            s.t.       g_L <= g(x) <= g_U
+                       x_L <=  x   <= x_U
     
     Where x are the optimization variables (possibly with upper an lower
     bounds), f(x) is the objective function and g(x) are the general nonlinear
@@ -308,7 +311,7 @@ cdef class problem:
             
     def solve(
             self,
-            np.ndarray[DTYPEd_t, ndim=1] x,
+            x,
             user_data
             ):
         """
@@ -350,6 +353,9 @@ cdef class problem:
                 
         self._user_data = user_data
         
+        assert self._n == len(x)
+        cdef np.ndarray[DTYPEd_t, ndim=1]  np_x = np.array(x)
+
         cdef ApplicationReturnStatus stat
         cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self._m,), dtype=DTYPEd)
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self._m,), dtype=DTYPEd)
@@ -360,7 +366,7 @@ cdef class problem:
         
         stat = IpoptSolve(
                     self._nlp,
-                    <Number*>x.data,
+                    <Number*>np_x.data,
                     <Number*>g.data,
                     &obj_val,
                     <Number*>mult_g.data,
@@ -370,7 +376,7 @@ cdef class problem:
                     )
         
         info = {
-            'x': x,
+            'x': np_x,
             'g': g,
             'obj_val': obj_val,
             'mult_g': mult_g,
@@ -380,7 +386,7 @@ cdef class problem:
             'status_msg': STATUS_MESSAGES[stat]
             }
             
-        return x, info
+        return np_x, info
         
 #
 # Callback functions
@@ -495,7 +501,7 @@ cdef Bool jacobian_cb(
             #
             # Sparse Jacobian
             #
-            ret_val = self._jacobianstructure()
+            ret_val = self._jacobianstructure(<object>self._user_data)
             
             np_iRow = np.array(ret_val[0], dtype=DTYPEi)
             np_jCol = np.array(ret_val[1], dtype=DTYPEi)
@@ -546,16 +552,19 @@ cdef Bool hessian_cb(
     if values == NULL:
         if not self._hessianstructure:
             #
-            # Assuming a dense Hessian
+            # Assuming a lower triangle Hessian
+            # Note:
+            # There is a need to reconvert the s.col and s.row to arrays
+            # because they have the wrong stride
             #
-            s = np.unravel_index(np.arange(self._n*self._n), (self._n, self._n))
-            np_iRow = np.array(s[0], dtype=DTYPEi)
-            np_jCol = np.array(s[1], dtype=DTYPEi)
+            s = sps.coo_matrix(np.tril(np.ones((self._n, self._n))))
+            np_iRow = np.array(s.col, dtype=DTYPEi)
+            np_jCol = np.array(s.row, dtype=DTYPEi)
         else:
             #
             # Sparse Hessian
             #
-            ret_val = self._hessianstructure()
+            ret_val = self._hessianstructure(<object>self._user_data)
             
             np_iRow = np.array(ret_val[0], dtype=DTYPEi)
             np_jCol = np.array(ret_val[1], dtype=DTYPEi)
