@@ -18,79 +18,80 @@ import scipy.sparse as sps
 import ipopt
 
 
-#
-# Problem callbacks
-#
-def objective(x, user_data=None):
-    #
-    # The callback for calculating the objective
-    #
-    return x[0] * x[3] * np.sum(x[0:3]) + x[2]
-
-
-def gradient(x, user_data=None):
-    #
-    # The callback for calculating the gradient
-    #
-    return np.array([
-                x[0] * x[3] + x[3] * np.sum(x[0:3]), 
-                x[0] * x[3],
-                x[0] * x[3] + 1.0,
-                x[0] * np.sum(x[0:3])
-                ])
-
-
-def constraints(x, user_data=None):
-    #
-    # The callback for calculating the constraints
-    #
-    return np.array((np.prod(x), np.dot(x, x)))
-
-
-def jacobian(x, user_data = None):
-    #
-    # The callback for calculating the Jacobian
-    #
-    return np.concatenate((np.prod(x) / x, 2*x))
-
-
-def hessianstructure(user_data=None):
-    #
-    # The structure of the Hessian
-    # Note:
-    # The default hessian structure is of a lower triangular matrix. Therefore
-    # this function is redundant. I include it as an example for structure
-    # callback.
-    # 
-    global hs
+class hs071(object):
+    def __init__(self):
+        pass
     
-    hs = sps.coo_matrix(np.tril(np.ones((4, 4))))
-    return (hs.col, hs.row)
-
-
-def hessian(x, lagrange, obj_factor, user_data=None):
-    #
-    # The callback for calculating the Hessian
-    #
-    H = obj_factor*np.array((
-            (2*x[3], 0, 0, 0),
-            (x[3],   0, 0, 0),
-            (x[3],   0, 0, 0),
-            (2*x[0]+x[1]+x[2], x[0], x[0], 0)))
-            
-    H += lagrange[0]*np.array((
-            (0, 0, 0, 0),
-            (x[2]*x[3], 0, 0, 0),
-            (x[1]*x[3], x[0]*x[3], 0, 0),
-            (x[1]*x[2], x[0]*x[2], x[0]*x[1], 0)))
-            
-    H += lagrange[1]*2*np.eye(4)
-
-    #
-    # Note:
-    # 
-    #
-    return H[hs.row, hs.col]
+    def objective(self, x):
+        #
+        # The callback for calculating the objective
+        #
+        return x[0] * x[3] * np.sum(x[0:3]) + x[2]
+    
+    
+    def gradient(self, x):
+        #
+        # The callback for calculating the gradient
+        #
+        return np.array([
+                    x[0] * x[3] + x[3] * np.sum(x[0:3]), 
+                    x[0] * x[3],
+                    x[0] * x[3] + 1.0,
+                    x[0] * np.sum(x[0:3])
+                    ])
+    
+    
+    def constraints(self, x):
+        #
+        # The callback for calculating the constraints
+        #
+        return np.array((np.prod(x), np.dot(x, x)))
+    
+    
+    def jacobian(self, x):
+        #
+        # The callback for calculating the Jacobian
+        #
+        return np.concatenate((np.prod(x) / x, 2*x))
+    
+    
+    def hessianstructure(self):
+        #
+        # The structure of the Hessian
+        # Note:
+        # The default hessian structure is of a lower triangular matrix. Therefore
+        # this function is redundant. I include it as an example for structure
+        # callback.
+        # 
+        global hs
+        
+        hs = sps.coo_matrix(np.tril(np.ones((4, 4))))
+        return (hs.col, hs.row)
+    
+    
+    def hessian(self, x, lagrange, obj_factor):
+        #
+        # The callback for calculating the Hessian
+        #
+        H = obj_factor*np.array((
+                (2*x[3], 0, 0, 0),
+                (x[3],   0, 0, 0),
+                (x[3],   0, 0, 0),
+                (2*x[0]+x[1]+x[2], x[0], x[0], 0)))
+                
+        H += lagrange[0]*np.array((
+                (0, 0, 0, 0),
+                (x[2]*x[3], 0, 0, 0),
+                (x[1]*x[3], x[0]*x[3], 0, 0),
+                (x[1]*x[2], x[0]*x[2], x[0]*x[1], 0)))
+                
+        H += lagrange[1]*2*np.eye(4)
+    
+        #
+        # Note:
+        # 
+        #
+        return H[hs.row, hs.col]
 
 
 def main():
@@ -106,17 +107,13 @@ def main():
     cu = [2.0e19, 40.0]
 
     nlp = ipopt.problem(
+                4,
+                2,
+                hs071(),
                 lb,
                 ub,
                 cl,
-                cu,
-                objective,
-                constraints,
-                gradient,
-                jacobian,
-                None,
-                hessian,
-                hessianstructure
+                cu
                 )
     
     #
@@ -129,7 +126,7 @@ def main():
     #
     # Solve the problem
     #
-    x, info = nlp.solve(x0, None)
+    x, info = nlp.solve(x0)
     
     print "Solution of the primal variables: x=%s\n" % repr(x)
     
