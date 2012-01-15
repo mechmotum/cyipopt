@@ -18,3 +18,4 @@ availability of the IPOPT package.
 # License: EPL.
 
 from cyipopt import problem 
+
