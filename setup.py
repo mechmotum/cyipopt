@@ -21,18 +21,16 @@ if sys.version == 'win32':
     IPOPT_LIB_DIRS=['lib/win32/Release MKL']
     IPOPT_DLL='Ipopt39.dll'
 else:
-    IPOPT_ICLUDE_DIRS=['/usr/include/coin']
-    #IPOPT_LIBS=['ipopt', 'coinhsl', 'coinlapack', 'coinblas', 'coinmumps', 'coinmetis']
-    IPOPT_LIBS=['ipopt']
-    #IPOPT_LIB_DIRS=['/home/hschilli/local/lib/coin', '/home/hschilli/local/lib/coin/ThirdParty']
-    IPOPT_LIB_DIRS=['/usr/lib']
-    IPOPT_DLL='libipopt.so'
+    IPOPT_ICLUDE_DIRS=['/home/amitibo/code/Ipopt-3.10.1/include/coin']
+    IPOPT_LIBS=['ipopt', 'coinhsl', 'coinlapack', 'coinblas', 'coinmumps', 'coinmetis']
+    IPOPT_LIB_DIRS=['/home/amitibo/code/Ipopt-3.10.1/lib']
+    IPOPT_DLL=None
 
 IPOPT_ICLUDE_DIRS += [np.get_include()]
 
 setup(
     name=PACKAGE_NAME,
-    version='0.1.1',
+    version='0.1.2',
     description='A Cython wrapper to the IPOPT optimization package',
     author='Amit Aides',
     author_email='amitibo@tx.technion.ac.il',
@@ -48,5 +46,5 @@ setup(
             library_dirs=IPOPT_LIB_DIRS
         )
     ],
-    data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], IPOPT_DLL)])]
+    data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], IPOPT_DLL)])] if IPOPT_DLL else None
 )
