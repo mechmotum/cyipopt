@@ -1,0 +1,4 @@
+include setup.py
+recursive-include ipopt *.py
+recursive-include src *.pyx *.pxd *.c
+recursive-include test *.py

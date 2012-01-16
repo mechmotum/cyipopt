@@ -1,0 +1,30 @@
+Introduction
+------------
+Ipopt (Interior Point OPTimizer, pronounced eye-pea-Opt) is a software package for large-scale nonlinear optimization. cyipopt is a python wrapper around Ipopt. It enables using Ipopt from the comfort of the great Python scripting language.
+
+Ipopt is available from the COIN-OR initiative (https://projects.coin-or.org/Ipopt), under the Eclipse Public License (EPL).
+
+Platforms
+---------
+cyipopt has been tested successfully on windows 7 32bit/64bit and Ubuntu 10.10 64bit with Ipopt 3.10.1.
+
+Installation
+------------
+To install cyipopt you will need the following prerequisites:
+
+    python 2.6+
+    numpy
+    scipy
+    cython 
+
+Python(x,y) (http://code.google.com/p/pythonxy/) is a great way to get all of these if you are satisfied with 32bit.
+
+You will also need the binaries and header files of the Ipopt package. I recommend downloading the binaries from http://www.coin-or.org/download/binary/Ipopt/ especially as they include a version compiled against the MKL library.
+
+Download the source files of cyipopt and update 'setup.py' to point to the header files and binaries of the Ipopt package. Then, execute 'python setup.py install' from the command line. You can test the installation by running the examples under the folder test\
+
+Note About Linux Installation
+-----------------------------
+Under linux you might need to let the OS know where to look for the Ipopt lib files, e.g use:
+
+ export LD_LIBRARY_PATH=<PATH to Ipopt lib files> 
