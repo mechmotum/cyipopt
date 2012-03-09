@@ -214,7 +214,7 @@ cdef class problem:
             ub = INF*np.ones(n)
             
         if len(lb) != len(ub) or len(lb) != n:
-            raise ValueError('lb an ub must either be None or have length n.')
+            raise ValueError('lb and ub must either be None or have length n.')
             
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.array(lb, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.array(ub, dtype=DTYPEd).flatten()
@@ -344,14 +344,78 @@ cdef class problem:
         if not ret_val:
             raise TypeError("Error while assigning an option")
             
+    def setProblemScaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+        """
+        Optional function for setting scaling parameters for the problem.
+
+        Parameters
+        ----------
+        obj_scaling : float,
+            Determines, how IPOPT should internally scale the objective function.
+            For example, if this number is chosen to be 10, then IPOPT solves
+            internally an optimization problem that has 10 times the value of
+            the original objective. In particular, if this value is negative,
+            then IPOPT will maximize the objective function instead of minimizing
+            it. 
+
+        x_scaling : array-like, shape = [n]
+            The scaling factors for the variables. If None, no scaling is done.
+
+        g_scaling : array-like, shape = [m]
+            The scaling factors for the constrains. If None, no scaling is done.
+
+        Returns
+        -------
+            None
+        """
+        
+        try:
+            obj_scaling = float(obj_scaling)
+        except:
+            raise ValueError('obj_scaling should be convertible to float type.')
+
+        cdef Number *x_scaling_p
+        cdef Number *g_scaling_p
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_x_scaling
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_g_scaling
+        
+        if x_scaling == None:
+            x_scaling_p = NULL
+        else:
+            if len(x_scaling) != self._n:
+                raise ValueError('x_scaling must either be None or have length n.')
+            
+            np_x_scaling = np.array(x_scaling, dtype=DTYPEd).flatten()
+            x_scaling_p = <Number*>np_x_scaling.data
+            
+
+        if g_scaling == None:
+            g_scaling_p = NULL
+        else:
+            if len(g_scaling) != self._m:
+                raise ValueError('g_scaling must either be None or have length n.')
+
+            np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
+            g_scaling_p = <Number*>np_g_scaling.data
+        
+        ret_val = SetIpoptProblemScaling(
+            self._nlp,
+            obj_scaling,
+            x_scaling_p,
+            g_scaling_p
+            )
+
+        if not ret_val:
+            raise TypeError("Error while setting the scaling of the problem.")
+            
     def solve(
             self,
             x
             ):
         """
-        Solve the posed optimization problem starting at point x
-
-        fields:
+        Solve the posed optimization problem starting at point x.
+        Returns the optimal solution and an info dictionary with
+        the following keys:
             'x': optimal solution
             'g': constraints at the optimal solution
             'obj_val': objective value at optimal solution
@@ -365,13 +429,14 @@ cdef class problem:
         Parameters
         ----------
         x : array-like, shape = [n]
-        
+            Starting point.
+
         Returns
         -------
         x : array, shape = [n]
             Optimal solution.
         
-        info: dictionary, with following values
+        info: dictionary, with following keys
             'x': optimal solution
             'g': constraints at the optimal solution
             'obj_val': objective value at optimal solution
