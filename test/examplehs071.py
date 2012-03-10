@@ -93,7 +93,27 @@ class hs071(object):
         #
         return H[hs.row, hs.col]
 
+    def intermediate(
+            self, 
+            alg_mod,
+            iter_count,
+            obj_value,
+            inf_pr,
+            inf_du,
+            mu,
+            d_norm,
+            regularization_size,
+            alpha_du,
+            alpha_pr,
+            ls_trials
+            ):
 
+        #
+        # Example for the use of the intermediate callback.
+        #
+        print "Objective value at iteration #%d is - %g" % (iter_count, obj_value)
+    
+    
 def main():
     #
     # Define the problem
@@ -107,21 +127,30 @@ def main():
     cu = [2.0e19, 40.0]
 
     nlp = ipopt.problem(
-                4,
-                2,
-                hs071(),
-                lb,
-                ub,
-                cl,
-                cu
+                n=len(x0),
+                m=len(cl),
+                problem_obj=hs071(),
+                lb=lb,
+                ub=ub,
+                cl=cl,
+                cu=cu
                 )
-    
+
     #
     # Set solver options
     #
-    nlp.addOption('derivative_test', 'second-order')
+    #nlp.addOption('derivative_test', 'second-order')
     nlp.addOption('mu_strategy', 'adaptive')
     nlp.addOption('tol', 1e-7)
+
+    #
+    # Scale the problem (Just for demonstration purposes)
+    #
+    nlp.setProblemScaling(
+        obj_scaling=2,
+        x_scaling=[1, 1, 1, 1]
+        )
+    nlp.addOption('nlp_scaling_method', 'user-scaling')
     
     #
     # Solve the problem

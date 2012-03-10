@@ -140,6 +140,40 @@ cdef class problem:
             sparsity structure of the Hessian of the lagrangian (the row and column
             indices only). If None, the Hessian is assumed to be dense.
             
+        intermediate : function pointer
+            Optional. Callback function that is called once per iteration (during
+            the convergence check), and can be used to obtain information about the
+            optimization status while IPOPT solves the problem.
+            If this callback returns False, IPOPT will terminate with the
+            User_Requested_Stop status.
+            The information below corresponeds to the argument list passed to this
+            callback:
+                alg_mod:
+                    Algorithm phase: 0 is for regular, 1 is restoration.
+                iter_count:
+                    The current iteration count.
+                obj_value:
+                    The unscaled objective value at the current point
+                inf_pr:
+                    The scaled primal infeasibility at the current point. 
+                inf_du:
+                    The scaled dual infeasibility at the current point.
+                mu:
+                    The value of the barrier parameter.
+                d_norm:
+                    The infinity norm (max) of the primal step.
+                regularization_size:
+                    The value of the regularization term for the Hessian
+                    of the Lagrangian in the augmented system.
+                alpha_du:
+                    The stepsize for the dual variables. 
+                alpha_pr:
+                    The stepsize for the primal variables.
+                ls_trials:
+                    The number of backtracking line search steps.
+            more information can be found in the following link:
+            http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
+
     lb : array-like, shape = [n]
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.
@@ -188,6 +222,7 @@ cdef class problem:
     cdef public object _jacobianstructure
     cdef public object _hessian   
     cdef public object _hessianstructure
+    cdef public object _intermediate
     cdef public Index _n
     cdef public Index _m
     
@@ -255,14 +290,15 @@ cdef class problem:
         self._jacobianstructure = getattr(problem_obj, 'jacobianstructure', None)
         self._hessian = getattr(problem_obj, 'hessian', None)
         self._hessianstructure = getattr(problem_obj, 'hessianstructure', None)
-        
+        self._intermediate = getattr(problem_obj, 'intermediate', None)
+
         cdef Index nele_jac = self._m * self._n
         cdef Index nele_hess = int(self._n * (self._n - 1) / 2)
-        
+
         if self._jacobianstructure:
             ret_val = self._jacobianstructure()
             nele_jac = len(ret_val[0])
-        
+
         if self._hessianstructure:
             ret_val = self._hessianstructure()
             nele_hess = len(ret_val[0])
@@ -287,6 +323,9 @@ cdef class problem:
         
         if self._nlp == NULL:
             raise RuntimeError('Failed to create NLP problem. Possibly memory error.')
+
+        if self._intermediate:
+            SetIntermediateCallback(self._nlp, intermediate_cb)
         
     def __dealloc__(self):
         if self._nlp != NULL:
@@ -669,6 +708,9 @@ cdef Bool hessian_cb(
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
     else:
+        if not self._hessian:
+            return False
+        
         for i in range(n):
             _x[i] = x[i]
         
@@ -683,3 +725,42 @@ cdef Bool hessian_cb(
             values[i] = np_h[i]
         
     return True
+
+
+cdef Bool intermediate_cb(
+            Index alg_mod,
+            Index iter_count,
+            Number obj_value,
+            Number inf_pr,
+            Number inf_du,
+            Number mu,
+            Number d_norm,
+            Number regularization_size,
+            Number alpha_du,
+            Number alpha_pr,
+            Index ls_trials,
+            UserDataPtr user_data
+            ):
+
+    log('intermediate_cb', logging.INFO)
+
+    cdef object self = <object>user_data
+
+    ret_val = self._intermediate(
+        alg_mod,
+        iter_count,
+        obj_value,
+        inf_pr,
+        inf_du,
+        mu,
+        d_norm,
+        regularization_size,
+        alpha_du,
+        alpha_pr,
+        ls_trials
+        )
+
+    if ret_val == None:
+        return True
+    
+    return ret_val
