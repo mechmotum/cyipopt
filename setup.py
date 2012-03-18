@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug 20 12:54:15 2011
+cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
-@author: amitibo
+Copyright (C) 2012 Amit Aides
+Author: Amit Aides <amitibo@tx.technion.ac.il>
+URL: <http://http://code.google.com/p/cyipopt/>
+License: EPL 1.0
 """
 from distutils.core import setup
 from distutils.extension import Extension
@@ -14,6 +17,11 @@ import sys
 
 
 PACKAGE_NAME = 'ipopt'
+VERSION = '0.1.3'
+DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
+AUTHOR = 'Amit Aides'
+EMAIL = 'amitibo@tx.technion.ac.il'
+URL = "http://code.google.com/p/cyipopt/"
 
 if sys.version == 'win32':
     IPOPT_ICLUDE_DIRS=['include/coin']
@@ -28,23 +36,28 @@ else:
 
 IPOPT_ICLUDE_DIRS += [np.get_include()]
 
-setup(
-    name=PACKAGE_NAME,
-    version='0.1.2',
-    description='A Cython wrapper to the IPOPT optimization package',
-    author='Amit Aides',
-    author_email='amitibo@tx.technion.ac.il',
-    url="",
-    packages=[PACKAGE_NAME],
-    cmdclass = {'build_ext': build_ext},
-    ext_modules = [
-        Extension(
-            PACKAGE_NAME + '.' + 'cyipopt',
-            ['src/cyipopt.pyx'],
-            include_dirs=IPOPT_ICLUDE_DIRS,
-            libraries=IPOPT_LIBS,
-            library_dirs=IPOPT_LIB_DIRS
-        )
-    ],
-    data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], IPOPT_DLL)])] if IPOPT_DLL else None
-)
+def main():
+    setup(
+        name=PACKAGE_NAME,
+        version=VERSION,
+        description=DESCRIPTION,
+        author=AUTHOR,
+        author_email=EMAIL,
+        url=URL,
+        packages=[PACKAGE_NAME],
+        cmdclass = {'build_ext': build_ext},
+        ext_modules = [
+            Extension(
+                PACKAGE_NAME + '.' + 'cyipopt',
+                ['src/cyipopt.pyx'],
+                include_dirs=IPOPT_ICLUDE_DIRS,
+                libraries=IPOPT_LIBS,
+                library_dirs=IPOPT_LIB_DIRS
+            )
+        ],
+        data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], IPOPT_DLL)])] if IPOPT_DLL else None
+    )
+
+
+if __name__ == '__main__':
+    main()

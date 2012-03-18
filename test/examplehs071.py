@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug 20 12:55:23 2011
+cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
-@author: amitibo
+Copyright (C) 2012 Amit Aides
+Author: Amit Aides <amitibo@tx.technion.ac.il>
+URL: <http://http://code.google.com/p/cyipopt/>
+License: EPL 1.0
 """
 #
 # Test the "ipopt" Matlab interface on the Hock & Schittkowski test problem

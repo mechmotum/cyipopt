@@ -1,0 +1,5 @@
+.. highlight:: sh
+
+Installation
+============
+

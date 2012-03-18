@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 19 23:33:32 2011
+cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
-@author: amitibo
+Copyright (C) 2012 Amit Aides
+Author: Amit Aides <amitibo@tx.technion.ac.il>
+URL: <http://http://code.google.com/p/cyipopt/>
+License: EPL 1.0
 """
 cdef extern from "IpStdCInterface.h":
 

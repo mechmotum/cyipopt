@@ -3,7 +3,7 @@
 ipopt - A cython wrapper for the IPOPT optimization solver.
 ===========================================================
 
-IPOPT (Interior Point Optimizer, pronounced ``Eye-Pea-Opt'') is an open source
+IPOPT (Interior Point Optimizer, pronounced ''Eye-Pea-Opt'') is an open source
 software package for large-scale nonlinear optimization.
 
 The IPOPT package is available from COIN-OR (www.coin-or.org) under the EPL

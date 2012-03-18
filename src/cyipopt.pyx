@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Aug 20 12:55:23 2011
+cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
-@author: amitibo
+Copyright (C) 2012 Amit Aides
+Author: Amit Aides <amitibo@tx.technion.ac.il>
+URL: <http://http://code.google.com/p/cyipopt/>
+License: EPL 1.0
 """
 import numpy as np
 cimport numpy as np
@@ -76,7 +79,7 @@ cdef class problem:
     Where x are the optimization variables (possibly with upper an lower
     bounds), f(x) is the objective function and g(x) are the general nonlinear
     constraints. The constraints, g(x), have lower and upper bounds. Note that
-    equality constraints can be specified by setting g_i^L = g_i^U.
+    equality constraints can be specified by setting ``g_i^L = g_i^U``.
 
     Parameters
     ----------
@@ -89,26 +92,26 @@ cdef class problem:
     problem_obj: object
         An object with the following attributes (holding the problam's callbacks):
             
-        objective : function pointer
+        `objective` : function pointer
             Callback function for evaluating objective function.
             The callback functions accepts one parameter: x (value of the
             optimization variables at which the objective is to be evaluated).
             The function should return the objective function value at the point x.
             
-        constraints : function pointer
+        `constraints` : function pointer
             Callback function for evaluating constraint functions.
             The callback functions accepts one parameter: x (value of the
             optimization variables at which the constraints are to be evaluated).
             The function should return the constraints values at the point x.
             
-        gradient : function pointer
+        `gradient` : function pointer
             Callback function for evaluating gradient of objective function.
             The callback functions accepts one parameter: x (value of the
             optimization variables at which the gradient is to be evaluated).
             The function should return the gradient of the objective function at the
             point x.
             
-        jacobian : function pointer
+        `jacobian` : function pointer
             Callback function for evaluating Jacobian of constraint functions.
             The callback functions accepts one parameter: x (value of the
             optimization variables at which the jacobian is to be evaluated).
@@ -116,12 +119,12 @@ cdef class problem:
             using x. The values should be returned as a 1-dim numpy array (using
             the same order as you used when specifying the sparsity structure)
         
-        jacobianstructure : function pointer
+        `jacobianstructure` : function pointer
             Optional. Callback function that accepts no parameters and returns the
             sparsity structure of the Jacobian (the row and column indices only).
             If None, the Jacobian is assumed to be dense.
         
-        hessian : function pointer
+        `hessian` : function pointer
             Optional. Callback function for evaluating Hessian of the Lagrangian
             function.
             The callback functions accepts three parameters x (value of the
@@ -135,12 +138,12 @@ cdef class problem:
             sparsity structure).
             If None, the Hessian is calculated numerically.
         
-        hessianstructure : function pointer
+        `hessianstructure` : function pointer
             Optional. Callback function that accepts no parameters and returns the
             sparsity structure of the Hessian of the lagrangian (the row and column
             indices only). If None, the Hessian is assumed to be dense.
             
-        intermediate : function pointer
+        `intermediate` : function pointer
             Optional. Callback function that is called once per iteration (during
             the convergence check), and can be used to obtain information about the
             optimization status while IPOPT solves the problem.
@@ -189,30 +192,7 @@ cdef class problem:
     cu : array-like, shape = [m]
         Upper bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
-        
-    Methods
-    -------
-    addOption(keyword, val) : None
-        Add a keyword/value option pair to the problem. See the IPOPT
-        documentaion for details on available options.
-
-    solve(x) : array, dict
-        Solve the posed optimization problem starting at point x.
-        Returns the optimal solution and an info dictionary with the following
-        fields:
-            'x': optimal solution
-            'g': constraints at the optimal solution
-            'obj_val': objective value at optimal solution
-            'mult_g': final values of the constraint multipliers
-            'mult_x_L': bound multipliers at the solution
-            'mult_x_U': bound multipliers at the solution
-            'status':  gives the status of the algorithm
-            'status_msg':  gives the status of the algorithm as a message
-
-    close() : None
-        Deallcate memory resources used by the IPOPT package. Called implicitly
-        by the 'problem' class destructor.
-    """
+"""
 
     cdef IpoptProblem _nlp
     cdef public object _objective
@@ -386,6 +366,8 @@ cdef class problem:
     def setProblemScaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
         """
         Optional function for setting scaling parameters for the problem.
+        To use the scaling parameters set the option 'nlp_scaling_method' to
+        'user-scaling'.
 
         Parameters
         ----------
@@ -476,14 +458,14 @@ cdef class problem:
             Optimal solution.
         
         info: dictionary, with following keys
-            'x': optimal solution
-            'g': constraints at the optimal solution
-            'obj_val': objective value at optimal solution
-            'mult_g': final values of the constraint multipliers
-            'mult_x_L': bound multipliers at the solution
-            'mult_x_U': bound multipliers at the solution
-            'status':  gives the status of the algorithm
-            'status_msg':  gives the status of the algorithm as a message
+            `x`: optimal solution
+            `g`: constraints at the optimal solution
+            `obj_val`: objective value at optimal solution
+            `mult_g`: final values of the constraint multipliers
+            `mult_x_L`: bound multipliers at the solution
+            `mult_x_U`: bound multipliers at the solution
+            `status`: gives the status of the algorithm
+            `status_msg`: gives the status of the algorithm as a message
         """
                 
         if self._n != len(x):
