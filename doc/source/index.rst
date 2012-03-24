@@ -6,8 +6,13 @@
 Welcome to cyipopt's documentation!
 ===================================
 
-.. automodule:: ipopt
-   :members:
+:mod:`ipopt` Package
+--------------------
+
+.. automodule:: ipopt.__init__
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Contents:
 

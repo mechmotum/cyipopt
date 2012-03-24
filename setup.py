@@ -23,10 +23,10 @@ AUTHOR = 'Amit Aides'
 EMAIL = 'amitibo@tx.technion.ac.il'
 URL = "http://code.google.com/p/cyipopt/"
 
-if sys.version == 'win32':
+if sys.platform == 'win32':
     IPOPT_ICLUDE_DIRS=['include/coin']
     IPOPT_LIBS=['Ipopt']
-    IPOPT_LIB_DIRS=['lib/win32/Release MKL']
+    IPOPT_LIB_DIRS=['lib/x64/Release MKL', 'lib/win32/Release MKL']
     IPOPT_DLL='Ipopt39.dll'
 else:
     IPOPT_ICLUDE_DIRS=['/home/amitibo/code/Ipopt-3.10.1/include/coin']

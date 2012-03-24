@@ -9,3 +9,4 @@ uses.
 
 .. autoclass:: ipopt.problem
    :members:
+
