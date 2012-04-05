@@ -432,25 +432,7 @@ cdef class problem:
             ):
         """
         Solve the posed optimization problem starting at point x.
-        Returns the optimal solution and an info dictionary with
-        the following keys:
-
-            'x':
-                optimal solution
-            'g':
-                constraints at the optimal solution
-            'obj_val':
-                objective value at optimal solution
-            'mult_g':
-                final values of the constraint multipliers
-            'mult_x_L':
-                bound multipliers at the solution
-            'mult_x_U':
-                bound multipliers at the solution
-            'status':
-                gives the status of the algorithm
-            'status_msg':
-                gives the status of the algorithm as a message
+        Returns the optimal solution and an info dictionary.
 
         Parameters
         ----------

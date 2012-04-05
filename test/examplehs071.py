@@ -8,7 +8,7 @@ URL: <http://http://code.google.com/p/cyipopt/>
 License: EPL 1.0
 """
 #
-# Test the "ipopt" Matlab interface on the Hock & Schittkowski test problem
+# Test the "ipopt" Python interface on the Hock & Schittkowski test problem
 # #71. See: Willi Hock and Klaus Schittkowski. (1981) Test Examples for
 # Nonlinear Programming Codes. Lecture Notes in Economics and Mathematical
 # Systems Vol. 187, Springer-Verlag.
