@@ -214,8 +214,7 @@ cdef class problem:
             cu=None
             ):
 
-        if type(n) != types.IntType or n < 1:
-            raise TypeError('n must be a positive integer.')
+        assert(n in (types.IntType, types.LongType) and n > 0, 'n must be a positive integer.')
             
         self._n = n
         
@@ -234,8 +233,7 @@ cdef class problem:
         #
         # Handle the constraints
         #
-        if type(m) != types.IntType:
-            raise TypeError('m must be an integer.')
+        assert(m in (types.IntType, types.LongType) and m > 0, 'm must be a positive integer.')
             
         if m < 1:
             m = 0
