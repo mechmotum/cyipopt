@@ -24,10 +24,10 @@ EMAIL = 'amitibo@tx.technion.ac.il'
 URL = "http://code.google.com/p/cyipopt/"
 
 if sys.platform == 'win32':
-    IPOPT_ICLUDE_DIRS=['include/coin']
-    IPOPT_LIBS=['Ipopt']
-    IPOPT_LIB_DIRS=['lib/x64/Release MKL', 'lib/win32/Release MKL']
-    IPOPT_DLL='Ipopt39.dll'
+    IPOPT_ICLUDE_DIRS=['include_mt/coin']
+    IPOPT_LIBS=['Ipopt39', 'IpoptFSS']
+    IPOPT_LIB_DIRS=['lib_mt/x64/release']
+    IPOPT_DLL=['Ipopt39.dll', 'IpoptFSS39.dll']
 else:
     IPOPT_ICLUDE_DIRS=['/home/amitibo/code/Ipopt-3.10.1/include/coin']
     IPOPT_LIBS=['ipopt', 'coinhsl', 'coinlapack', 'coinblas', 'coinmumps', 'coinmetis']
@@ -55,7 +55,7 @@ def main():
                 library_dirs=IPOPT_LIB_DIRS
             )
         ],
-        data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], IPOPT_DLL)])] if IPOPT_DLL else None
+        data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], dll) for dll in IPOPT_DLL])] if IPOPT_DLL else None
     )
 
 

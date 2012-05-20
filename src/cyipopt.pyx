@@ -14,6 +14,8 @@ import logging
 import scipy.sparse as sps
 import types
 
+__all__ = ['setLoggingLevel', 'problem']
+
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
 DTYPEd = np.double
@@ -600,7 +602,7 @@ cdef Bool jacobian_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] np_jac_g
 
     if values == NULL:
-        log('Querying for iRow/jCol values', logging.INFO)
+        log('Querying for iRow/jCol indices of the jacobian', logging.INFO)
         
         if not self._jacobianstructure:
             #
@@ -662,6 +664,8 @@ cdef Bool hessian_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] np_h
     
     if values == NULL:
+        log('Querying for iRow/jCol indices of the hessian', logging.INFO)
+        
         if not self._hessianstructure:
             #
             # Assuming a lower triangle Hessian
