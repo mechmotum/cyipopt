@@ -30,8 +30,7 @@ class hs071(object):
         # The callback for calculating the objective
         #
         return x[0] * x[3] * np.sum(x[0:3]) + x[2]
-    
-    
+        
     def gradient(self, x):
         #
         # The callback for calculating the gradient
@@ -43,20 +42,17 @@ class hs071(object):
                     x[0] * np.sum(x[0:3])
                     ])
     
-    
     def constraints(self, x):
         #
         # The callback for calculating the constraints
         #
         return np.array((np.prod(x), np.dot(x, x)))
     
-    
     def jacobian(self, x):
         #
         # The callback for calculating the Jacobian
         #
         return np.concatenate((np.prod(x) / x, 2*x))
-    
     
     def hessianstructure(self):
         #
@@ -70,7 +66,6 @@ class hs071(object):
         
         hs = sps.coo_matrix(np.tril(np.ones((4, 4))))
         return (hs.col, hs.row)
-    
     
     def hessian(self, x, lagrange, obj_factor):
         #
