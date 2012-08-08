@@ -235,7 +235,7 @@ cdef class problem:
         #
         # Handle the constraints
         #
-        assert(m in (types.IntType, types.LongType) and m > 0, 'm must be a positive integer.')
+        assert(m in (types.IntType, types.LongType) and m >= 0, 'm must be zero or a positive integer.')
             
         if m < 1:
             m = 0
@@ -299,7 +299,7 @@ cdef class problem:
                             )
         
         if self._nlp == NULL:
-            raise RuntimeError('Failed to create NLP problem. Possibly memory error.')
+            raise RuntimeError('Failed to create NLP problem. Make sure inputs are ok!')
 
         if self._intermediate:
             SetIntermediateCallback(self._nlp, intermediate_cb)
