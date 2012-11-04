@@ -29,9 +29,9 @@ if sys.platform == 'win32':
     IPOPT_LIB_DIRS=['lib_mt/x64/release']
     IPOPT_DLL=['Ipopt39.dll', 'IpoptFSS39.dll']
 else:
-    IPOPT_ICLUDE_DIRS=['/home/amitibo/code/Ipopt-3.10.1/include/coin']
-    IPOPT_LIBS=['ipopt', 'coinhsl', 'coinlapack', 'coinblas', 'coinmumps', 'coinmetis']
-    IPOPT_LIB_DIRS=['/home/amitibo/code/Ipopt-3.10.1/lib']
+    IPOPT_ICLUDE_DIRS=['/u/amitibo/.local/include/coin', '/usr/include/atlas-x86_64-base']
+    IPOPT_LIBS=['ipopt', 'coinasl', 'atlas', 'cblas', 'clapack', 'coinmumps', 'coinmetis']
+    IPOPT_LIB_DIRS=['/u/amitibo/.local/lib', '/usr/lib64/atlas']
     IPOPT_DLL=None
 
 IPOPT_ICLUDE_DIRS += [np.get_include()]

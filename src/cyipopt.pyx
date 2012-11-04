@@ -205,7 +205,7 @@ cdef class problem:
     cdef public Index _n
     cdef public Index _m
     
-    def __cinit__(
+    def __init__(
             self,
             n,
             m,
