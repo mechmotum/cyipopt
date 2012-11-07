@@ -23,7 +23,7 @@ import scipy.sparse as sps
 import ipopt
 
 
-class lasso(object):
+class lasso(ipopt.problem):
     def __init__(self, A, y):
         
         self._A = A
@@ -35,28 +35,27 @@ class lasso(object):
         #
         cl = np.zeros(2*self._m)
       
-        self._nlp = ipopt.problem(
+        super(lasso, self).__init__(
                             2*self._m,
                             2*self._m,
-                            self,
                             cl=cl
                             )
         
         #
         # Set solver options
         #
-        self._nlp.addOption('derivative_test', 'second-order')
-        self._nlp.addOption('jac_d_constant', 'yes')
-        self._nlp.addOption('hessian_constant', 'yes')
-        self._nlp.addOption('mu_strategy', 'adaptive')
-        self._nlp.addOption('max_iter', 100)
-        self._nlp.addOption('tol', 1e-8)
+        self.addOption('derivative_test', 'second-order')
+        self.addOption('jac_d_constant', 'yes')
+        self.addOption('hessian_constant', 'yes')
+        self.addOption('mu_strategy', 'adaptive')
+        self.addOption('max_iter', 100)
+        self.addOption('tol', 1e-8)
      
     def solve(self, _lambda):
 
         x0 = np.concatenate((np.zeros(m), np.ones(m)))
         self._lambda = _lambda
-        x, info = self._nlp.solve(x0)
+        x, info = super(lasso, self).solve(x0)
         
         return x[:self._m]
         

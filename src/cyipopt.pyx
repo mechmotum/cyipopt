@@ -95,8 +95,10 @@ cdef class problem:
         Number of primal variables.
     m : integer
         Number of constraints    
-    problem_obj: object
-        An object with the following attributes (holding the problam's callbacks)
+    problem_obj: object, optional (default=None)
+        An object holding the problem's callbacks. If None, cyipopt will use self, this
+        is useful when subclassing problem. The object is required to have the following
+        attributes (some are optional):
             
             - 'objective' : function pointer
                 Callback function for evaluating objective function.
@@ -121,13 +123,12 @@ cdef class problem:
                 The function should return the values of the jacobian as calculated
                 using x. The values should be returned as a 1-dim numpy array (using
                 the same order as you used when specifying the sparsity structure)
-            - 'jacobianstructure' : function pointer
-                Optional. Callback function that accepts no parameters and returns the
+            - 'jacobianstructure' : function pointer, optional (default=None)
+                Callback function that accepts no parameters and returns the
                 sparsity structure of the Jacobian (the row and column indices only).
                 If None, the Jacobian is assumed to be dense.
-            - 'hessian' : function pointer
-                Optional. Callback function for evaluating Hessian of the Lagrangian
-                function.
+            - 'hessian' : function pointer, optional (default=None)
+                Callback function for evaluating Hessian of the Lagrangian function.
                 The callback functions accepts three parameters x (value of the
                 optimization variables at which the hessian is to be evaluated), lambda
                 (values for the constraint multipliers at which the hessian is to be
@@ -138,11 +139,11 @@ cdef class problem:
                 numpy array (using the same order as you used when specifying the
                 sparsity structure).
                 If None, the Hessian is calculated numerically.
-            - 'hessianstructure' : function pointer
-                Optional. Callback function that accepts no parameters and returns the
+            - 'hessianstructure' : function pointer, optional (default=None)
+                Callback function that accepts no parameters and returns the
                 sparsity structure of the Hessian of the lagrangian (the row and column
                 indices only). If None, the Hessian is assumed to be dense.
-            - 'intermediate' : function pointer
+            - 'intermediate' : function pointer, optional (default=None)
                 Optional. Callback function that is called once per iteration (during
                 the convergence check), and can be used to obtain information about the
                 optimization status while IPOPT solves the problem.
@@ -209,7 +210,7 @@ cdef class problem:
             self,
             n,
             m,
-            problem_obj,
+            problem_obj=None,
             lb=None,
             ub=None,
             cl=None,
@@ -217,10 +218,14 @@ cdef class problem:
             ):
 
         assert(n in (types.IntType, types.LongType) and n > 0, 'n must be a positive integer.')
+        
+        if problem_obj is None:
+            log('problem_obj is not defined, using self', logging.INFO)
+            problem_obj = self
             
         self._n = n
         
-        if lb == None:
+        if lb is None:
             lb = -INF*np.ones(n)
         
         if ub is None:
@@ -242,11 +247,11 @@ cdef class problem:
             cl = np.zeros(0)
             cu = np.zeros(0)
         else:
-            if cl == None and cu == None:
+            if cl is None and cu is None:
                 raise ValueError('Neither cl nor cu defined. At least one should be defined.')
-            elif cl == None:
+            elif cl is None:
                 cl = -INF*np.ones(m)
-            elif cu == None:
+            elif cu is None:
                 cu = INF*np.ones(m)
                                 
         if len(cl) != len(cu) or len(cl) != m:
@@ -272,13 +277,13 @@ cdef class problem:
         #
         # Verify that the objective and gradient callbacks are defined
         #
-        if self._objective == None or self._gradient == None:
+        if self._objective is None or self._gradient is None:
             raise ValueError('Both the "objective" and "gradient" callbacks must be defined.')
 
         #
         # Verify that the constraints and jacobian callbacks are defined
         #
-        if m > 0 and (self._constraints == None or self._jacobian == None):
+        if m > 0 and (self._constraints is None or self._jacobian is None):
             raise ValueError('Both the "constrains" and "jacobian" callbacks must be defined.')
 
         cdef Index nele_jac = self._m * self._n
@@ -409,7 +414,7 @@ cdef class problem:
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_scaling
         cdef np.ndarray[DTYPEd_t, ndim=1] np_g_scaling
         
-        if x_scaling == None:
+        if x_scaling is None:
             x_scaling_p = NULL
         else:
             if len(x_scaling) != self._n:
@@ -419,7 +424,7 @@ cdef class problem:
             x_scaling_p = <Number*>np_x_scaling.data
             
 
-        if g_scaling == None:
+        if g_scaling is None:
             g_scaling_p = NULL
         else:
             if len(g_scaling) != self._m:
@@ -771,7 +776,7 @@ cdef Bool intermediate_cb(
         ls_trials
         )
 
-    if ret_val == None:
+    if ret_val is None:
         return True
     
     return ret_val
