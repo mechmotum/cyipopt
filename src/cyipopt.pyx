@@ -248,7 +248,7 @@ cdef class problem:
                 cl = -INF*np.ones(m)
             elif cu == None:
                 cu = INF*np.ones(m)
-                
+                                
         if len(cl) != len(cu) or len(cl) != m:
             raise ValueError('cl an cu must either be None (but not both) or have length m.')
 
@@ -260,14 +260,26 @@ cdef class problem:
         #
         # Handle the callbacks
         #
-        self._objective = problem_obj.objective
-        self._constraints = problem_obj.constraints
-        self._gradient = problem_obj.gradient
-        self._jacobian = problem_obj.jacobian
+        self._objective = getattr(problem_obj, 'objective', None)
+        self._constraints = getattr(problem_obj, 'constraints', None)
+        self._gradient = getattr(problem_obj, 'gradient', None)
+        self._jacobian = getattr(problem_obj, 'jacobian', None)
         self._jacobianstructure = getattr(problem_obj, 'jacobianstructure', None)
         self._hessian = getattr(problem_obj, 'hessian', None)
         self._hessianstructure = getattr(problem_obj, 'hessianstructure', None)
         self._intermediate = getattr(problem_obj, 'intermediate', None)
+
+        #
+        # Verify that the objective and gradient callbacks are defined
+        #
+        if self._objective == None or self._gradient == None:
+            raise ValueError('Both the "objective" and "gradient" callbacks must be defined.')
+
+        #
+        # Verify that the constraints and jacobian callbacks are defined
+        #
+        if m > 0 and (self._constraints == None or self._jacobian == None):
+            raise ValueError('Both the "constrains" and "jacobian" callbacks must be defined.')
 
         cdef Index nele_jac = self._m * self._n
         cdef Index nele_hess = int(self._n * (self._n - 1) / 2)
@@ -501,6 +513,7 @@ cdef class problem:
             }
             
         return np_x, info
+
         
 #
 # Callback functions
@@ -525,6 +538,7 @@ cdef Bool objective_cb(
     
     return True
     
+
 cdef Bool gradient_cb(
             Index n,
             Number* x,
@@ -552,6 +566,7 @@ cdef Bool gradient_cb(
     
     return True
     
+
 cdef Bool constraints_cb(
             Index n,
             Number* x,
@@ -568,6 +583,10 @@ cdef Bool constraints_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
     
+    if not self._constraints:
+        log('constraints callback not defined', logging.DEBUG)
+        return True
+        
     for i in range(n):
         _x[i] = x[i]
         
@@ -579,6 +598,7 @@ cdef Bool constraints_cb(
         g[i] = np_g[i]
     
     return True
+
 
 cdef Bool jacobian_cb(
             Index n,
@@ -605,6 +625,8 @@ cdef Bool jacobian_cb(
         log('Querying for iRow/jCol indices of the jacobian', logging.INFO)
         
         if not self._jacobianstructure:
+            log('Jacobian callback not defined. assuming a dense jacobian', logging.INFO)
+
             #
             # Assuming a dense Jacobian
             #
@@ -626,6 +648,10 @@ cdef Bool jacobian_cb(
     else:
         log('Querying for jacobian', logging.INFO)
         
+        if not self._jacobian:
+            log('Jacobian callback not defined', logging.DEBUG)
+            return True
+        
         for i in range(n):
             _x[i] = x[i]
         
@@ -637,6 +663,7 @@ cdef Bool jacobian_cb(
             values[i] = np_jac_g[i]
         
     return True
+
 
 cdef Bool hessian_cb(
             Index n,
@@ -667,6 +694,8 @@ cdef Bool hessian_cb(
         log('Querying for iRow/jCol indices of the hessian', logging.INFO)
         
         if not self._hessianstructure:
+            log('Hessian callback not defined. assuming a lower triangle Hessian', logging.INFO)
+
             #
             # Assuming a lower triangle Hessian
             # Note:
@@ -690,6 +719,7 @@ cdef Bool hessian_cb(
             jCol[i] = np_jCol[i]
     else:
         if not self._hessian:
+            log('hessian callback not defined but called by the ipopt algorithm', logging.ERROR)
             return False
         
         for i in range(n):

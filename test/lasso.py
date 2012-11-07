@@ -51,7 +51,7 @@ class lasso(object):
         self._nlp.addOption('mu_strategy', 'adaptive')
         self._nlp.addOption('max_iter', 100)
         self._nlp.addOption('tol', 1e-8)
-    
+     
     def solve(self, _lambda):
 
         x0 = np.concatenate((np.zeros(m), np.ones(m)))
@@ -67,14 +67,12 @@ class lasso(object):
         
         return np.linalg.norm(self._y - np.dot(self._A, w))**2/2 + self._lambda * np.sum(u)
     
-    
     def constraints(self, x):
 
         w = x[:self._m].reshape((-1, 1))
         u = x[self._m:].reshape((-1, 1))
         
         return np.vstack((u + w,  u - w))
-    
     
     def gradient(self, x):
 
@@ -84,40 +82,40 @@ class lasso(object):
     
         return g
     
-      
     def jacobianstructure(self):
 
-        global js
+        #
+        # Create a sparse matrix to hold the jacobian structure
+        #
+        self.js = sps.coo_matrix(np.tile(np.eye(self._m), (2, 2)))
+ 
+        return (self.js.row, self.js.col)
         
-        js = sps.coo_matrix(np.tile(np.eye(self._m), (2, 2)))
-        return (js.row, js.col)
-        
-    
     def jacobian(self, x): 
 
         I = np.eye(self._m)
         
         J = np.vstack((np.hstack((I, I)), np.hstack((-I, I))))
-        return J[js.row, js.col]   
-    
+        return J[self.js.row, self.js.col]   
     
     def hessianstructure(self):
 
         h = np.zeros((2*self._m, 2*self._m))
         h[:self._m,:self._m] = np.tril(np.ones((self._m, self._m)))
         
-        global hs
-        hs = sps.coo_matrix(h)
+        #
+        # Create a sparse matrix to hold the hessian structure
+        #
+        self.hs = sps.coo_matrix(h)
         
-        return (hs.row, hs.col)
-    
+        return (self.hs.row, self.hs.col)
     
     def hessian(self, x, lagrange, obj_factor):
 
         H = np.zeros((2*self._m, 2*self._m))
         H[:self._m,:self._m] = np.tril(np.tril(np.dot(self._A.T, self._A)))
     
-        return obj_factor*H[hs.row, hs.col]   
+        return obj_factor*H[self.hs.row, self.hs.col]   
 
 
 if __name__ == '__main__':
