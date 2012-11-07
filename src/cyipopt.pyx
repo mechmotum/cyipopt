@@ -95,8 +95,10 @@ cdef class problem:
         Number of primal variables.
     m : integer
         Number of constraints    
-    problem_obj: object
-        An object with the following attributes (holding the problam's callbacks)
+    problem_obj: object, optional (default=None)
+        An object holding the problem's callbacks. If None, cyipopt will use self, this
+        is useful when subclassing problem. The object is required to have the following
+        attributes (some are optional):
             
             - 'objective' : function pointer
                 Callback function for evaluating objective function.
@@ -121,13 +123,12 @@ cdef class problem:
                 The function should return the values of the jacobian as calculated
                 using x. The values should be returned as a 1-dim numpy array (using
                 the same order as you used when specifying the sparsity structure)
-            - 'jacobianstructure' : function pointer
-                Optional. Callback function that accepts no parameters and returns the
+            - 'jacobianstructure' : function pointer, optional (default=None)
+                Callback function that accepts no parameters and returns the
                 sparsity structure of the Jacobian (the row and column indices only).
                 If None, the Jacobian is assumed to be dense.
-            - 'hessian' : function pointer
-                Optional. Callback function for evaluating Hessian of the Lagrangian
-                function.
+            - 'hessian' : function pointer, optional (default=None)
+                Callback function for evaluating Hessian of the Lagrangian function.
                 The callback functions accepts three parameters x (value of the
                 optimization variables at which the hessian is to be evaluated), lambda
                 (values for the constraint multipliers at which the hessian is to be
@@ -138,11 +139,11 @@ cdef class problem:
                 numpy array (using the same order as you used when specifying the
                 sparsity structure).
                 If None, the Hessian is calculated numerically.
-            - 'hessianstructure' : function pointer
-                Optional. Callback function that accepts no parameters and returns the
+            - 'hessianstructure' : function pointer, optional (default=None)
+                Callback function that accepts no parameters and returns the
                 sparsity structure of the Hessian of the lagrangian (the row and column
                 indices only). If None, the Hessian is assumed to be dense.
-            - 'intermediate' : function pointer
+            - 'intermediate' : function pointer, optional (default=None)
                 Optional. Callback function that is called once per iteration (during
                 the convergence check), and can be used to obtain information about the
                 optimization status while IPOPT solves the problem.
@@ -193,23 +194,23 @@ cdef class problem:
 
 """
 
-    cdef IpoptProblem _nlp
-    cdef public object _objective
-    cdef public object _constraints
-    cdef public object _gradient
-    cdef public object _jacobian
-    cdef public object _jacobianstructure
-    cdef public object _hessian   
-    cdef public object _hessianstructure
-    cdef public object _intermediate
-    cdef public Index _n
-    cdef public Index _m
+    cdef IpoptProblem __nlp
+    cdef public object __objective
+    cdef public object __constraints
+    cdef public object __gradient
+    cdef public object __jacobian
+    cdef public object __jacobianstructure
+    cdef public object __hessian   
+    cdef public object __hessianstructure
+    cdef public object __intermediate
+    cdef public Index __n
+    cdef public Index __m
     
     def __init__(
             self,
             n,
             m,
-            problem_obj,
+            problem_obj=None,
             lb=None,
             ub=None,
             cl=None,
@@ -217,10 +218,14 @@ cdef class problem:
             ):
 
         assert(n in (types.IntType, types.LongType) and n > 0, 'n must be a positive integer.')
-            
-        self._n = n
         
-        if lb == None:
+        if problem_obj is None:
+            log('problem_obj is not defined, using self', logging.INFO)
+            problem_obj = self
+            
+        self.__n = n
+        
+        if lb is None:
             lb = -INF*np.ones(n)
         
         if ub is None:
@@ -242,17 +247,17 @@ cdef class problem:
             cl = np.zeros(0)
             cu = np.zeros(0)
         else:
-            if cl == None and cu == None:
+            if cl is None and cu is None:
                 raise ValueError('Neither cl nor cu defined. At least one should be defined.')
-            elif cl == None:
+            elif cl is None:
                 cl = -INF*np.ones(m)
-            elif cu == None:
+            elif cu is None:
                 cu = INF*np.ones(m)
                                 
         if len(cl) != len(cu) or len(cl) != m:
             raise ValueError('cl an cu must either be None (but not both) or have length m.')
 
-        self._m = m
+        self.__m = m
         
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cl = np.array(cl, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cu = np.array(cu, dtype=DTYPEd).flatten()
@@ -260,40 +265,40 @@ cdef class problem:
         #
         # Handle the callbacks
         #
-        self._objective = getattr(problem_obj, 'objective', None)
-        self._constraints = getattr(problem_obj, 'constraints', None)
-        self._gradient = getattr(problem_obj, 'gradient', None)
-        self._jacobian = getattr(problem_obj, 'jacobian', None)
-        self._jacobianstructure = getattr(problem_obj, 'jacobianstructure', None)
-        self._hessian = getattr(problem_obj, 'hessian', None)
-        self._hessianstructure = getattr(problem_obj, 'hessianstructure', None)
-        self._intermediate = getattr(problem_obj, 'intermediate', None)
+        self.__objective = getattr(problem_obj, 'objective', None)
+        self.__constraints = getattr(problem_obj, 'constraints', None)
+        self.__gradient = getattr(problem_obj, 'gradient', None)
+        self.__jacobian = getattr(problem_obj, 'jacobian', None)
+        self.__jacobianstructure = getattr(problem_obj, 'jacobianstructure', None)
+        self.__hessian = getattr(problem_obj, 'hessian', None)
+        self.__hessianstructure = getattr(problem_obj, 'hessianstructure', None)
+        self.__intermediate = getattr(problem_obj, 'intermediate', None)
 
         #
         # Verify that the objective and gradient callbacks are defined
         #
-        if self._objective == None or self._gradient == None:
+        if self.__objective is None or self.__gradient is None:
             raise ValueError('Both the "objective" and "gradient" callbacks must be defined.')
 
         #
         # Verify that the constraints and jacobian callbacks are defined
         #
-        if m > 0 and (self._constraints == None or self._jacobian == None):
+        if m > 0 and (self.__constraints is None or self.__jacobian is None):
             raise ValueError('Both the "constrains" and "jacobian" callbacks must be defined.')
 
-        cdef Index nele_jac = self._m * self._n
-        cdef Index nele_hess = int(self._n * (self._n - 1) / 2)
+        cdef Index nele_jac = self.__m * self.__n
+        cdef Index nele_hess = int(self.__n * (self.__n - 1) / 2)
 
-        if self._jacobianstructure:
-            ret_val = self._jacobianstructure()
+        if self.__jacobianstructure:
+            ret_val = self.__jacobianstructure()
             nele_jac = len(ret_val[0])
 
-        if self._hessianstructure:
-            ret_val = self._hessianstructure()
+        if self.__hessianstructure:
+            ret_val = self.__hessianstructure()
             nele_hess = len(ret_val[0])
 
         # TODO: verify that the numpy arrays use C order
-        self._nlp = CreateIpoptProblem(
+        self.__nlp = CreateIpoptProblem(
                             n,
                             <Number*>np_lb.data,
                             <Number*>np_ub.data,
@@ -310,17 +315,21 @@ cdef class problem:
                             hessian_cb
                             )
         
-        if self._nlp == NULL:
+        if self.__nlp == NULL:
             raise RuntimeError('Failed to create NLP problem. Make sure inputs are ok!')
 
-        if self._intermediate:
-            SetIntermediateCallback(self._nlp, intermediate_cb)
-        
+        if self.__intermediate:
+            SetIntermediateCallback(self.__nlp, intermediate_cb)
+
+        if self.__hessian is None:
+            log('Hessian callback not given, using approximation', logging.INFO)
+            self.addOption('hessian_approximation', 'limited-memory')
+            
     def __dealloc__(self):
-        if self._nlp != NULL:
-            FreeIpoptProblem(self._nlp)
+        if self.__nlp != NULL:
+            FreeIpoptProblem(self.__nlp)
     
-        self._nlp = NULL
+        self.__nlp = NULL
         
     def close(self):
         """
@@ -336,10 +345,10 @@ cdef class problem:
             None
         """
 
-        if self._nlp != NULL:
-            FreeIpoptProblem(self._nlp)
+        if self.__nlp != NULL:
+            FreeIpoptProblem(self.__nlp)
     
-        self._nlp = NULL    
+        self.__nlp = NULL    
         
     def addOption(self, char* keyword, val):
         """
@@ -361,11 +370,11 @@ cdef class problem:
         """
         
         if type(val) == str:
-            ret_val = AddIpoptStrOption(self._nlp, keyword, val)
+            ret_val = AddIpoptStrOption(self.__nlp, keyword, val)
         elif type(val) == float:
-            ret_val = AddIpoptNumOption(self._nlp, keyword, val)
+            ret_val = AddIpoptNumOption(self.__nlp, keyword, val)
         elif type(val) == int:
-            ret_val = AddIpoptIntOption(self._nlp, keyword, val)
+            ret_val = AddIpoptIntOption(self.__nlp, keyword, val)
         else:
             raise TypeError("Invalid option type")
 
@@ -409,27 +418,27 @@ cdef class problem:
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_scaling
         cdef np.ndarray[DTYPEd_t, ndim=1] np_g_scaling
         
-        if x_scaling == None:
+        if x_scaling is None:
             x_scaling_p = NULL
         else:
-            if len(x_scaling) != self._n:
+            if len(x_scaling) != self.__n:
                 raise ValueError('x_scaling must either be None or have length n.')
             
             np_x_scaling = np.array(x_scaling, dtype=DTYPEd).flatten()
             x_scaling_p = <Number*>np_x_scaling.data
             
 
-        if g_scaling == None:
+        if g_scaling is None:
             g_scaling_p = NULL
         else:
-            if len(g_scaling) != self._m:
+            if len(g_scaling) != self.__m:
                 raise ValueError('g_scaling must either be None or have length n.')
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
             g_scaling_p = <Number*>np_g_scaling.data
         
         ret_val = SetIpoptProblemScaling(
-            self._nlp,
+            self.__nlp,
             obj_scaling,
             x_scaling_p,
             g_scaling_p
@@ -477,21 +486,21 @@ cdef class problem:
 
         """
                 
-        if self._n != len(x):
+        if self.__n != len(x):
             raise ValueError('Wrong length of x0')
             
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_x = np.array(x, dtype=DTYPEd).flatten()
 
         cdef ApplicationReturnStatus stat
-        cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self._m,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self._m,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self._n,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self._n,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self.__m,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self.__m,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self.__n,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self.__n,), dtype=DTYPEd)
         
         cdef Number obj_val = 0
         
         stat = IpoptSolve(
-                    self._nlp,
+                    self.__nlp,
                     <Number*>np_x.data,
                     <Number*>g.data,
                     &obj_val,
@@ -534,7 +543,7 @@ cdef Bool objective_cb(
     for i in range(n):
         _x[i] = x[i]
         
-    obj_value[0] = self._objective(_x)
+    obj_value[0] = self.__objective(_x)
     
     return True
     
@@ -557,7 +566,7 @@ cdef Bool gradient_cb(
     for i in range(n):
         _x[i] = x[i]
         
-    ret_val = self._gradient(_x)
+    ret_val = self.__gradient(_x)
     
     np_grad_f = np.array(ret_val, dtype=DTYPEd).flatten()
     
@@ -583,14 +592,14 @@ cdef Bool constraints_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
     
-    if not self._constraints:
+    if not self.__constraints:
         log('constraints callback not defined', logging.DEBUG)
         return True
         
     for i in range(n):
         _x[i] = x[i]
         
-    ret_val = self._constraints(_x)
+    ret_val = self.__constraints(_x)
     
     np_g = np.array(ret_val, dtype=DTYPEd).flatten()
     
@@ -624,20 +633,20 @@ cdef Bool jacobian_cb(
     if values == NULL:
         log('Querying for iRow/jCol indices of the jacobian', logging.INFO)
         
-        if not self._jacobianstructure:
+        if not self.__jacobianstructure:
             log('Jacobian callback not defined. assuming a dense jacobian', logging.INFO)
 
             #
             # Assuming a dense Jacobian
             #
-            s = np.unravel_index(np.arange(self._m*self._n), (self._m, self._n))
+            s = np.unravel_index(np.arange(self.__m*self.__n), (self.__m, self.__n))
             np_iRow = np.array(s[0], dtype=DTYPEi)
             np_jCol = np.array(s[1], dtype=DTYPEi)
         else:
             #
             # Sparse Jacobian
             #
-            ret_val = self._jacobianstructure()
+            ret_val = self.__jacobianstructure()
             
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
@@ -648,14 +657,14 @@ cdef Bool jacobian_cb(
     else:
         log('Querying for jacobian', logging.INFO)
         
-        if not self._jacobian:
+        if not self.__jacobian:
             log('Jacobian callback not defined', logging.DEBUG)
             return True
         
         for i in range(n):
             _x[i] = x[i]
         
-        ret_val = self._jacobian(_x)
+        ret_val = self.__jacobian(_x)
         
         np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
         
@@ -693,7 +702,7 @@ cdef Bool hessian_cb(
     if values == NULL:
         log('Querying for iRow/jCol indices of the hessian', logging.INFO)
         
-        if not self._hessianstructure:
+        if not self.__hessianstructure:
             log('Hessian callback not defined. assuming a lower triangle Hessian', logging.INFO)
 
             #
@@ -702,14 +711,14 @@ cdef Bool hessian_cb(
             # There is a need to reconvert the s.col and s.row to arrays
             # because they have the wrong stride
             #
-            s = sps.coo_matrix(np.tril(np.ones((self._n, self._n))))
+            s = sps.coo_matrix(np.tril(np.ones((self.__n, self.__n))))
             np_iRow = np.array(s.col, dtype=DTYPEi)
             np_jCol = np.array(s.row, dtype=DTYPEi)
         else:
             #
             # Sparse Hessian
             #
-            ret_val = self._hessianstructure()
+            ret_val = self.__hessianstructure()
             
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
@@ -718,7 +727,7 @@ cdef Bool hessian_cb(
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
     else:
-        if not self._hessian:
+        if not self.__hessian:
             log('hessian callback not defined but called by the ipopt algorithm', logging.ERROR)
             return False
         
@@ -728,7 +737,7 @@ cdef Bool hessian_cb(
         for i in range(m):
             _lambda[i] = lambd[i]
             
-        ret_val = self._hessian(_x, _lambda, obj_factor)
+        ret_val = self.__hessian(_x, _lambda, obj_factor)
         
         np_h = np.array(ret_val, dtype=DTYPEd).flatten()
 
@@ -757,7 +766,7 @@ cdef Bool intermediate_cb(
 
     cdef object self = <object>user_data
 
-    ret_val = self._intermediate(
+    ret_val = self.__intermediate(
         alg_mod,
         iter_count,
         obj_value,
@@ -771,7 +780,7 @@ cdef Bool intermediate_cb(
         ls_trials
         )
 
-    if ret_val == None:
+    if ret_val is None:
         return True
     
     return ret_val

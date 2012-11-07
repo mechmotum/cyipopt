@@ -7,8 +7,8 @@ Author: Amit Aides <amitibo@tx.technion.ac.il>
 URL: <http://http://code.google.com/p/cyipopt/>
 License: EPL 1.0
 """
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup
+from setuptools.extension import Extension
 from distutils.sysconfig import get_python_lib
 from Cython.Distutils import build_ext
 import numpy as np
