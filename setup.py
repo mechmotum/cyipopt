@@ -4,7 +4,7 @@ cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012 Amit Aides
 Author: Amit Aides <amitibo@tx.technion.ac.il>
-URL: <http://http://code.google.com/p/cyipopt/>
+URL: <https://bitbucket.org/amitibo/cyipopt>
 License: EPL 1.0
 """
 from setuptools import setup
@@ -21,7 +21,7 @@ VERSION = '0.1.3'
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Amit Aides'
 EMAIL = 'amitibo@tx.technion.ac.il'
-URL = "http://code.google.com/p/cyipopt/"
+URL = "https://bitbucket.org/amitibo/cyipopt"
 
 if sys.platform == 'win32':
     IPOPT_ICLUDE_DIRS=['include_mt/coin']
