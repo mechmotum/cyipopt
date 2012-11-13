@@ -65,6 +65,16 @@ STATUS_MESSAGES = {
 
 INF = 10**19
 
+CREATE_PROBLEM_MSG = """
+----------------------------------------------------
+Creating Ipopt problem with the following parameters
+n = %s
+m = %s
+jacobian elements num = %s
+hessian elements num = %s
+"""
+
+
 cdef class problem:
     """
     Wrapper class for solving optimization problems using the C interface of
@@ -287,7 +297,7 @@ cdef class problem:
             raise ValueError('Both the "constrains" and "jacobian" callbacks must be defined.')
 
         cdef Index nele_jac = self.__m * self.__n
-        cdef Index nele_hess = int(self.__n * (self.__n - 1) / 2)
+        cdef Index nele_hess = <Index>(<long>self.__n * (<long>self.__n - 1) / 2)
 
         if self.__jacobianstructure:
             ret_val = self.__jacobianstructure()
@@ -296,13 +306,40 @@ cdef class problem:
         if self.__hessianstructure:
             ret_val = self.__hessianstructure()
             nele_hess = len(ret_val[0])
+        else:
+            if self.__hessian is None:
+                log('Hessian callback not given, setting nele_hess to 0', logging.INFO)
+                nele_hess = 0
+            elif self.__n > 2**16:
+                raise ValueError('Number of varialbes is too large for using dense Hessian')
+
+        #
+        # Some input checking
+        #
+        if self.__m == 0 and nele_jac != 0:
+            raise ValueError('m == 0 and number of jacobian elements != 0')
+
+        if self.__m > 0 and nele_jac < 0:
+            raise ValueError('m > 0 and number of jacobian elements < 1')
+        
+        if nele_hess < 0:
+            raise ValueError('number of hessian elements < 0')
+            
+        creation_msg = CREATE_PROBLEM_MSG % (
+                            repr(self.__n),
+                            repr(self.__m),
+                            repr(nele_jac),
+                            repr(nele_hess)
+                            )
+
+        log(creation_msg, logging.DEBUG)
 
         # TODO: verify that the numpy arrays use C order
         self.__nlp = CreateIpoptProblem(
-                            n,
+                            self.__n,
                             <Number*>np_lb.data,
                             <Number*>np_ub.data,
-                            m,
+                            self.__m,
                             <Number*>np_cl.data,
                             <Number*>np_cu.data,
                             nele_jac,
