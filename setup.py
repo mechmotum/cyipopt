@@ -68,11 +68,6 @@ def pkgconfig(*packages, **kw):
 
 
 def main_unix():
-    IPOPT_ICLUDE_DIRS=['include_mt/coin']
-    IPOPT_LIBS=['Ipopt39', 'IpoptFSS']
-    IPOPT_LIB_DIRS=['lib_mt/x64/release']
-    IPOPT_DLL=['Ipopt39.dll', 'IpoptFSS39.dll']
-
     setup(
         name=PACKAGE_NAME,
         version=VERSION,
@@ -89,7 +84,6 @@ def main_unix():
                 **pkgconfig('ipopt')
             )
         ],
-        data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME), [os.path.join(IPOPT_LIB_DIRS[0], dll) for dll in IPOPT_DLL])] if IPOPT_DLL else None
     )
 
 
