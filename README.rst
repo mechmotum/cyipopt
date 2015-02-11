@@ -1,3 +1,5 @@
+This repository has been forked from <https://bitbucket.org/amitibo/cyipopt>
+
 ==================
 README for cyipopt
 ==================
