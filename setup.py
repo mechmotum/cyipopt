@@ -19,7 +19,7 @@ import sys
 
 
 PACKAGE_NAME = 'ipopt'
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Amit Aides'
 EMAIL = 'amitibo@tx.technion.ac.il'
@@ -70,8 +70,9 @@ def pkgconfig(*packages, **kw):
 
 
 def main_unix():
-    setup(name = 'ipopt',
-          packages = ['ipopt'],
+    setup(name = PACKAGE_NAME,
+          version=VERSION,
+          packages = [PACKAGE_NAME],
           cmdclass = {'build_ext': Cython.Distutils.build_ext},
           include_package_data=True,
           ext_modules = [Extension("cyipopt",
