@@ -13,6 +13,7 @@ from ipopt cimport *
 import logging
 import scipy.sparse as sps
 import types
+import sys
 
 __all__ = ['setLoggingLevel', 'problem']
 
@@ -28,13 +29,13 @@ cdef int verbosity = logging.DEBUG
 
 def setLoggingLevel(level=None):
     global verbosity
-    
+
     if not level:
         logger = logging.getLogger()
         verbosity = logger.getEffectiveLevel()
     else:
         verbosity = level
-        
+
 setLoggingLevel()
 
 cdef inline void log(char* msg, int level):
@@ -79,7 +80,7 @@ cdef class problem:
     """
     Wrapper class for solving optimization problems using the C interface of
     the IPOPT package.
-    
+
     It can be used to solve general nonlinear programming problems of the form:
 
     .. math::
@@ -93,7 +94,7 @@ cdef class problem:
            g_L \leq g(x) \leq g_U
 
            x_L \leq  x  \leq x_U
-    
+
     Where :math:`x` are the optimization variables (possibly with upper an lower
     bounds), :math:`f(x)` is the objective function and :math:`g(x)` are the general nonlinear
     constraints. The constraints, :math:`g(x)`, have lower and upper bounds. Note that
@@ -104,12 +105,12 @@ cdef class problem:
     n : integer
         Number of primal variables.
     m : integer
-        Number of constraints    
+        Number of constraints
     problem_obj: object, optional (default=None)
         An object holding the problem's callbacks. If None, cyipopt will use self, this
         is useful when subclassing problem. The object is required to have the following
         attributes (some are optional):
-            
+
             - 'objective' : function pointer
                 Callback function for evaluating objective function.
                 The callback functions accepts one parameter: x (value of the
@@ -169,7 +170,7 @@ cdef class problem:
                     'obj_value':
                         The unscaled objective value at the current point
                     'inf_pr':
-                        The scaled primal infeasibility at the current point. 
+                        The scaled primal infeasibility at the current point.
                     'inf_du':
                         The scaled dual infeasibility at the current point.
                     'mu':
@@ -180,7 +181,7 @@ cdef class problem:
                         The value of the regularization term for the Hessian
                         of the Lagrangian in the augmented system.
                     'alpha_du':
-                        The stepsize for the dual variables. 
+                        The stepsize for the dual variables.
                     'alpha_pr':
                         The stepsize for the primal variables.
                     'ls_trials':
@@ -191,7 +192,7 @@ cdef class problem:
 
     lb : array-like, shape = [n]
         Lower bounds on variables, where n is the dimension of x.
-        To assume no lower bounds pass values lower then 10^-19.    
+        To assume no lower bounds pass values lower then 10^-19.
     ub : array-like, shape = [n]
         Upper bounds on variables, where n is the dimension of x..
         To assume no upper bounds pass values higher then 10^-19.
@@ -210,12 +211,14 @@ cdef class problem:
     cdef public object __gradient
     cdef public object __jacobian
     cdef public object __jacobianstructure
-    cdef public object __hessian   
+    cdef public object __hessian
     cdef public object __hessianstructure
     cdef public object __intermediate
     cdef public Index __n
     cdef public Index __m
-    
+
+    cdef public object __exception
+
     def __init__(
             self,
             n,
@@ -228,30 +231,30 @@ cdef class problem:
             ):
 
         assert(n in (types.IntType, types.LongType) and n > 0, 'n must be a positive integer.')
-        
+
         if problem_obj is None:
             log('problem_obj is not defined, using self', logging.INFO)
             problem_obj = self
-            
+
         self.__n = n
-        
+
         if lb is None:
             lb = -INF*np.ones(n)
-        
+
         if ub is None:
             ub = INF*np.ones(n)
-            
+
         if len(lb) != len(ub) or len(lb) != n:
             raise ValueError('lb and ub must either be None or have length n.')
-            
+
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.array(lb, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.array(ub, dtype=DTYPEd).flatten()
-        
+
         #
         # Handle the constraints
         #
         assert(m in (types.IntType, types.LongType) and m >= 0, 'm must be zero or a positive integer.')
-            
+
         if m < 1:
             m = 0
             cl = np.zeros(0)
@@ -263,15 +266,15 @@ cdef class problem:
                 cl = -INF*np.ones(m)
             elif cu is None:
                 cu = INF*np.ones(m)
-                                
+
         if len(cl) != len(cu) or len(cl) != m:
             raise ValueError('cl an cu must either be None (but not both) or have length m.')
 
         self.__m = m
-        
+
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cl = np.array(cl, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cu = np.array(cu, dtype=DTYPEd).flatten()
-        
+
         #
         # Handle the callbacks
         #
@@ -321,10 +324,10 @@ cdef class problem:
 
         if self.__m > 0 and nele_jac < 0:
             raise ValueError('m > 0 and number of jacobian elements < 1')
-        
+
         if nele_hess < 0:
             raise ValueError('number of hessian elements < 0')
-            
+
         creation_msg = CREATE_PROBLEM_MSG % (
                             repr(self.__n),
                             repr(self.__m),
@@ -351,23 +354,25 @@ cdef class problem:
                             jacobian_cb,
                             hessian_cb
                             )
-        
+
         if self.__nlp == NULL:
             raise RuntimeError('Failed to create NLP problem. Make sure inputs are ok!')
 
-        if self.__intermediate:
-            SetIntermediateCallback(self.__nlp, intermediate_cb)
+        #if self.__intermediate:
+        SetIntermediateCallback(self.__nlp, intermediate_cb)
 
         if self.__hessian is None:
             log('Hessian callback not given, using approximation', logging.INFO)
             self.addOption('hessian_approximation', 'limited-memory')
-            
+
+        self.__exception = None
+
     def __dealloc__(self):
         if self.__nlp != NULL:
             FreeIpoptProblem(self.__nlp)
-    
+
         self.__nlp = NULL
-        
+
     def close(self):
         """
         Deallcate memory resources used by the IPOPT package. Called implicitly
@@ -384,9 +389,9 @@ cdef class problem:
 
         if self.__nlp != NULL:
             FreeIpoptProblem(self.__nlp)
-    
-        self.__nlp = NULL    
-        
+
+        self.__nlp = NULL
+
     def addOption(self, char* keyword, val):
         """
         Add a keyword/value option pair to the problem. See the IPOPT
@@ -405,7 +410,7 @@ cdef class problem:
         -------
             None
         """
-        
+
         if type(val) == str:
             ret_val = AddIpoptStrOption(self.__nlp, keyword, val)
         elif type(val) == float:
@@ -417,7 +422,7 @@ cdef class problem:
 
         if not ret_val:
             raise TypeError("Error while assigning an option")
-            
+
     def setProblemScaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
         """
         Optional function for setting scaling parameters for the problem.
@@ -432,7 +437,7 @@ cdef class problem:
             internally an optimization problem that has 10 times the value of
             the original objective. In particular, if this value is negative,
             then IPOPT will maximize the objective function instead of minimizing
-            it. 
+            it.
 
         x_scaling : array-like, shape = [n]
             The scaling factors for the variables. If None, no scaling is done.
@@ -444,7 +449,7 @@ cdef class problem:
         -------
             None
         """
-        
+
         try:
             obj_scaling = float(obj_scaling)
         except:
@@ -454,16 +459,16 @@ cdef class problem:
         cdef Number *g_scaling_p
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_scaling
         cdef np.ndarray[DTYPEd_t, ndim=1] np_g_scaling
-        
+
         if x_scaling is None:
             x_scaling_p = NULL
         else:
             if len(x_scaling) != self.__n:
                 raise ValueError('x_scaling must either be None or have length n.')
-            
+
             np_x_scaling = np.array(x_scaling, dtype=DTYPEd).flatten()
             x_scaling_p = <Number*>np_x_scaling.data
-            
+
 
         if g_scaling is None:
             g_scaling_p = NULL
@@ -473,7 +478,7 @@ cdef class problem:
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
             g_scaling_p = <Number*>np_g_scaling.data
-        
+
         ret_val = SetIpoptProblemScaling(
             self.__nlp,
             obj_scaling,
@@ -483,7 +488,7 @@ cdef class problem:
 
         if not ret_val:
             raise TypeError("Error while setting the scaling of the problem.")
-            
+
     def solve(
             self,
             x
@@ -501,7 +506,7 @@ cdef class problem:
         -------
         x : array, shape = [n]
             Optimal solution.
-        
+
         info: dictionary, with following keys
 
             'x':
@@ -522,10 +527,10 @@ cdef class problem:
                 gives the status of the algorithm as a message
 
         """
-                
+
         if self.__n != len(x):
             raise ValueError('Wrong length of x0')
-            
+
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_x = np.array(x, dtype=DTYPEd).flatten()
 
         cdef ApplicationReturnStatus stat
@@ -533,9 +538,9 @@ cdef class problem:
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self.__m,), dtype=DTYPEd)
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self.__n,), dtype=DTYPEd)
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self.__n,), dtype=DTYPEd)
-        
+
         cdef Number obj_val = 0
-        
+
         stat = IpoptSolve(
                     self.__nlp,
                     <Number*>np_x.data,
@@ -546,7 +551,11 @@ cdef class problem:
                     <Number*>mult_x_U.data,
                     <UserDataPtr>self
                     )
-        
+
+        if self.__exception:
+            raise self.__exception[0], self.__exception[1], self.__exception[2]
+
+
         info = {
             'x': np_x,
             'g': g,
@@ -557,10 +566,10 @@ cdef class problem:
             'status': stat,
             'status_msg': STATUS_MESSAGES[stat]
             }
-            
+
         return np_x, info
 
-        
+
 #
 # Callback functions
 #
@@ -573,17 +582,18 @@ cdef Bool objective_cb(
             ):
 
     log('objective_cb', logging.INFO)
-    
+
     cdef object self = <object>user_data
     cdef Index i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     for i in range(n):
         _x[i] = x[i]
-        
-    obj_value[0] = self.__objective(_x)
-    
+    try:
+        obj_value[0] = self.__objective(_x)
+    except:
+        self.__exception = sys.exc_info()
     return True
-    
+
 
 cdef Bool gradient_cb(
             Index n,
@@ -594,24 +604,28 @@ cdef Bool gradient_cb(
             ):
 
     log('gradient_cb', logging.INFO)
-    
+
     cdef object self = <object>user_data
     cdef Index i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_grad_f
-    
+
     for i in range(n):
         _x[i] = x[i]
-        
-    ret_val = self.__gradient(_x)
-    
+
+    try:
+        ret_val = self.__gradient(_x)
+    except:
+        self.__exception = sys.exc_info()
+        return True
+
     np_grad_f = np.array(ret_val, dtype=DTYPEd).flatten()
-    
+
     for i in range(n):
         grad_f[i] = np_grad_f[i]
-    
+
     return True
-    
+
 
 cdef Bool constraints_cb(
             Index n,
@@ -628,21 +642,25 @@ cdef Bool constraints_cb(
     cdef Index i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
-    
+
     if not self.__constraints:
         log('constraints callback not defined', logging.DEBUG)
         return True
-        
+
     for i in range(n):
         _x[i] = x[i]
-        
-    ret_val = self.__constraints(_x)
-    
+
+    try:
+        ret_val = self.__constraints(_x)
+    except:
+        self.__exception = sys.exc_info()
+        return True
+
     np_g = np.array(ret_val, dtype=DTYPEd).flatten()
-    
+
     for i in range(m):
         g[i] = np_g[i]
-    
+
     return True
 
 
@@ -669,7 +687,7 @@ cdef Bool jacobian_cb(
 
     if values == NULL:
         log('Querying for iRow/jCol indices of the jacobian', logging.INFO)
-        
+
         if not self.__jacobianstructure:
             log('Jacobian callback not defined. assuming a dense jacobian', logging.INFO)
 
@@ -683,31 +701,39 @@ cdef Bool jacobian_cb(
             #
             # Sparse Jacobian
             #
-            ret_val = self.__jacobianstructure()
-            
+            try:
+                ret_val = self.__jacobianstructure()
+            except:
+                self.__exception = sys.exc_info()
+                return True
+
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
-        
+
         for i in range(nele_jac):
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
     else:
         log('Querying for jacobian', logging.INFO)
-        
+
         if not self.__jacobian:
             log('Jacobian callback not defined', logging.DEBUG)
             return True
-        
+
         for i in range(n):
             _x[i] = x[i]
-        
-        ret_val = self.__jacobian(_x)
-        
+
+        try:
+            ret_val = self.__jacobian(_x)
+        except:
+            self.__exception = sys.exc_info()
+            return True
+
         np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
-        
+
         for i in range(nele_jac):
             values[i] = np_jac_g[i]
-        
+
     return True
 
 
@@ -731,14 +757,14 @@ cdef Bool hessian_cb(
     cdef object self = <object>user_data
     cdef Index i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
-    cdef np.ndarray[DTYPEd_t, ndim=1] _lambda = np.zeros((m,), dtype=DTYPEd)    
+    cdef np.ndarray[DTYPEd_t, ndim=1] _lambda = np.zeros((m,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEi_t, ndim=1] np_iRow
     cdef np.ndarray[DTYPEi_t, ndim=1] np_jCol
     cdef np.ndarray[DTYPEd_t, ndim=1] np_h
-    
+
     if values == NULL:
         log('Querying for iRow/jCol indices of the hessian', logging.INFO)
-        
+
         if not self.__hessianstructure:
             log('Hessian callback not defined. assuming a lower triangle Hessian', logging.INFO)
 
@@ -755,11 +781,15 @@ cdef Bool hessian_cb(
             #
             # Sparse Hessian
             #
-            ret_val = self.__hessianstructure()
-            
+            try:
+                ret_val = self.__hessianstructure()
+            except:
+                self.__exception = sys.exc_info()
+                return True
+
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
-        
+
         for i in range(nele_hess):
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
@@ -767,20 +797,24 @@ cdef Bool hessian_cb(
         if not self.__hessian:
             log('hessian callback not defined but called by the ipopt algorithm', logging.ERROR)
             return False
-        
+
         for i in range(n):
             _x[i] = x[i]
-        
+
         for i in range(m):
             _lambda[i] = lambd[i]
-            
-        ret_val = self.__hessian(_x, _lambda, obj_factor)
-        
+
+        try:
+            ret_val = self.__hessian(_x, _lambda, obj_factor)
+        except:
+            self.__exception = sys.exc_info()
+            return True
+
         np_h = np.array(ret_val, dtype=DTYPEd).flatten()
 
         for i in range(nele_hess):
             values[i] = np_h[i]
-        
+
     return True
 
 
@@ -803,6 +837,12 @@ cdef Bool intermediate_cb(
 
     cdef object self = <object>user_data
 
+    if self.__exception:
+        return False
+
+    if not self.__intermediate:
+        return True
+
     ret_val = self.__intermediate(
         alg_mod,
         iter_count,
@@ -819,5 +859,5 @@ cdef Bool intermediate_cb(
 
     if ret_val is None:
         return True
-    
+
     return ret_val
