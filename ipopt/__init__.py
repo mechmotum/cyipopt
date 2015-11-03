@@ -36,4 +36,5 @@ open-source license.
 # License: EPL.
 
 from cyipopt import *
+from ipopt_wrapper import minimize_ipopt
 
