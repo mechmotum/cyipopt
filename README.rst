@@ -23,12 +23,12 @@ For simple cases where you do not need the full power of sparse and structured j
 `cyipopt` provides the function `minimize_ipopt` which has the same behaviour as
 `scipy.optimize.minimize`
 
-```python
-from scipy.optimize import rosen, rosen_der
-from ipopt import minimize_ipopt
-res = minimize_ipopt(rosen, x0, tol=1e-7)
-print(res)
-```
+::
+
+    from scipy.optimize import rosen, rosen_der
+    from ipopt import minimize_ipopt
+    res = minimize_ipopt(rosen, x0, tol=1e-7)
+    print(res)
 
 
 
