@@ -2,8 +2,9 @@
 """
 cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
 
-Copyright (C) 2012 Amit Aides
-Author: Amit Aides <amitibo@tx.technion.ac.il>
+Copyright (C) 2012 Amit Aides, 2015 Matthias Kümmerer
+Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
+(originally Author: Amit Aides <amitibo@tx.technion.ac.il>)
 URL: <https://bitbucket.org/amitibo/cyipopt>
 License: EPL 1.0
 """
@@ -19,11 +20,11 @@ import sys
 
 
 PACKAGE_NAME = 'ipopt'
-VERSION = '0.1.5'
+VERSION = '0.1.6'
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
-AUTHOR = 'Amit Aides'
-EMAIL = 'amitibo@tx.technion.ac.il'
-URL = "https://bitbucket.org/amitibo/cyipopt"
+AUTHOR = 'Matthias Kümmerer'
+EMAIL = 'matthias.kuemmerer@bethgelab.org'
+URL = "https://github.com/matthiask/cyipopt"
 
 
 

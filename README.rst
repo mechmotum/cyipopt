@@ -1,4 +1,6 @@
-This repository has been forked from <https://bitbucket.org/amitibo/cyipopt>
+This repository has been forked from <https://bitbucket.org/amitibo/cyipopt>.
+The code is now able to handle exceptions in the callback functions. Also,
+a docker container for easy usage is provided.
 
 ==================
 README for cyipopt
@@ -24,21 +26,31 @@ To install cyipopt you will need the following prerequisites:
   * cython
   * C/C++ compiler
 
-`Python(x,y) <http://code.google.com/p/pythonxy/>`_ is a great way to get all of
-these if you are satisfied with 32bit Windows platform. Enthought's
-`EPD <http://www.enthought.com/products/epd.php>`_ offers 32bit/64bit binaries
-for Windows/Linux and OSX platforms.
+The [Anaconda Python Distribution](https://www.continuum.io/why-anaconda) is
+one of the easiest ways to install python for Linux, Mac and Windows.
 
 You will also need the binaries and header files of the Ipopt package. I
 recommend downloading the `binaries <http://www.coin-or.org/download/binary/Ipopt/>`_
 especially as they include a version compiled against the MKL library.
 
 Download the source files of cyipopt and update ``setup.py`` to point to the header
-files and binaries of the Ipopt package.
+files and binaries of the Ipopt package, if `LD_LIBRARY_PATH` and `pkg_config` are
+not setup to find ipopt on their own.
 
 Then, execute::
 
    python setup.py install
+
+Docker container
+================
+
+The subdirectory `docker` contains a docker container with preinstalled ipopt and cyipopt.
+To build the container, cd into the `docker` directory and run `make`. Then you can
+start the container by
+
+    docker run -it matthiask/ipopt /bin/bash
+
+and either call `ipopt` directly or start a ipython shell and `import ipopt`.
 
 
 Reading the docs
@@ -70,11 +82,3 @@ Contributing
 
 For bug reports use the Bitbucket issue tracker.
 You can also send wishes, comments, patches, etc. to amitibo@tx.technion.ac.il
-
-
-Acknowledgement
-===============
-
-Thank-you to the people at <http://wingware.com/> for their policy of **free licenses for non-commercial open source developers**.
-
-.. image:: http://wingware.com/images/wingware-logo-180x58.png
