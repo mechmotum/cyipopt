@@ -15,6 +15,23 @@ comfort of the great Python scripting language.
 Ipopt is available from the `COIN-OR <https://projects.coin-or.org/Ipopt>`_
 initiative, under the Eclipse Public License (EPL). 
 
+
+Usage
+=====
+
+For simple cases where you do not need the full power of sparse and structured jacobians etc,
+`cyipopt` provides the function `minimize_ipopt` which has the same behaviour as
+`scipy.optimize.minimize`
+
+```python
+from scipy.optimize import rosen, rosen_der
+from ipopt import minimize_ipopt
+res = minimize_ipopt(rosen, x0, tol=1e-7)
+print(res)
+```
+
+
+
 Installing
 ==========
 
@@ -46,9 +63,9 @@ Docker container
 
 The subdirectory `docker` contains a docker container with preinstalled ipopt and cyipopt.
 To build the container, cd into the `docker` directory and run `make`. Then you can
-start the container by
+start the container by::
 
-    docker run -it matthiask/ipopt /bin/bash
+   docker run -it matthiask/ipopt /bin/bas
 
 and either call `ipopt` directly or start a ipython shell and `import ipopt`.
 
