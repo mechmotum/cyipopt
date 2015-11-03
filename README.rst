@@ -97,5 +97,5 @@ cyipopt is open-source code released under the
 Contributing
 ============
 
-For bug reports use the Bitbucket issue tracker.
-You can also send wishes, comments, patches, etc. to amitibo@tx.technion.ac.il
+For bug reports use the github issue tracker.
+You can also send wishes, comments, patches, etc. to matthias.kuemmerer@bethgelab.org
