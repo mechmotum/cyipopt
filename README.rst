@@ -66,7 +66,7 @@ The subdirectory `docker` contains a docker container with preinstalled ipopt an
 To build the container, cd into the `docker` directory and run `make`. Then you can
 start the container by::
 
-   docker run -it matthiask/ipopt /bin/bas
+   docker run -it matthiask/ipopt /bin/bash
 
 and either call `ipopt` directly or start a ipython shell and `import ipopt`.
 
