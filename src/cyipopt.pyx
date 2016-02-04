@@ -12,8 +12,8 @@ cimport numpy as np
 from ipopt cimport *
 import logging
 import scipy.sparse as sps
-import types
 import sys
+import six
 
 __all__ = ['setLoggingLevel', 'problem']
 
@@ -43,25 +43,25 @@ cdef inline void log(char* msg, int level):
          logging.log(level, msg)
 
 STATUS_MESSAGES = {
-    Solve_Succeeded: 'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).',
-    Solved_To_Acceptable_Level: 'Algorithm stopped at a point that was converged, not to "desired" tolerances, but to "acceptable" tolerances (see the acceptable-... options).',
-    Infeasible_Problem_Detected: 'Algorithm converged to a point of local infeasibility. Problem may be infeasible.',
-    Search_Direction_Becomes_Too_Small: 'Algorithm proceeds with very little progress.',
-    Diverging_Iterates: 'It seems that the iterates diverge.',
-    User_Requested_Stop: 'The user call-back function intermediate_callback (see Section 3.3.4 in the documentation) returned false, i.e., the user code requested a premature termination of the optimization.',
-    Feasible_Point_Found: 'Feasible point for square problem found.',
-    Maximum_Iterations_Exceeded: 'Maximum number of iterations exceeded (can be specified by an option).',
-    Restoration_Failed: 'Restoration phase failed, algorithm doesn\'t know how to proceed.',
-    Error_In_Step_Computation: 'An unrecoverable error occurred while Ipopt tried to compute the search direction.',
-    Maximum_CpuTime_Exceeded: 'Maximum CPU time exceeded.',
-    Not_Enough_Degrees_Of_Freedom: 'Problem has too few degrees of freedom.',
-    Invalid_Problem_Definition: 'Invalid problem definition.',
-    Invalid_Option: 'Invalid option encountered.',
-    Invalid_Number_Detected: 'Algorithm received an invalid number (such as NaN or Inf) from the NLP; see also option check_derivatives_for_naninf',
-    Unrecoverable_Exception: 'Some uncaught Ipopt exception encountered.',
-    NonIpopt_Exception_Thrown: 'Unknown Exception caught in Ipopt',
-    Insufficient_Memory: 'Not enough memory.',
-    Internal_Error: 'An unknown internal error occurred. Please contact the Ipopt authors through the mailing list.'
+    Solve_Succeeded: b'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).',
+    Solved_To_Acceptable_Level: b'Algorithm stopped at a point that was converged, not to "desired" tolerances, but to "acceptable" tolerances (see the acceptable-... options).',
+    Infeasible_Problem_Detected: b'Algorithm converged to a point of local infeasibility. Problem may be infeasible.',
+    Search_Direction_Becomes_Too_Small: b'Algorithm proceeds with very little progress.',
+    Diverging_Iterates: b'It seems that the iterates diverge.',
+    User_Requested_Stop: b'The user call-back function intermediate_callback (see Section 3.3.4 in the documentation) returned false, i.e., the user code requested a premature termination of the optimization.',
+    Feasible_Point_Found: b'Feasible point for square problem found.',
+    Maximum_Iterations_Exceeded: b'Maximum number of iterations exceeded (can be specified by an option).',
+    Restoration_Failed: b'Restoration phase failed, algorithm doesn\'t know how to proceed.',
+    Error_In_Step_Computation: b'An unrecoverable error occurred while Ipopt tried to compute the search direction.',
+    Maximum_CpuTime_Exceeded: b'Maximum CPU time exceeded.',
+    Not_Enough_Degrees_Of_Freedom: b'Problem has too few degrees of freedom.',
+    Invalid_Problem_Definition: b'Invalid problem definition.',
+    Invalid_Option: b'Invalid option encountered.',
+    Invalid_Number_Detected: b'Algorithm received an invalid number (such as NaN or Inf) from the NLP; see also option check_derivatives_for_naninf',
+    Unrecoverable_Exception: b'Some uncaught Ipopt exception encountered.',
+    NonIpopt_Exception_Thrown: b'Unknown Exception caught in Ipopt',
+    Insufficient_Memory: b'Not enough memory.',
+    Internal_Error: b'An unknown internal error occurred. Please contact the Ipopt authors through the mailing list.'
 }
 
 INF = 10**19
@@ -230,10 +230,11 @@ cdef class problem:
             cu=None
             ):
 
-        assert(n in (types.IntType, types.LongType) and n > 0, 'n must be a positive integer.')
+        if not isinstance(n, six.integer_types) or not n > 0:
+            raise TypeError('n must be a positive integer')
 
         if problem_obj is None:
-            log('problem_obj is not defined, using self', logging.INFO)
+            log(b'problem_obj is not defined, using self', logging.INFO)
             problem_obj = self
 
         self.__n = n
@@ -253,7 +254,8 @@ cdef class problem:
         #
         # Handle the constraints
         #
-        assert(m in (types.IntType, types.LongType) and m >= 0, 'm must be zero or a positive integer.')
+        if not isinstance(m, six.integer_types) or not m >= 0:
+            raise TypeError('m must be zero or a positive integer')
 
         if m < 1:
             m = 0
@@ -311,7 +313,7 @@ cdef class problem:
             nele_hess = len(ret_val[0])
         else:
             if self.__hessian is None:
-                log('Hessian callback not given, setting nele_hess to 0', logging.INFO)
+                log(b'Hessian callback not given, setting nele_hess to 0', logging.INFO)
                 nele_hess = 0
             elif self.__n > 2**16:
                 raise ValueError('Number of varialbes is too large for using dense Hessian')
@@ -334,6 +336,8 @@ cdef class problem:
                             repr(nele_jac),
                             repr(nele_hess)
                             )
+        if six.PY3:
+            creation_msg = creation_msg.encode('utf8')
 
         log(creation_msg, logging.DEBUG)
 
@@ -363,7 +367,7 @@ cdef class problem:
 
         if self.__hessian is None:
             log('Hessian callback not given, using approximation', logging.INFO)
-            self.addOption('hessian_approximation', 'limited-memory')
+            self.addOption(b'hessian_approximation', b'limited-memory')
 
         self.__exception = None
 
@@ -411,7 +415,7 @@ cdef class problem:
             None
         """
 
-        if type(val) == str:
+        if isinstance(val, six.binary_type):
             ret_val = AddIpoptStrOption(self.__nlp, keyword, val)
         elif type(val) == float:
             ret_val = AddIpoptNumOption(self.__nlp, keyword, val)

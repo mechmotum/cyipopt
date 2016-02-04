@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import numpy as np
 try:
@@ -170,15 +170,15 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
     # Rename some default scipy options
     replace_option(options, 'disp', 'print_level')
     replace_option(options, 'maxiter', 'max_iter')
-    if 'print_level' not in options:
-        options['print_level'] = 0
-    if 'tol' not in options:
-        options['tol'] = tol or 1e-8
-    if 'mu_strategy' not in options:
-        options['mu_strategy'] = 'adaptive'
-    if 'hessian_approximation' not in options:
+    if b'print_level' not in options:
+        options[b'print_level'] = 0
+    if b'tol' not in options:
+        options[b'tol'] = tol or 1e-8
+    if b'mu_strategy' not in options:
+        options[b'mu_strategy'] = b'adaptive'
+    if b'hessian_approximation' not in options:
         if hess is None and hessp is None:
-            options['hessian_approximation'] = 'limited-memory'
+            options[b'hessian_approximation'] = b'limited-memory'
     for option, value in options.items():
         try:
             nlp.addOption(option, value)

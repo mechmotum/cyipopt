@@ -17,6 +17,7 @@ import Cython.Compiler.Options
 import numpy as np
 import os.path
 import sys
+import six
 
 
 PACKAGE_NAME = 'ipopt'
@@ -62,7 +63,10 @@ def pkgconfig(*packages, **kw):
     import subprocess as sp
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-    for token in sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages), stdout=sp.PIPE).communicate()[0].decode('utf8').split():
+    output = sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages), stdout=sp.PIPE).communicate()[0]
+    if six.PY3:
+        output = output.decode('utf8')
+    for token in output.split():
         if token[:2] in flag_map:
             kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
         else:
