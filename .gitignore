@@ -61,3 +61,6 @@ target/
 
 # Vagrant
 .vagrant
+
+# CoinHSL - proprietary files so no add in the repo
+coinhsl*
