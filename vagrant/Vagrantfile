@@ -11,6 +11,29 @@ cd /home/vagrant
 wget -c http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.zip
 unzip Ipopt-3.12.4.zip && cd Ipopt-3.12.4/
 export IPOPTDIR=/home/vagrant/Ipopt-3.12.4/
+
+echo "Checking for coinhsl file in /vagrant directory..."
+cd /vagrant
+FILE=$(ls coinhsl*)
+echo "File: $FILE"
+if [ -f "$FILE" ]; then
+    if [[ $FILE == *coinhsl* ]]; then
+      echo "coinhsl file found... adding to compilation"
+      if [[ $FILE == *gz* ]]; then
+        tar xzf $FILE
+      elif [[ $FILE == *zip* ]]; then
+        unzip $FILE
+      fi
+      DIRHSL=$(find /vagrant -type d -name 'coinhsl*')
+      mv $DIRHSL $IPOPTDIR/ThirdParty/HSL/coinhsl
+      rm -fr $IPOPTDIR/ThirdParty/HSL/coinhsl/hsl_mc68
+      rm -fr $IPOPTDIR/ThirdParty/HSL/coinhsl/hsl_ma97
+      #sudo cp -vr $DIRHSL/lib/* /usr/local/lib
+      #sudo cp -vr $DIRHSL/include/* /usr/local/include
+      sudo rm -fr $DIRHSL
+    fi
+fi
+
 cd $IPOPTDIR/ThirdParty/Blas
 ./get.Blas
 cd ../Lapack && ./get.Lapack
