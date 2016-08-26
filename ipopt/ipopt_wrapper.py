@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
-
+import sys
+from builtins import bytes
 import numpy as np
 try:
     from scipy.optimize import OptimizeResult
@@ -137,6 +138,15 @@ def replace_option(options, oldname, newname):
         if newname not in options:
             options[newname] = options.pop(oldname)
 
+def convert_to_bytes(options):
+    if sys.version_info >= (3, 0):
+        for key in list(options.keys()):
+            try:
+                if bytes(key, 'utf-8') != key:
+                    options[bytes(key, 'utf-8')] = options[key]
+                    options.pop(key)
+            except TypeError:
+                pass
 
 def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=None, hessp=None,
                    bounds=None, constraints=(), tol=None, callback=None, options=None):
@@ -167,9 +177,16 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
                           cl=cl,
                           cu=cu)
 
+    print(options)
+
+    # python3 compatibility
+    convert_to_bytes(options)
+
+    print(options)
     # Rename some default scipy options
-    replace_option(options, 'disp', 'print_level')
-    replace_option(options, 'maxiter', 'max_iter')
+    replace_option(options, b'disp', b'print_level')
+    replace_option(options, b'maxiter', b'max_iter')
+    print(options)
     if b'print_level' not in options:
         options[b'print_level'] = 0
     if b'tol' not in options:
