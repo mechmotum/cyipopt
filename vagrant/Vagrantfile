@@ -1,0 +1,92 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$script = <<SCRIPT
+echo "Starting provision to have an ipopt node system with python interface..."
+sudo apt-get update
+sudo apt-get -y dist-upgrade
+sudo apt-get -y install g++ gfortran unzip git wget liblapack-dev cython pkg-config
+
+cd /home/vagrant
+wget -c http://www.coin-or.org/download/source/Ipopt/Ipopt-3.12.4.zip
+unzip Ipopt-3.12.4.zip && cd Ipopt-3.12.4/
+export IPOPTDIR=/home/vagrant/Ipopt-3.12.4/
+
+echo "Checking for coinhsl file in /vagrant directory..."
+cd /vagrant
+FILE=$(ls coinhsl*)
+echo "File: $FILE"
+if [ -f "$FILE" ]; then
+    if [[ $FILE == *coinhsl* ]]; then
+      echo "coinhsl file found... adding to compilation"
+      if [[ $FILE == *gz* ]]; then
+        tar xzf $FILE
+      elif [[ $FILE == *zip* ]]; then
+        unzip $FILE
+      fi
+      DIRHSL=$(find /vagrant -type d -name 'coinhsl*')
+      mv $DIRHSL $IPOPTDIR/ThirdParty/HSL/coinhsl
+      rm -fr $IPOPTDIR/ThirdParty/HSL/coinhsl/hsl_mc68
+      rm -fr $IPOPTDIR/ThirdParty/HSL/coinhsl/hsl_ma97
+      #sudo cp -vr $DIRHSL/lib/* /usr/local/lib
+      #sudo cp -vr $DIRHSL/include/* /usr/local/include
+      sudo rm -fr $DIRHSL
+    fi
+fi
+
+cd $IPOPTDIR/ThirdParty/Blas
+./get.Blas
+cd ../Lapack && ./get.Lapack
+cd ../ASL && ./get.ASL
+cd ../Mumps && ./get.Mumps
+mkdir $IPOPTDIR/build
+cd $IPOPTDIR/build
+sudo chown -R vagrant:vagrant /home/vagrant
+$IPOPTDIR/configure --prefix=/opt/ipopt/
+make
+make test
+sudo make install
+sudo echo "/opt/ipopt/lib" > /etc/ld.so.conf.d/ipopt.conf
+sudo ldconfig
+sudo echo 'export IPOPTPATH="/opt/ipopt"' >> /etc/profile
+sudo echo "export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/ipopt/lib/pkgconfig" >> /etc/profile
+sudo echo 'export PATH=$PATH:$IPOPTPATH/bin' >> /etc/profile
+sudo echo 'export LAPACK=/usr/lib/liblapack.so' >> /etc/profile
+sudo echo 'export ATLAS=/usr/lib/libatlas.so' >> /etc/profile
+sudo echo 'export BLAS=/usr/lib/libblas.so' >> /etc/profile
+source /etc/profile
+
+sudo apt-get -y install python-dev python-virtualenv python-pip python-numpy python-scipy
+#sudo pip install numpy
+#sudo pip install scipy
+
+cd /home/vagrant
+git clone https://github.com/matthias-k/cyipopt
+cd cyipopt
+sudo chown -R vagrant:vagrant /home/vagrant
+PKG_CONFIG_PATH=/opt/ipopt/lib/pkgconfig python setup.py install
+cd test
+python -c "import ipopt"
+python examplehs071.py
+cd ..
+
+SCRIPT
+
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.synced_folder "../", "/home/vagrant/files", create: true
+  # Use an Ubuntu box based in the host arch
+  config.vm.box = "ubuntu/trusty64"
+  config.vm.hostname = "ipopt-node"
+  config.vm.provider :virtualbox do |vb, override|
+    vb.name = "ipopt-node"
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/files", "1"]
+    vb.customize ["modifyvm", :id, "--memory", "1024"]
+    override.vm.provision "shell", inline: $script
+  end
+  # Provision without puppet or cheff, using shell scripts
+  # config.vm.provision :shell, path: "./provision/ubuntu_provision.sh"
+  # X11 over ssh
+  config.ssh.forward_x11 = true
+end

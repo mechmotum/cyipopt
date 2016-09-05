@@ -495,7 +495,7 @@ cdef class problem:
 
     def solve(
             self,
-            x
+            x,lagrange=[],zl=[],zu=[]
             ):
         """
         Solve the posed optimization problem starting at point x.
@@ -539,9 +539,22 @@ cdef class problem:
 
         cdef ApplicationReturnStatus stat
         cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self.__m,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self.__m,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self.__n,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self.__n,), dtype=DTYPEd)
+
+        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self.__m,), dtype=DTYPEd)
+        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self.__n,), dtype=DTYPEd)
+        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self.__n,), dtype=DTYPEd)
+
+        if lagrange == []:
+            lagrange = np.zeros((self.__m,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.array(lagrange, dtype=DTYPEd).flatten()
+
+        if zl == []:
+            zl = np.zeros((self.__n,), dtype=DTYPEd)
+        if zu == []:
+            zu = np.zeros((self.__n,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.array(zl, dtype=DTYPEd).flatten()
+        cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.array(zu, dtype=DTYPEd).flatten()
+
 
         cdef Number obj_val = 0
 
