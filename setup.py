@@ -21,7 +21,7 @@ import six
 
 
 PACKAGE_NAME = 'ipopt'
-VERSION = '0.1.6'
+VERSION = '0.1.7.dev'
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
