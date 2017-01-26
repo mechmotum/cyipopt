@@ -16,7 +16,7 @@ before_install:
   - conda config --add channels conda-forge
   - conda update -q conda
 install:
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy sphinx
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy sphinx numpydoc pkg-config
   - source activate test-env
 before_script:
   - conda info
@@ -26,7 +26,7 @@ before_script:
 script:
   - ls /home/travis/miniconda/envs/test-env/lib/pkgconfig
   - echo $PKG_CONFIG_PATH
-  - export PKG_CONFIG_PATH=/home/travis/miniconda/envs/test-env/lib/pkgconfig
+  #- export PKG_CONFIG_PATH=/home/travis/miniconda/envs/test-env/lib/pkgconfig
   # Make sure the library installs.
   - python setup.py install
   # Make sure the test script runs.
