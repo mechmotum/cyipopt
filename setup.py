@@ -28,7 +28,7 @@ DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
 URL = "https://github.com/matthias-k/cyipopt"
-DEPENDENCIES = ['numpy', 'scipy', 'cython', 'six', 'future', 'setuptools']
+DEPENDENCIES = ['numpy', 'cython', 'six', 'future', 'setuptools']
 
 
 def main_win32():

@@ -1,21 +1,34 @@
+#!/usr/bin/env python
+
 from __future__ import absolute_import, unicode_literals
 import sys
-from builtins import bytes
+
+from builtins import bytes  # from the future package
 import numpy as np
 try:
-    from scipy.optimize import OptimizeResult
-except ImportError:
-    # in scipy 0.14 Result was renamed to OptimzeResult
-    from scipy.optimize import Result
-    OptimizeResult = Result
+    import scipy
+except ImportError:  # scipy is not installed
+    SCIPY_INSTALLED = False
+else:
+    SCIPY_INSTALLED = True
+    del scipy
+    from scipy.optimize import approx_fprime
+    try:
+        from scipy.optimize import OptimizeResult
+    except ImportError:
+        # in scipy 0.14 Result was renamed to OptimzeResult
+        from scipy.optimize import Result
+        OptimizeResult = Result
 
 import cyipopt
 
-from scipy.optimize import approx_fprime
 
 class IpoptProblemWrapper(object):
     def __init__(self, fun, args=(), kwargs=None, jac=None, hess=None, hessp=None,
                  constraints=(), eps=1e-8):
+        if not SCIPY_INSTALLED:
+            print('Install SciPy to use the `IpoptProblemWrapper` class.')
+            return
         self.fun_with_jac = None
         self.last_x = None
         if hess is not None or hessp is not None:
@@ -158,6 +171,9 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
     The options `disp` and `maxiter` are automatically mapped to their
     ipopt-equivalents `print_level` and `max_iter`.
     """
+    if not SCIPY_INSTALLED:
+        print('Install SciPy to use the `minimize_ipopt` function.')
+        return
 
     _x0 = np.atleast_1d(x0)
     problem = IpoptProblemWrapper(fun, args=args, kwargs=kwargs, jac=jac, hess=hess,

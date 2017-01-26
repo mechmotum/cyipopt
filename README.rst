@@ -39,15 +39,15 @@ Installing
 To install cyipopt you will need the following prerequisites:
 
   * python 2.7 and 3.4+
+  * C/C++ compiler
   * setuptools
   * numpy
-  * scipy
   * cython
   * six
   * future
-  * C/C++ compiler
+  * scipy [optiional]
 
-The [Anaconda Python Distribution](https://www.continuum.io/why-anaconda) is
+The `Anaconda Python Distribution <https://www.continuum.io/why-anaconda>`_ is
 one of the easiest ways to install python for Linux, Mac and Windows.
 
 You will also need the binaries and header files of the Ipopt package. I
