@@ -39,9 +39,12 @@ Installing
 To install cyipopt you will need the following prerequisites:
 
   * python 2.6+
+  * setuptools
   * numpy
   * scipy
   * cython
+  * six
+  * future
   * C/C++ compiler
 
 The [Anaconda Python Distribution](https://www.continuum.io/why-anaconda) is
