@@ -38,7 +38,7 @@ Installing
 
 To install cyipopt you will need the following prerequisites:
 
-  * python 2.6+
+  * python 2.7 and 3.4+
   * numpy
   * scipy
   * cython
