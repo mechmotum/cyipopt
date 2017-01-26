@@ -1,0 +1,32 @@
+language: python
+python:
+  - 2.6
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+before_install:
+  - sudo apt-get update
+  - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda config --set always_yes yes --set changeps1 no
+  - conda config --add channels conda-forge
+  - conda update -q conda
+install:
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy
+  - source activate test-env
+before_script:
+  - conda info
+  - conda list
+  - pip --version
+  - pip freeze
+script:
+  # Make sure the library installs.
+  - python setup.py install
+  # Make sure the test script runs.
+  - python test/examplehs071.py
+  # Make sure the docs build.
+  - cd doc && make html && cd ..
