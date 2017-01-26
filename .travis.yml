@@ -24,6 +24,9 @@ before_script:
   - pip --version
   - pip freeze
 script:
+  - ls /home/travis/miniconda/envs/test-env/lib/pkgconfig
+  - echo $PKG_CONFIG_PATH
+  - export PKG_CONFIG_PATH=/home/travis/miniconda/envs/test-env/lib/pkgconfig
   # Make sure the library installs.
   - python setup.py install
   # Make sure the test script runs.
