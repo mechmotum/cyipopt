@@ -26,7 +26,7 @@ DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
 URL = "https://github.com/matthiask/cyipopt"
-
+DEPENDENCIES = ['numpy', 'scipy', 'cython', 'six', 'future', 'setuptools']
 
 
 def main_win32():
@@ -43,6 +43,7 @@ def main_win32():
         author_email=EMAIL,
         url=URL,
         packages=[PACKAGE_NAME],
+        install_requires=DEPENDENCIES,
         cmdclass = {'build_ext': build_ext},
         ext_modules = [
             Extension(
@@ -81,6 +82,7 @@ def main_unix():
     setup(name = PACKAGE_NAME,
           version=VERSION,
           packages = [PACKAGE_NAME],
+          install_requires=DEPENDENCIES,
           cmdclass = {'build_ext': Cython.Distutils.build_ext},
           include_package_data=True,
           ext_modules = [Extension("cyipopt",
