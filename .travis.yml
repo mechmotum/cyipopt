@@ -16,7 +16,7 @@ before_install:
   - conda config --add channels conda-forge
   - conda update -q conda
 install:
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy sphinx
   - source activate test-env
 before_script:
   - conda info
