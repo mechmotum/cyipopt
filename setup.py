@@ -22,8 +22,10 @@ import Cython.Compiler.Options
 import numpy as np
 import six
 
+exec(open('ipopt/version.py').read())
+
 PACKAGE_NAME = 'ipopt'
-VERSION = '0.1.8.dev'
+VERSION = __version__
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
