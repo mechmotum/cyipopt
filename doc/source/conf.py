@@ -53,7 +53,7 @@ copyright = u'2012, Amit Aides'
 # built documents.
 #
 # The short X.Y version.
-version = '.'.join(__version__.split('.')[:-1])
+version = __version__
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
