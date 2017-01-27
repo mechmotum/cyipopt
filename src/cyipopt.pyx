@@ -11,7 +11,6 @@ import numpy as np
 cimport numpy as np
 from ipopt cimport *
 import logging
-import scipy.sparse as sps
 import sys
 import six
 
@@ -791,9 +790,9 @@ cdef Bool hessian_cb(
             # There is a need to reconvert the s.col and s.row to arrays
             # because they have the wrong stride
             #
-            s = sps.coo_matrix(np.tril(np.ones((self.__n, self.__n))))
-            np_iRow = np.array(s.col, dtype=DTYPEi)
-            np_jCol = np.array(s.row, dtype=DTYPEi)
+            row, col = np.nonzero(np.tril(np.ones((self.__n, self.__n))))
+            np_iRow = np.array(col, dtype=DTYPEi)
+            np_jCol = np.array(row, dtype=DTYPEi)
         else:
             #
             # Sparse Hessian
