@@ -39,4 +39,4 @@ from __future__ import absolute_import
 
 from cyipopt import *
 from .ipopt_wrapper import minimize_ipopt
-from version import __version__
+from .version import __version__
