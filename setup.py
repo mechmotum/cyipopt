@@ -34,7 +34,7 @@ DEPENDENCIES = ['numpy', 'scipy', 'cython', 'six', 'future', 'setuptools']
 
 
 def main_win32():
-    IPOPT_ICLUDE_DIRS = ['include_mt/coin', np.get_include()]
+    IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
     IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
     IPOPT_LIB_DIRS = ['lib_mt/x64/release']
     IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
@@ -53,7 +53,7 @@ def main_win32():
             Extension(
                 PACKAGE_NAME + '.' + 'cyipopt',
                 ['src/cyipopt.pyx'],
-                include_dirs=IPOPT_ICLUDE_DIRS,
+                include_dirs=IPOPT_INCLUDE_DIRS,
                 libraries=IPOPT_LIBS,
                 library_dirs=IPOPT_LIB_DIRS
             )
