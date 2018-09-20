@@ -27,7 +27,7 @@ class IpoptProblemWrapper(object):
     def __init__(self, fun, args=(), kwargs=None, jac=None, hess=None, hessp=None,
                  constraints=(), eps=1e-8):
         if not SCIPY_INSTALLED:
-            ImportError('Install SciPy to use the `IpoptProblemWrapper` class.')
+            raise ImportError('Install SciPy to use the `IpoptProblemWrapper` class.')
         self.fun_with_jac = None
         self.last_x = None
         if hess is not None or hessp is not None:
@@ -171,7 +171,7 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None, hess=No
     ipopt-equivalents `print_level` and `max_iter`.
     """
     if not SCIPY_INSTALLED:
-        ImportError('Install SciPy to use the `minimize_ipopt` function.')
+        raise ImportError('Install SciPy to use the `minimize_ipopt` function.')
 
     _x0 = np.atleast_1d(x0)
     problem = IpoptProblemWrapper(fun, args=args, kwargs=kwargs, jac=jac, hess=hess,
