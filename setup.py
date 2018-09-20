@@ -64,7 +64,6 @@ if __name__ == '__main__':
         IPOPT_LIB_DIRS = ['lib_mt/x64/release']
         IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
 
-        CMDCLASS = {'build_ext': build_ext}
         EXT_MODULES = [
             Extension(
                 PACKAGE_NAME + '.' + 'cyipopt',
@@ -81,7 +80,6 @@ if __name__ == '__main__':
 
     else:
 
-        CMDCLASS = {'build_ext': Cython.Distutils.build_ext}
         EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
                                  **pkgconfig('ipopt'))]
         DATA_FILES = None
@@ -111,6 +109,6 @@ if __name__ == '__main__':
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
-        cmdclass=CMDCLASS,
+        cmdclass={'build_ext': build_ext},
         ext_modules=EXT_MODULES
     )
