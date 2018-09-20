@@ -1,6 +1,7 @@
+#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
+cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012 Amit Aides, 2015 Matthias Kümmerer
 Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
@@ -27,41 +28,12 @@ exec(open('ipopt/version.py').read())
 PACKAGE_NAME = 'ipopt'
 VERSION = __version__
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
+with open('README.rst') as f:
+    LONG_DESCRIPTION = f.read()
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
 URL = "https://github.com/matthias-k/cyipopt"
 DEPENDENCIES = ['numpy', 'scipy', 'cython', 'six', 'future', 'setuptools']
-
-
-def main_win32():
-    IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
-    IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
-    IPOPT_LIB_DIRS = ['lib_mt/x64/release']
-    IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
-
-    setup(
-        name=PACKAGE_NAME,
-        version=VERSION,
-        description=DESCRIPTION,
-        author=AUTHOR,
-        author_email=EMAIL,
-        url=URL,
-        packages=[PACKAGE_NAME],
-        install_requires=DEPENDENCIES,
-        cmdclass={'build_ext': build_ext},
-        ext_modules=[
-            Extension(
-                PACKAGE_NAME + '.' + 'cyipopt',
-                ['src/cyipopt.pyx'],
-                include_dirs=IPOPT_INCLUDE_DIRS,
-                libraries=IPOPT_LIBS,
-                library_dirs=IPOPT_LIB_DIRS
-            )
-        ],
-        data_files=[(os.path.join(get_python_lib(), PACKAGE_NAME),
-                     [os.path.join(IPOPT_LIB_DIRS[0], dll)
-                      for dll in IPOPT_DLL])] if IPOPT_DLL else None
-    )
 
 
 def pkgconfig(*packages, **kw):
@@ -83,18 +55,62 @@ def pkgconfig(*packages, **kw):
     return kw
 
 
-def main_unix():
-    setup(name=PACKAGE_NAME,
-          version=VERSION,
-          packages=[PACKAGE_NAME],
-          install_requires=DEPENDENCIES,
-          cmdclass={'build_ext': Cython.Distutils.build_ext},
-          include_package_data=True,
-          ext_modules=[Extension("cyipopt", ['src/cyipopt.pyx'],
-                                 **pkgconfig('ipopt'))])
-
 if __name__ == '__main__':
+
     if sys.platform == 'win32':
-        main_win32()
+
+        IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
+        IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
+        IPOPT_LIB_DIRS = ['lib_mt/x64/release']
+        IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
+
+        CMDCLASS = {'build_ext': build_ext}
+        EXT_MODULES = [
+            Extension(
+                PACKAGE_NAME + '.' + 'cyipopt',
+                ['src/cyipopt.pyx'],
+                include_dirs=IPOPT_INCLUDE_DIRS,
+                libraries=IPOPT_LIBS,
+                library_dirs=IPOPT_LIB_DIRS
+            )
+        ]
+        DATA_FILES = [(os.path.join(get_python_lib(), PACKAGE_NAME),
+                      [os.path.join(IPOPT_LIB_DIRS[0], dll)
+                      for dll in IPOPT_DLL])] if IPOPT_DLL else None
+        include_package_data = False
+
     else:
-        main_unix()
+
+        CMDCLASS = {'build_ext': Cython.Distutils.build_ext}
+        EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
+                                 **pkgconfig('ipopt'))]
+        DATA_FILES = None
+        include_package_data = True
+
+    setup(
+        name=PACKAGE_NAME,
+        version=VERSION,
+        author=AUTHOR,
+        author_email=EMAIL,
+        url=URL,
+        description=DESCRIPTION,
+        long_description=LONG_DESCRIPTION,
+        keywords="optimization",
+        license="EPL-1.0)",
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)',
+            'Intended Audience :: Science/Research',
+            'Operating System :: OS Independent',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.6',
+            ],
+        packages=[PACKAGE_NAME],
+        install_requires=DEPENDENCIES,
+        include_package_data=include_package_data,
+        data_files=DATA_FILES,
+        cmdclass=CMDCLASS,
+        ext_modules=EXT_MODULES
+    )
