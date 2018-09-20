@@ -1,11 +1,18 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
+cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012 Amit Aides
 Author: Amit Aides <amitibo@tx.technion.ac.il>
 URL: <http://http://code.google.com/p/cyipopt/>
 License: EPL 1.0
+
+Usage::
+
+   $ python lasso.py
+   $ python lasso.py -p
+   $ python lasso.py --plot
 """
 #
 # This function executes IPOPT to find the maximum likelihood solution to
@@ -118,7 +125,13 @@ class lasso(ipopt.problem):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p','--plot', help='Plot results with matplotlib', action='store_true')
+    args = parser.parse_args()
+
 
     #
     # _lambda - Level of L1 regularization
@@ -165,9 +178,10 @@ if __name__ == '__main__':
     for i, _lambda in enumerate(_lambdas):
         estim_betas[i, :] = problem.solve(_lambda)
 
-    plt.plot(_lambdas, estim_betas)
-    plt.xlabel('L1 Regularization Parameter')
-    plt.ylabel('Estimated Regression Coefficients')
-    plt.title('Lasso Solution as Function of The Regularization Parameter')
-    plt.show()
-
+    if args.plot:
+        import matplotlib.pyplot as plt
+        plt.plot(_lambdas, estim_betas)
+        plt.xlabel('L1 Regularization Parameter')
+        plt.ylabel('Estimated Regression Coefficients')
+        plt.title('Lasso Solution as Function of The Regularization Parameter')
+        plt.show()
