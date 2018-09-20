@@ -115,7 +115,7 @@ class hs071(object):
         #
         # Example for the use of the intermediate callback.
         #
-        print "Objective value at iteration #%d is - %g" % (iter_count, obj_value)
+        print("Objective value at iteration #%d is - %g" % (iter_count, obj_value))
 
 
 def main():
@@ -161,11 +161,11 @@ def main():
     #
     x, info = nlp.solve(x0)
 
-    print "Solution of the primal variables: x=%s\n" % repr(x)
+    print("Solution of the primal variables: x=%s\n" % repr(x))
 
-    print "Solution of the dual variables: lambda=%s\n" % repr(info['mult_g'])
+    print("Solution of the dual variables: lambda=%s\n" % repr(info['mult_g']))
 
-    print "Objective=%s\n" % repr(info['obj_val'])
+    print("Objective=%s\n" % repr(info['obj_val']))
 
 
 if __name__ == '__main__':
