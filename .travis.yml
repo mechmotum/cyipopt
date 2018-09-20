@@ -14,7 +14,7 @@ before_install:
   - conda config --add channels conda-forge
   - conda update -q conda
 install:
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools scipy sphinx numpydoc pkg-config
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
   - source activate test-env
 before_script:
   - conda info
@@ -24,7 +24,9 @@ before_script:
 script:
   # Make sure the library installs.
   - python setup.py install
-  # Make sure the test script runs.
+  - python -c "import ipopt"
+  # Make sure the test script runs. SciPy is required for this script.
+  - conda install scipy
   - python test/examplehs071.py
   # Make sure the docs build.
   - cd doc && make html && cd ..
