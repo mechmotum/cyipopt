@@ -22,8 +22,10 @@ import Cython.Compiler.Options
 import numpy as np
 import six
 
+exec(open('ipopt/version.py').read())
+
 PACKAGE_NAME = 'ipopt'
-VERSION = '0.1.8.dev'
+VERSION = __version__
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
@@ -32,7 +34,7 @@ DEPENDENCIES = ['numpy', 'cython', 'six', 'future', 'setuptools']
 
 
 def main_win32():
-    IPOPT_ICLUDE_DIRS = ['include_mt/coin', np.get_include()]
+    IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
     IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
     IPOPT_LIB_DIRS = ['lib_mt/x64/release']
     IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
@@ -51,7 +53,7 @@ def main_win32():
             Extension(
                 PACKAGE_NAME + '.' + 'cyipopt',
                 ['src/cyipopt.pyx'],
-                include_dirs=IPOPT_ICLUDE_DIRS,
+                include_dirs=IPOPT_INCLUDE_DIRS,
                 libraries=IPOPT_LIBS,
                 library_dirs=IPOPT_LIB_DIRS
             )
