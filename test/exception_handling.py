@@ -1,6 +1,7 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
+cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012 Amit Aides
 Author: Amit Aides <amitibo@tx.technion.ac.il>
