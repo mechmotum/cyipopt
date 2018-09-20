@@ -25,101 +25,101 @@ import ipopt
 
 class lasso(ipopt.problem):
     def __init__(self, A, y):
-        
+
         self._A = A
         self._y = y
         self._m = A.shape[1]
-            
+
         #
         # The constraint functions are bounded from below by zero.
         #
         cl = np.zeros(2*self._m)
-      
+
         super(lasso, self).__init__(
                             2*self._m,
                             2*self._m,
                             cl=cl
                             )
-        
+
         #
         # Set solver options
         #
-        self.addOption('derivative_test', 'second-order')
-        self.addOption('jac_d_constant', 'yes')
-        self.addOption('hessian_constant', 'yes')
-        self.addOption('mu_strategy', 'adaptive')
-        self.addOption('max_iter', 100)
-        self.addOption('tol', 1e-8)
-     
+        self.addOption(b'derivative_test', b'second-order')
+        self.addOption(b'jac_d_constant', b'yes')
+        self.addOption(b'hessian_constant', b'yes')
+        self.addOption(b'mu_strategy', b'adaptive')
+        self.addOption(b'max_iter', 100)
+        self.addOption(b'tol', 1e-8)
+
     def solve(self, _lambda):
 
         x0 = np.concatenate((np.zeros(m), np.ones(m)))
         self._lambda = _lambda
         x, info = super(lasso, self).solve(x0)
-        
+
         return x[:self._m]
-        
+
     def objective(self, x):
 
         w = x[:self._m].reshape((-1, 1))
         u = x[self._m:].reshape((-1, 1))
-        
+
         return np.linalg.norm(self._y - np.dot(self._A, w))**2/2 + self._lambda * np.sum(u)
-    
+
     def constraints(self, x):
 
         w = x[:self._m].reshape((-1, 1))
         u = x[self._m:].reshape((-1, 1))
-        
+
         return np.vstack((u + w,  u - w))
-    
+
     def gradient(self, x):
 
         w = x[:self._m].reshape((-1, 1))
-        
+
         g = np.vstack((np.dot(-self._A.T, self._y - np.dot(self._A, w)), self._lambda*np.ones((self._m, 1))))
-    
+
         return g
-    
+
     def jacobianstructure(self):
 
         #
         # Create a sparse matrix to hold the jacobian structure
         #
         self.js = sps.coo_matrix(np.tile(np.eye(self._m), (2, 2)))
- 
+
         return (self.js.row, self.js.col)
-        
-    def jacobian(self, x): 
+
+    def jacobian(self, x):
 
         I = np.eye(self._m)
-        
+
         J = np.vstack((np.hstack((I, I)), np.hstack((-I, I))))
-        return J[self.js.row, self.js.col]   
-    
+        return J[self.js.row, self.js.col]
+
     def hessianstructure(self):
 
         h = np.zeros((2*self._m, 2*self._m))
         h[:self._m,:self._m] = np.tril(np.ones((self._m, self._m)))
-        
+
         #
         # Create a sparse matrix to hold the hessian structure
         #
         self.hs = sps.coo_matrix(h)
-        
+
         return (self.hs.row, self.hs.col)
-    
+
     def hessian(self, x, lagrange, obj_factor):
 
         H = np.zeros((2*self._m, 2*self._m))
         H[:self._m,:self._m] = np.tril(np.tril(np.dot(self._A.T, self._A)))
-    
-        return obj_factor*H[self.hs.row, self.hs.col]   
+
+        return obj_factor*H[self.hs.row, self.hs.col]
 
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
-    
+
     #
     # _lambda - Level of L1 regularization
     # n - Number of training examples
@@ -129,13 +129,13 @@ if __name__ == '__main__':
     n = 100
     e = 1
     beta = np.array((0, 0, 2, -4, 0, 0, -1, 3), dtype=np.float).reshape((-1, 1))
-    
+
     #
     # Set the random number generator seed.
     #
     seed = 7
     np.random.seed(seed)
-    
+
     #
     # CREATE DATA SET.
     # Generate the input vectors from the standard normal, and generate the
@@ -151,20 +151,20 @@ if __name__ == '__main__':
     A = np.random.randn(n, m)
     noise = e * np.random.randn(n, 1)
     y = np.dot(A, beta) + noise
-    
+
     #
     # COMPUTE SOLUTION WITH IPOPT.
     # Compute the L1-regularized maximum likelihood estimator.
     #
     problem = lasso(A, y)
-    
+
     LAMBDA_SAMPLES = 30
     _lambdas = np.logspace(0, 2.6, LAMBDA_SAMPLES)
     estim_betas = np.zeros((LAMBDA_SAMPLES, beta.size))
-    
+
     for i, _lambda in enumerate(_lambdas):
         estim_betas[i, :] = problem.solve(_lambda)
-        
+
     plt.plot(_lambdas, estim_betas)
     plt.xlabel('L1 Regularization Parameter')
     plt.ylabel('Estimated Regression Coefficients')
