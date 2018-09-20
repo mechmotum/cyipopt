@@ -30,8 +30,6 @@ For simple cases where you do not need the full power of sparse and structured J
     res = minimize_ipopt(rosen, x0, jac=rosen_der)
     print(res)
 
-
-
 Installation
 ============
 
@@ -57,9 +55,9 @@ dependencies:
   * setuptools
   * cython
   * numpy
-  * scipy
   * six
   * future
+  * scipy [optiional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
