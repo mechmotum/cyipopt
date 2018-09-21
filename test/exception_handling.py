@@ -3,19 +3,21 @@
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
-Copyright (C) 2012 Amit Aides
-Author: Amit Aides <amitibo@tx.technion.ac.il>
-URL: <http://http://code.google.com/p/cyipopt/>
+Copyright (C) 2012-2015 Amit Aides
+Copyright (C) 2015-2018 Matthias Kümmerer
+
+Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
+(original Author: Amit Aides <amitibo@tx.technion.ac.il>)
+URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 """
-#
+
 # Test the "ipopt" Python interface on the Hock & Schittkowski test problem
 # #71. See: Willi Hock and Klaus Schittkowski. (1981) Test Examples for
 # Nonlinear Programming Codes. Lecture Notes in Economics and Mathematical
 # Systems Vol. 187, Springer-Verlag.
 #
 # Based on matlab code by Peter Carbonetto.
-#
 
 import numpy as np
 import scipy.sparse as sps
