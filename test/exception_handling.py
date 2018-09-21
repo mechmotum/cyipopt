@@ -173,4 +173,5 @@ if __name__ == '__main__':
     try:
         main()
     except ValueError as e:
+        assert str(e) == 'bum'
         print('Caught ValueError: {}'.format(e))
