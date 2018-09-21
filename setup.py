@@ -94,7 +94,7 @@ if __name__ == '__main__':
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         keywords="optimization",
-        license="EPL-1.0)",
+        license="EPL-1.0",
         classifiers=[
             'Development Status :: 4 - Beta',
             'License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)',
