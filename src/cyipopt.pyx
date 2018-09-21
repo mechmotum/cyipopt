@@ -82,7 +82,7 @@ hessian elements num = %s
 cdef class problem:
     """
     Wrapper class for solving optimization problems using the C interface of
-    the IPOPT package.
+    the Ipopt package.
 
     It can be used to solve general nonlinear programming problems of the form:
 
@@ -98,72 +98,77 @@ cdef class problem:
 
            x_L \leq  x  \leq x_U
 
-    Where :math:`x` are the optimization variables (possibly with upper an lower
-    bounds), :math:`f(x)` is the objective function and :math:`g(x)` are the general nonlinear
-    constraints. The constraints, :math:`g(x)`, have lower and upper bounds. Note that
-    equality constraints can be specified by setting :math:`g^i_L = g^i_U`.
+    Where :math:`x` are the optimization variables (possibly with upper an
+    lower bounds), :math:`f(x)` is the objective function and :math:`g(x)` are
+    the general nonlinear constraints. The constraints, :math:`g(x)`, have
+    lower and upper bounds. Note that equality constraints can be specified by
+    setting :math:`g^i_L = g^i_U`.
 
     Parameters
     ----------
     n : integer
         Number of primal variables.
     m : integer
-        Number of constraints
+        Number of constraints.
     problem_obj: object, optional (default=None)
-        An object holding the problem's callbacks. If None, cyipopt will use self, this
-        is useful when subclassing problem. The object is required to have the following
-        attributes (some are optional):
+        An object holding the problem's callbacks. If None, cyipopt will use
+        self, this is useful when subclassing problem. The object is required
+        to have the following attributes (some are optional):
 
             - 'objective' : function pointer
-                Callback function for evaluating objective function.
-                The callback functions accepts one parameter: x (value of the
-                optimization variables at which the objective is to be evaluated).
-                The function should return the objective function value at the point x.
+                Callback function for evaluating objective function. The
+                callback functions accepts one parameter: x (value of the
+                optimization variables at which the objective is to be
+                evaluated). The function should return the objective function
+                value at the point x.
             - 'constraints' : function pointer
-                Callback function for evaluating constraint functions.
-                The callback functions accepts one parameter: x (value of the
-                optimization variables at which the constraints are to be evaluated).
-                The function should return the constraints values at the point x.
+                Callback function for evaluating constraint functions. The
+                callback functions accepts one parameter: x (value of the
+                optimization variables at which the constraints are to be
+                evaluated). The function should return the constraints values
+                at the point x.
             - 'gradient' : function pointer
-                Callback function for evaluating gradient of objective function.
-                The callback functions accepts one parameter: x (value of the
-                optimization variables at which the gradient is to be evaluated).
-                The function should return the gradient of the objective function at the
-                point x.
+                Callback function for evaluating gradient of objective
+                function. The callback functions accepts one parameter: x
+                (value of the optimization variables at which the gradient is
+                to be evaluated). The function should return the gradient of
+                the objective function at the point x.
             - 'jacobian' : function pointer
-                Callback function for evaluating Jacobian of constraint functions.
-                The callback functions accepts one parameter: x (value of the
-                optimization variables at which the jacobian is to be evaluated).
-                The function should return the values of the jacobian as calculated
-                using x. The values should be returned as a 1-dim numpy array (using
-                the same order as you used when specifying the sparsity structure)
+                Callback function for evaluating Jacobian of constraint
+                functions. The callback functions accepts one parameter: x
+                (value of the optimization variables at which the jacobian is
+                to be evaluated). The function should return the values of the
+                jacobian as calculated using x. The values should be returned
+                as a 1-dim numpy array (using the same order as you used when
+                specifying the sparsity structure)
             - 'jacobianstructure' : function pointer, optional (default=None)
                 Callback function that accepts no parameters and returns the
-                sparsity structure of the Jacobian (the row and column indices only).
-                If None, the Jacobian is assumed to be dense.
+                sparsity structure of the Jacobian (the row and column indices
+                only). If None, the Jacobian is assumed to be dense.
             - 'hessian' : function pointer, optional (default=None)
-                Callback function for evaluating Hessian of the Lagrangian function.
-                The callback functions accepts three parameters x (value of the
-                optimization variables at which the hessian is to be evaluated), lambda
-                (values for the constraint multipliers at which the hessian is to be
-                evaluated) objective_factor the factor in front of the objective term
-                in the Hessian.
-                The function should return the values of the Hessian as calculated using
-                x, lambda and objective_factor. The values should be returned as a 1-dim
-                numpy array (using the same order as you used when specifying the
-                sparsity structure).
-                If None, the Hessian is calculated numerically.
+                Callback function for evaluating Hessian of the Lagrangian
+                function. The callback functions accepts three parameters x
+                (value of the optimization variables at which the hessian is to
+                be evaluated), lambda (values for the constraint multipliers at
+                which the hessian is to be evaluated) objective_factor the
+                factor in front of the objective term in the Hessian. The
+                function should return the values of the Hessian as calculated
+                using x, lambda and objective_factor. The values should be
+                returned as a 1-dim numpy array (using the same order as you
+                used when specifying the sparsity structure). If None, the
+                Hessian is calculated numerically.
             - 'hessianstructure' : function pointer, optional (default=None)
                 Callback function that accepts no parameters and returns the
-                sparsity structure of the Hessian of the lagrangian (the row and column
-                indices only). If None, the Hessian is assumed to be dense.
+                sparsity structure of the Hessian of the lagrangian (the row
+                and column indices only). If None, the Hessian is assumed to be
+                dense.
             - 'intermediate' : function pointer, optional (default=None)
-                Optional. Callback function that is called once per iteration (during
-                the convergence check), and can be used to obtain information about the
-                optimization status while IPOPT solves the problem.
-                If this callback returns False, IPOPT will terminate with the
-                User_Requested_Stop status.
-                The information below corresponeds to the argument list passed to this
+                Optional. Callback function that is called once per iteration
+                (during the convergence check), and can be used to obtain
+                information about the optimization status while Ipopt solves
+                the problem. If this callback returns False, Ipopt will
+                terminate with the User_Requested_Stop status. The information
+                below corresponeds to the argument list passed to this
                 callback:
 
                     'alg_mod':
@@ -193,16 +198,16 @@ cdef class problem:
                 more information can be found in the following link:
                 http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
 
-    lb : array-like, shape = [n]
+    lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.
-    ub : array-like, shape = [n]
+    ub : array-like, shape(n, )
         Upper bounds on variables, where n is the dimension of x..
         To assume no upper bounds pass values higher then 10^-19.
-    cl : array-like, shape = [m]
+    cl : array-like, shape(m, )
         Lower bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
-    cu : array-like, shape = [m]
+    cu : array-like, shape(m, )
         Upper bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
 
@@ -222,16 +227,8 @@ cdef class problem:
 
     cdef public object __exception
 
-    def __init__(
-            self,
-            n,
-            m,
-            problem_obj=None,
-            lb=None,
-            ub=None,
-            cl=None,
-            cu=None
-            ):
+    def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
+                 cu=None):
 
         if not isinstance(n, six.integer_types) or not n > 0:
             raise TypeError('n must be a positive integer')
@@ -382,7 +379,7 @@ cdef class problem:
 
     def close(self):
         """
-        Deallcate memory resources used by the IPOPT package. Called implicitly
+        Deallcate memory resources used by the Ipopt package. Called implicitly
         by the 'problem' class destructor.
 
         Parameters
@@ -401,17 +398,17 @@ cdef class problem:
 
     def addOption(self, char* keyword, val):
         """
-        Add a keyword/value option pair to the problem. See the IPOPT
+        Add a keyword/value option pair to the problem. See the Ipopt
         documentaion for details on available options.
 
         Parameters
         ----------
-        keyword : string,
+        keyword : string
             Option name.
 
-        val : string / int / float
+        val : string, int, or float
             Value of the option. The type of val should match the option
-            definition as described in the IPOPT documentation.
+            definition as described in the Ipopt documentation.
 
         Returns
         -------
@@ -438,18 +435,16 @@ cdef class problem:
 
         Parameters
         ----------
-        obj_scaling : float,
-            Determines, how IPOPT should internally scale the objective function.
-            For example, if this number is chosen to be 10, then IPOPT solves
-            internally an optimization problem that has 10 times the value of
-            the original objective. In particular, if this value is negative,
-            then IPOPT will maximize the objective function instead of minimizing
-            it.
-
-        x_scaling : array-like, shape = [n]
+        obj_scaling : float
+            Determines, how Ipopt should internally scale the objective
+            function.  For example, if this number is chosen to be 10, then
+            Ipopt solves internally an optimization problem that has 10 times
+            the value of the original objective. In particular, if this value
+            is negative, then Ipopt will maximize the objective function
+            instead of minimizing it.
+        x_scaling : array-like, shape(n, )
             The scaling factors for the variables. If None, no scaling is done.
-
-        g_scaling : array-like, shape = [m]
+        g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If None, no scaling is done.
 
         Returns
@@ -501,36 +496,34 @@ cdef class problem:
             x,lagrange=[],zl=[],zu=[]
             ):
         """
-        Solve the posed optimization problem starting at point x.
-        Returns the optimal solution and an info dictionary.
+        Returns the optimal solution and an info dictionary. Solves the posed
+        optimization problem starting at point x.
 
         Parameters
         ----------
-        x : array-like, shape = [n]
-            Starting point.
+        x : array-like, shape(n, )
+            Initial guess.
 
         Returns
         -------
-        x : array, shape = [n]
+        x : array, shape(n, )
             Optimal solution.
-
-        info: dictionary, with following keys
-
-            'x':
+        info: dictionary
+            'x': ndarray, shape(n, )
                 optimal solution
-            'g':
+            'g': ndarray, shape(m, )
                 constraints at the optimal solution
-            'obj_val':
+            'obj_val': float
                 objective value at optimal solution
-            'mult_g':
+            'mult_g': ndarray, shape(m, )
                 final values of the constraint multipliers
-            'mult_x_L':
+            'mult_x_L': ndarray, shape(n, )
                 bound multipliers at the solution
-            'mult_x_U':
+            'mult_x_U': ndarray, shape(n, )
                 bound multipliers at the solution
-            'status':
+            'status': integer
                 gives the status of the algorithm
-            'status_msg':
+            'status_msg': string
                 gives the status of the algorithm as a message
 
         """
