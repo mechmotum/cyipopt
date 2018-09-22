@@ -30,7 +30,7 @@ from ipopt import __version__
 sys.path.append(os.path.abspath('sphinxext'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
               'sphinx.ext.imgmath', 'sphinx.ext.ifconfig',
-              'sphinx.ext.viewcode', 'numpydoc']
+              'sphinx.ext.viewcode', 'sphinx.ext.napoleon']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
