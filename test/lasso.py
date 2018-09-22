@@ -54,12 +54,12 @@ class lasso(ipopt.problem):
         #
         # Set solver options
         #
-        self.addOption(b'derivative_test', b'second-order')
-        self.addOption(b'jac_d_constant', b'yes')
-        self.addOption(b'hessian_constant', b'yes')
-        self.addOption(b'mu_strategy', b'adaptive')
-        self.addOption(b'max_iter', 100)
-        self.addOption(b'tol', 1e-8)
+        self.addOption('derivative_test', 'second-order')
+        self.addOption('jac_d_constant', 'yes')
+        self.addOption('hessian_constant', 'yes')
+        self.addOption('mu_strategy', 'adaptive')
+        self.addOption('max_iter', 100)
+        self.addOption('tol', 1e-8)
 
     def solve(self, _lambda):
 
@@ -132,7 +132,8 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p','--plot', help='Plot results with matplotlib', action='store_true')
+    parser.add_argument('-p','--plot', help='Plot results with matplotlib',
+                        action='store_true')
     args = parser.parse_args()
 
 

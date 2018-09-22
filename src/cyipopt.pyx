@@ -396,7 +396,7 @@ cdef class problem:
 
         self.__nlp = NULL
 
-    def addOption(self, char* keyword, val):
+    def addOption(self, keyword, val):
         """
         Add a keyword/value option pair to the problem. See the Ipopt
         documentaion for details on available options.
@@ -414,6 +414,17 @@ cdef class problem:
         -------
             None
         """
+        if six.PY3 and isinstance(keyword, type('')):
+            keyword = bytes(keyword, 'utf-8')
+
+        if six.PY3 and isinstance(val, type('')):
+            val = bytes(val, 'utf-8')
+
+        # NOTE : The strings passed in PY2 seem to be of type unicode.
+        if six.PY2:
+            keyword = str(keyword)
+            if isinstance(val, type(u'')):
+                val = str(val)
 
         if isinstance(val, six.binary_type):
             ret_val = AddIpoptStrOption(self.__nlp, keyword, val)
