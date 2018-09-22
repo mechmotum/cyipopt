@@ -29,8 +29,8 @@ from ipopt import __version__
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 sys.path.append(os.path.abspath('sphinxext'))
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
-              'sphinx.ext.imgmath', 'sphinx.ext.ifconfig',
-              'sphinx.ext.viewcode', 'numpydoc']
+              'sphinx.ext.mathjax', 'sphinx.ext.ifconfig',
+              'sphinx.ext.viewcode', 'sphinx.ext.napoleon']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'cyipopt'
-copyright = u'2012, Amit Aides'
+copyright = u'2018, Matthias Kümmerer'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -223,7 +223,7 @@ latex_elements['preamble'] = \
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'cyipopt', u'cyipopt Documentation',
-     [u'Amit Aides'], 1)
+     [u'Matthias Kümmerer'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -237,7 +237,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'cyipopt', u'cyipopt Documentation',
-   u'Amit Aides', 'cyipopt', 'One line description of project.',
+   u'Matthias Kümmerer', 'cyipopt', 'One line description of project.',
    'Miscellaneous'),
 ]
 

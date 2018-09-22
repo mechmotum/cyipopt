@@ -11,3 +11,4 @@ uses.
 .. autoclass:: ipopt.problem
    :members:
 
+.. autofunction:: ipopt.minimize_ipopt

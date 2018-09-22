@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-cyipot: Python wrapper for the Ipopt optimization package, written in Cython.
+cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
-Copyright (C) 2012 Amit Aides
-Author: Amit Aides <amitibo@tx.technion.ac.il>
-URL: <http://http://code.google.com/p/cyipopt/>
+Copyright (C) 2012-2015 Amit Aides
+Copyright (C) 2015-2018 Matthias Kümmerer
+
+Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
+(original Author: Amit Aides <amitibo@tx.technion.ac.il>)
+URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 """
+
 cdef extern from "IpStdCInterface.h":
 
     ctypedef double Number
@@ -14,14 +18,14 @@ cdef extern from "IpStdCInterface.h":
     ctypedef int Index
 
     ctypedef int Int
-    
+
     ctypedef struct IpoptProblemInfo:
         pass
-    
+
     ctypedef IpoptProblemInfo* IpoptProblem
 
     ctypedef int Bool
-    
+
     ctypedef void* UserDataPtr
 
     cdef enum ApplicationReturnStatus:

@@ -3,10 +3,12 @@
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
-Copyright (C) 2012 Amit Aides, 2015 Matthias Kümmerer
+Copyright (C) 2012-2015 Amit Aides
+Copyright (C) 2015-2018 Matthias Kümmerer
+
 Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
-(originally Author: Amit Aides <amitibo@tx.technion.ac.il>)
-URL: <https://bitbucket.org/amitibo/cyipopt>
+(original Author: Amit Aides <amitibo@tx.technion.ac.il>)
+URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 """
 
