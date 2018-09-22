@@ -1,0 +1,12 @@
+0.1.8
+=====
+
+- Updated setup.py to be complete and added dependencies.
+- Added support for Travis CI to test build, install, examples, and docs.
+- Made SciPy and optional dependency.
+- Linux/Mac installation now supported via conda and conda-forge.
+- Added LICENSE file and EPL headers to each source file.
+- Fixed some PY2/3 compatibility issues.
+- Improved documentation formatting for Sphinx.
+- Strings can be passed to addOption instead of bytes strings for Python 2 and
+  3.
