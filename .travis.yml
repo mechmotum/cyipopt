@@ -25,11 +25,10 @@ script:
   # Make sure the library installs.
   - python setup.py install
   - python -c "import ipopt"
-  # Make sure the test script runs. SciPy is required for this script.
-  - conda install scipy
   - python test/examplehs071.py
   - python test/exception_handling.py
   - python test/lasso.py
+  - conda install scipy
   - python test/rosen.py
   # Make sure the docs build.
   - cd doc && make html && cd ..
