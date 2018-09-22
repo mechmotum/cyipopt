@@ -96,35 +96,36 @@ class lasso(ipopt.problem):
         #
         # Create a sparse matrix to hold the jacobian structure
         #
-        self.js = sps.coo_matrix(np.tile(np.eye(self._m), (2, 2)))
-
-        return (self.js.row, self.js.col)
+        return np.nonzero(np.tile(np.eye(self._m), (2, 2)))
 
     def jacobian(self, x):
 
         I = np.eye(self._m)
 
         J = np.vstack((np.hstack((I, I)), np.hstack((-I, I))))
-        return J[self.js.row, self.js.col]
+
+        row, col = self.jacobianstructure()
+
+        return J[row, col]
 
     def hessianstructure(self):
 
         h = np.zeros((2*self._m, 2*self._m))
-        h[:self._m,:self._m] = np.tril(np.ones((self._m, self._m)))
+        h[:self._m, :self._m] = np.tril(np.ones((self._m, self._m)))
 
         #
         # Create a sparse matrix to hold the hessian structure
         #
-        self.hs = sps.coo_matrix(h)
-
-        return (self.hs.row, self.hs.col)
+        return np.nonzero(h)
 
     def hessian(self, x, lagrange, obj_factor):
 
         H = np.zeros((2*self._m, 2*self._m))
-        H[:self._m,:self._m] = np.tril(np.tril(np.dot(self._A.T, self._A)))
+        H[:self._m, :self._m] = np.tril(np.tril(np.dot(self._A.T, self._A)))
 
-        return obj_factor*H[self.hs.row, self.hs.col]
+        row, col = self.hessianstructure()
+
+        return obj_factor*H[row, col]
 
 
 if __name__ == '__main__':

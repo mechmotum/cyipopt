@@ -20,7 +20,6 @@ License: EPL 1.0
 # Based on matlab code by Peter Carbonetto.
 
 import numpy as np
-import scipy.sparse as sps
 import ipopt
 
 
@@ -71,10 +70,8 @@ class hs071(object):
         # this function is redundant. I include it as an example for structure
         # callback.
         #
-        global hs
 
-        hs = sps.coo_matrix(np.tril(np.ones((4, 4))))
-        return (hs.col, hs.row)
+        return np.nonzero(np.tril(np.ones((4, 4))))
 
     def hessian(self, x, lagrange, obj_factor):
         #
@@ -94,11 +91,9 @@ class hs071(object):
 
         H += lagrange[1]*2*np.eye(4)
 
-        #
-        # Note:
-        #
-        #
-        return H[hs.row, hs.col]
+        row, col = self.hessianstructure()
+
+        return H[row, col]
 
     def intermediate(
             self,
