@@ -139,9 +139,9 @@ def main():
     #
     # Set solver options
     #
-    #nlp.addOption(b'derivative_test', b'second-order')
-    nlp.addOption(b'mu_strategy', b'adaptive')
-    nlp.addOption(b'tol', 1e-7)
+    #nlp.addOption('derivative_test', 'second-order')
+    nlp.addOption('mu_strategy', 'adaptive')
+    nlp.addOption('tol', 1e-7)
 
     #
     # Scale the problem (Just for demonstration purposes)
@@ -150,7 +150,7 @@ def main():
         obj_scaling=2,
         x_scaling=[1, 1, 1, 1]
         )
-    nlp.addOption(b'nlp_scaling_method', b'user-scaling')
+    nlp.addOption('nlp_scaling_method', 'user-scaling')
 
     #
     # Solve the problem

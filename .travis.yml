@@ -30,5 +30,6 @@ script:
   - python test/examplehs071.py
   - python test/exception_handling.py
   - python test/lasso.py
+  - python test/rosen.py
   # Make sure the docs build.
   - cd doc && make html && cd ..
