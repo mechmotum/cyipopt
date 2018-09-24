@@ -30,7 +30,7 @@ exec(open('ipopt/version.py', encoding="utf-8").read())
 PACKAGE_NAME = 'ipopt'
 VERSION = __version__
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
-with open('README.rst') as f:
+with open('README.rst', encoding="utf-8") as f:
     LONG_DESCRIPTION = f.read()
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
