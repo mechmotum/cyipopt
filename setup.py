@@ -25,7 +25,7 @@ import Cython.Compiler.Options
 import numpy as np
 import six
 
-exec(open('ipopt/version.py').read())
+exec(open('ipopt/version.py', encoding="utf-8").read())
 
 PACKAGE_NAME = 'ipopt'
 VERSION = __version__
