@@ -1,3 +1,9 @@
+0.1.9
+=====
+
+- Fixed encoding issue preventing installation on some OSes.
+- Removed SciPy requirements from examples.
+
 0.1.8
 =====
 
