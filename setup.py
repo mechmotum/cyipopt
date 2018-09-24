@@ -25,13 +25,20 @@ import Cython.Compiler.Options
 import numpy as np
 import six
 
-exec(open('ipopt/version.py', encoding="utf-8").read())
+if six.PY3:
+    exec(open('ipopt/version.py', encoding="utf-8").read())
+else:
+    exec(open('ipopt/version.py').read())
 
 PACKAGE_NAME = 'ipopt'
 VERSION = __version__
 DESCRIPTION = 'A Cython wrapper to the IPOPT optimization package'
-with open('README.rst', encoding="utf-8") as f:
-    LONG_DESCRIPTION = f.read()
+if six.PY3:
+    with open('README.rst', encoding="utf-8") as f:
+        LONG_DESCRIPTION = f.read()
+else:
+    with open('README.rst') as f:
+        LONG_DESCRIPTION = f.read()
 AUTHOR = 'Matthias Kümmerer'
 EMAIL = 'matthias.kuemmerer@bethgelab.org'
 URL = "https://github.com/matthias-k/cyipopt"
