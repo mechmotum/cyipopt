@@ -87,32 +87,66 @@ specific package managers, e.g. ``pip install six cython numpy``.
 The NumPy and IPOPT libs and headers are installed in standard locations, so
 you should not need to set ``LD_LIBRARY_PATH`` or ``PKG_CONFIG_PATH``.
 
-Now run::
+Now run ``python setup.py build`` to compile cyipopt. In the output of this
+command you should see two calls to ``gcc`` for compiling and linking. Make
+sure both of these are pointing to the correct libraries and headers. They will
+look something like this (formatted and commented for easy viewing here)::
 
-   $ python setup.py install
-
-In the output of this command you should see two calls to ``gcc`` for compiling
-and linking. Make sure both of these are pointing to the correct libraries and
-headers. They will look something like this::
-
-   gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -m64 -fPIC -m64 -fPIC -fPIC
-     -I/usr/local/include/coin -I/usr/local/include/coin/ThirdParty  # points to IPOPT headers
-     -I/usr/local/lib/python2.7/site-packages/numpy/core/include  # points to NumPy headers
-     -I/usr/local/include/python2.7m  # points to Python headers
+   $ python setup.py build
+   ...
+   x86_64-linux-gnu-gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -fno-strict-aliasing
+     -Wdate-time -D_FORTIFY_SOURCE=2 -g -fdebug-prefix-map=/build/python2.7-3hk45v/python2.7-2.7.15~rc1=.
+     -fstack-protector-strong -Wformat -Werror=format-security -fPIC
+     -I/usr/local/include/coin  # points to IPOPT headers
+     -I/usr/local/include/coin/ThirdParty  # points to IPOPT third party headers
+     -I/usr/lib/python2.7/dist-packages/numpy/core/include  # points to NumPy headers
+     -I/usr/include/python2.7  # points to Python 2.7 headers
      -c src/cyipopt.c -o build/temp.linux-x86_64-2.7/src/cyipopt.o
-   gcc -pthread -shared
+   x86_64-linux-gnu-gcc -pthread -shared -Wl,-O1 -Wl,-Bsymbolic-functions -Wl,-Bsymbolic-functions -Wl,-z,relro
+     -fno-strict-aliasing -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wdate-time -D_FORTIFY_SOURCE=2 -g
+     -fdebug-prefix-map=/build/python2.7-3hk45v/python2.7-2.7.15~rc1=. -fstack-protector-strong -Wformat
+     -Werror=format-security -Wl,-Bsymbolic-functions -Wl,-z,relro -Wdate-time -D_FORTIFY_SOURCE=2 -g
+     -fdebug-prefix-map=/build/python2.7-3hk45v/python2.7-2.7.15~rc1=. -fstack-protector-strong -Wformat
+     -Werror=format-security build/temp.linux-x86_64-2.7/src/cyipopt.o
      -L/usr/local/lib
-     -Wl,-rpath=/usr/local/lib,--no-as-needed
-     -Wl,-rpath=/usr/local/lib,--no-as-needed build/temp.linux-x86_64-2.7/src/cyipopt.o
      -L/lib/../lib
      -L/usr/lib/../lib
+     -L/usr/lib/gcc/x86_64-linux-gnu/5
      -L/usr/lib/gcc/x86_64-linux-gnu/5
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../..
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu
+     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/../lib
      -lipopt -llapack -lblas -lm -ldl -lcoinmumps -lblas -lgfortran -lm -lquadmath  # linking to relevant libs
-     -lcoinhsl -llapack -lblas -lgfortran -lm -lquadmath -lcoinmetis -lpython2.7m  # linking to relevant libs
-     -o build/lib.linux-x86_64-2.7/cyipopt.cpython-27m-x86_64-linux-gnu.so
+     -lcoinhsl -llapack -lblas -lgfortran -lm -lquadmath -lcoinmetis  # linking to relevant libs
+     -o build/lib.linux-x86_64-2.7/cyipopt.so
+   ...
+
+You can check that everything linked correctly with ``ldd``::
+
+   $ ldd build/lib.linux-x86_64-2.7/cyipopt.so
+   linux-vdso.so.1 (0x00007ffc1677c000)
+   libipopt.so.0 => /usr/local/lib/libipopt.so.0 (0x00007fcdc8668000)
+   libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fcdc8277000)
+   libcoinmumps.so.0 => /usr/local/lib/libcoinmumps.so.0 (0x00007fcdc7eef000)
+   libcoinhsl.so.0 => /usr/local/lib/libcoinhsl.so.0 (0x00007fcdc7bb4000)
+   liblapack.so.3 => /usr/lib/x86_64-linux-gnu/liblapack.so.3 (0x00007fcdc732e000)
+   libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007fcdc70d3000)
+   libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fcdc6ecf000)
+   libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007fcdc6b46000)
+   libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fcdc67a8000)
+   /lib64/ld-linux-x86-64.so.2 (0x00007fcdc8d20000)
+   libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007fcdc6590000)
+   libcoinmetis.so.0 => /usr/local/lib/libcoinmetis.so.0 (0x00007fcdc6340000)
+   libgfortran.so.3 => /usr/lib/x86_64-linux-gnu/libgfortran.so.3 (0x00007fcdc600f000)
+   libopenblas.so.0 => /usr/lib/x86_64-linux-gnu/libopenblas.so.0 (0x00007fcdc3d69000)
+   libgfortran.so.4 => /usr/lib/x86_64-linux-gnu/libgfortran.so.4 (0x00007fcdc398a000)
+   libquadmath.so.0 => /usr/lib/x86_64-linux-gnu/libquadmath.so.0 (0x00007fcdc374a000)
+   libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fcdc352b000)
+
+And finally::
+
+   $ python setup.py install
 
 Docker container
 ================
