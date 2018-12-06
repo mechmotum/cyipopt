@@ -148,6 +148,12 @@ And finally::
 
    $ python setup.py install
 
+Note that you may or may not want to install this package system wide. It is
+best to install into your user space, i.e. what ``pip install --user`` does, or
+setup a virtual environment with tools like venv or conda. If you use virtual
+environments you will need to be careful about selecting headers and libraries
+for packages in or out of the virtual environments.
+
 Docker container
 ================
 
