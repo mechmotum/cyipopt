@@ -112,11 +112,9 @@ look something like this (formatted and commented for easy viewing here)::
      -L/lib/../lib
      -L/usr/lib/../lib
      -L/usr/lib/gcc/x86_64-linux-gnu/5
-     -L/usr/lib/gcc/x86_64-linux-gnu/5
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../..
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu
-     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib -L/lib/../lib
      -lipopt -llapack -lblas -lm -ldl -lcoinmumps -lblas -lgfortran -lm -lquadmath  # linking to relevant libs
      -lcoinhsl -llapack -lblas -lgfortran -lm -lquadmath -lcoinmetis  # linking to relevant libs
      -o build/lib.linux-x86_64-2.7/cyipopt.so
@@ -152,7 +150,7 @@ Note that you may or may not want to install this package system wide. It is
 best to install into your user space, i.e. what ``pip install --user`` does, or
 setup a virtual environment with tools like venv or conda. If you use virtual
 environments you will need to be careful about selecting headers and libraries
-for packages in or out of the virtual environments.
+for packages in or out of the virtual environments in the build step.
 
 Docker container
 ================
