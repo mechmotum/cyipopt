@@ -77,7 +77,7 @@ Then, execute::
 Installation on Ubuntu 18.04 LTS
 --------------------------------
 
-All of the dependencies can be install with Ubuntu's package manager::
+All of the dependencies can be installed with Ubuntu's package manager::
 
    sudo apt install build-essential python-dev python-six cython python-numpy coinor-libipopt1v5 coinor-libipopt-dev
 
@@ -96,28 +96,23 @@ and linking. Make sure both of these are pointing to the correct libraries and
 headers. They will look something like this::
 
    gcc -pthread -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -m64 -fPIC -m64 -fPIC -fPIC
-     -I/usr/local/include/coin -I/usr/local/include/coin/ThirdParty  # points to IPOPT lib and headers
+     -I/usr/local/include/coin -I/usr/local/include/coin/ThirdParty  # points to IPOPT headers
      -I/usr/local/lib/python2.7/site-packages/numpy/core/include  # points to NumPy headers
      -I/usr/local/include/python2.7m  # points to Python headers
-     -c src/cyipopt.c -o build/temp.linux-x86_64-3.6/src/cyipopt.o
+     -c src/cyipopt.c -o build/temp.linux-x86_64-2.7/src/cyipopt.o
    gcc -pthread -shared
-     -L/usr/local/lib -Wl,-rpath=/usr/local/lib,--no-as-needed
-     -L/usr/local/lib -Wl,-rpath=/usr/local/lib,--no-as-needed build/temp.linux-x86_64-3.6/src/cyipopt.o
      -L/usr/local/lib
+     -Wl,-rpath=/usr/local/lib,--no-as-needed
+     -Wl,-rpath=/usr/local/lib,--no-as-needed build/temp.linux-x86_64-2.7/src/cyipopt.o
+     -L/lib/../lib
+     -L/usr/lib/../lib
      -L/usr/lib/gcc/x86_64-linux-gnu/5
-     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu
-     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib
-     -L/lib/../lib -L/usr/lib/../lib
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../..
-     -L/usr/local/lib -L/usr/lib/gcc/x86_64-linux-gnu/5
-     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu
      -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../../lib
-     -L/lib/../lib -L/usr/lib/../lib
-     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../..
-     -L/usr/local/lib -L/home/moorepants/miniconda3/envs/cyipopt-manual/lib
+     -L/usr/lib/gcc/x86_64-linux-gnu/5/../../../x86_64-linux-gnu
      -lipopt -llapack -lblas -lm -ldl -lcoinmumps -lblas -lgfortran -lm -lquadmath  # linking to relevant libs
-     -lcoinhsl -llapack -lblas -lgfortran -lm -lquadmath -lcoinmetis -lpython3.6m  # linking to relevant libs
-     -o build/lib.linux-x86_64-3.6/cyipopt.cpython-36m-x86_64-linux-gnu.so
+     -lcoinhsl -llapack -lblas -lgfortran -lm -lquadmath -lcoinmetis -lpython2.7m  # linking to relevant libs
+     -o build/lib.linux-x86_64-2.7/cyipopt.cpython-27m-x86_64-linux-gnu.so
 
 Docker container
 ================
