@@ -213,7 +213,7 @@ Get help from this web-page if you get errors in setting environments. <https://
 
 1. Download ``cyipopt`` source code from this github: <https://github.com/matthias-k/cyipopt>
 
-Extract cyipopt and put it at the place you want (I put it at Home directory).
+Extract cyipopt and put it at the place you want (I put it at ``Home`` directory).
 
 Change the path of terminal to cyipopt: ``cd ~/cyipopt``
 
@@ -239,7 +239,8 @@ If there is no error, then you have compiled ``cyipopt`` successfully
     libcoinmetis.so.1 => /home/huawei/Ipopt-3.12.11/build/lib/libcoinmetis.so.1 (0x00007f74ed8ca000)
     libgfortran.so.4 => /usr/lib/x86_64-linux-gnu/libgfortran.so.4 (0x00007f74ed4eb000)
     
-3. Install ``Cyipopt``: 
+3. Install ``Cyipopt``::
+
     $ python setup.py install
 
 4. Before try the test code, add Ipopt ``lib`` path to ``LD_LIBRARY_PATH``::
