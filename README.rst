@@ -152,17 +152,6 @@ setup a virtual environment with tools like venv or conda. If you use virtual
 environments you will need to be careful about selecting headers and libraries
 for packages in or out of the virtual environments in the build step.
 
-Docker container
-================
-
-The subdirectory ``docker`` contains a docker container with preinstalled ipopt
-and cyipopt.  To build the container, cd into the ``docker`` directory and run
-``make``. Then you can start the container by::
-
-   $ docker run -it matthiask/ipopt /bin/bash
-
-and either call ``ipopt`` directly or start a ipython shell and ``import ipopt``.
-
 
 Manually compile IPOPT and Cyipopt (On Ubuntu 18.04.1 LTS, python 2.7.15)
 -------------------------------------
@@ -228,7 +217,7 @@ Extract cyipopt and put it at the place you want (I put it at Home directory).
 
 Change the path of terminal to cyipopt: ``cd ~/cyipopt``
 
-Compile cyipopt using the command: ``python setup.py install``
+Compile cyipopt using the command: ``python setup.py build``
 
 If there is no error, then you have compiled ``cyipopt`` successfully
 
@@ -250,8 +239,10 @@ If there is no error, then you have compiled ``cyipopt`` successfully
     libcoinmetis.so.1 => /home/huawei/Ipopt-3.12.11/build/lib/libcoinmetis.so.1 (0x00007f74ed8ca000)
     libgfortran.so.4 => /usr/lib/x86_64-linux-gnu/libgfortran.so.4 (0x00007f74ed4eb000)
     
+3. Install ``Cyipopt``: 
+    $ python setup.py install
 
-3. Before try the test code, add Ipopt ``lib`` path to ``LD_LIBRARY_PATH``::
+4. Before try the test code, add Ipopt ``lib`` path to ``LD_LIBRARY_PATH``::
 
     $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/huawei/Ipopt-3.12.11/build/lib
 
@@ -259,7 +250,7 @@ To make this path works for all terminal, it can be added to ``.bashrc`` ::
 
     $ echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/huawei/Ipopt-3.12.11/build/lib' >> ~/.bashrc
 
-4. Now you can run the test code::
+5. Now you can run the test code::
 
     $ cd test
     $ python -c "import ipopt"
@@ -274,6 +265,18 @@ If it could be run successfully, the optimization will start with the following 
     ******************************************************************************
 
     This is Ipopt version 3.12.11, running with linear solver ma27.
+
+
+Docker container
+================
+
+The subdirectory ``docker`` contains a docker container with preinstalled ipopt
+and cyipopt.  To build the container, cd into the ``docker`` directory and run
+``make``. Then you can start the container by::
+
+   $ docker run -it matthiask/ipopt /bin/bash
+
+and either call ``ipopt`` directly or start a ipython shell and ``import ipopt``.
 
 Vagrant environment
 ===================
