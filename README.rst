@@ -156,11 +156,11 @@ for packages in or out of the virtual environments in the build step.
 Manually compile IPOPT and Cyipopt (On Ubuntu 18.04.1 LTS, python 2.7.15)
 -------------------------------------
 
-Before start, make sure ``pip`` is installed. If not, please install it.
+Before start, make sure ``pip`` is installed. If not, please install it::
 
-    ``sudo apt install python-pip``
+    $ sudo apt install python-pip
 
-Then use ``pip`` install the following packages:
+Then use ``pip`` install the following packages::
 
     $ pip2 install pkgconfig numpy scipy cython six future wget
     
