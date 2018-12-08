@@ -211,7 +211,7 @@ Set environment variables::
 
     $ export IPOPT_PATH="~/Ipopt-3.12.11/build"
     $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IPOPT_PATH/lib/pkgconfig
-    $ export PATH=$PATH:$IPOPTPATH/bin
+    $ export PATH=$PATH:$IPOPT_PATH/bin
 
 Get help from this web-page if you get errors in setting environments:
 
