@@ -68,10 +68,11 @@ if __name__ == '__main__':
 
     if sys.platform == 'win32':
 
-        IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
-        IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
-        IPOPT_LIB_DIRS = ['lib_mt/x64/release']
-        IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
+        #Compatibilibity for latest Windows dll available (Ipopt 3.11.0)
+        IPOPT_INCLUDE_DIRS = ['include/coin', np.get_include()]
+        IPOPT_LIBS = ['Ipopt-vc8', 'IpOptFSS', 'IpOpt-vc10']
+        IPOPT_LIB_DIRS = ['lib/x64/ReleaseMKL']
+        IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll', 'libiomp5md.dll', 'msvcp100.dll', 'msvcr100.dll']
 
         EXT_MODULES = [
             Extension(
