@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     else:
 
-        EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
+        EXT_MODULES = [Extension(PACKAGE_NAME + '.' + 'cyipopt',['src/cyipopt.pyx'],
                                  **pkgconfig('ipopt'))]
         DATA_FILES = None
         include_package_data = True
