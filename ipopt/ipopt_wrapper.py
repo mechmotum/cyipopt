@@ -32,7 +32,7 @@ else:
         from scipy.optimize import Result
         OptimizeResult = Result
 
-import ipopt.cyipopt as cyipopt
+import cyipopt
 
 
 class IpoptProblemWrapper(object):
