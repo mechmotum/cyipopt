@@ -59,7 +59,7 @@ dependencies:
   * numpy
   * six
   * future
-  * scipy [optiional]
+  * scipy [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
@@ -71,6 +71,19 @@ header files and binaries of the Ipopt package, if ``LD_LIBRARY_PATH`` and
 ``pkg_config`` are not setup to find ipopt on their own.
 
 Then, execute::
+
+   $ python setup.py install
+
+On Windows, the DLL builds can be obtained from the same source
+http://www.coin-or.org/download/binary/Ipopt/. Note that the current setup only
+supports Ipopt >= 3.10.1. It is advised to use the build 3.11.0 by downloading
+the ``Ipopt-3.11.0-Win32-Win64-dll.7z`` archive.
+
+From there, the ``lib`` and ``include`` folders should be extracted to the root
+cyipopt directory. You can alternatively update ``setup.py`` to point to the
+ipopt directory.
+
+Then, you can execute::
 
    $ python setup.py install
 
