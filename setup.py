@@ -68,10 +68,17 @@ if __name__ == '__main__':
 
     if sys.platform == 'win32':
 
-        IPOPT_INCLUDE_DIRS = ['include/coin', np.get_include()]
+        if "IPOPTDIR" in os.environ:
+            ipoptdir = os.environ["IPOPTDIR"]
+        else:
+            ipoptdir = ''
+
+        IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin'),
+                              np.get_include()]
         IPOPT_LIBS = ['Ipopt-vc8', 'IpOptFSS', 'IpOpt-vc10']
-        IPOPT_LIB_DIRS = ['lib/x64/ReleaseMKL']
-        IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll', 'libiomp5md.dll', 'msvcp100.dll', 'msvcr100.dll']
+        IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib', 'x64', 'ReleaseMKL')]
+        IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll',
+                     'libiomp5md.dll', 'msvcp100.dll', 'msvcr100.dll']
 
         EXT_MODULES = [
             Extension(
