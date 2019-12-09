@@ -42,7 +42,7 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
   - ps: Start-FileDownload 'https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z'
-  - 7z 'Ipopt-3.11.0-Win32-Win64-dll.7z'
+  - 7z x Ipopt-3.11.0-Win32-Win64-dll.7z
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart the
