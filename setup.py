@@ -68,21 +68,20 @@ if __name__ == '__main__':
 
     if sys.platform == 'win32':
 
-        IPOPT_INCLUDE_DIRS = ['include_mt/coin', np.get_include()]
-        IPOPT_LIBS = ['Ipopt39', 'IpoptFSS']
-        IPOPT_LIB_DIRS = ['lib_mt/x64/release']
-        IPOPT_DLL = ['Ipopt39.dll', 'IpoptFSS39.dll']
+        IPOPT_INCLUDE_DIRS = ['include/coin', np.get_include()]
+        IPOPT_LIBS = ['Ipopt-vc8', 'IpOptFSS', 'IpOpt-vc10']
+        IPOPT_LIB_DIRS = ['lib/x64/ReleaseMKL']
+        IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll', 'libiomp5md.dll', 'msvcp100.dll', 'msvcr100.dll']
 
         EXT_MODULES = [
             Extension(
-                PACKAGE_NAME + '.' + 'cyipopt',
-                ['src/cyipopt.pyx'],
+                "cyipopt", ['src/cyipopt.pyx'],
                 include_dirs=IPOPT_INCLUDE_DIRS,
                 libraries=IPOPT_LIBS,
                 library_dirs=IPOPT_LIB_DIRS
             )
         ]
-        DATA_FILES = [(os.path.join(get_python_lib(), PACKAGE_NAME),
+        DATA_FILES = [(get_python_lib(),
                       [os.path.join(IPOPT_LIB_DIRS[0], dll)
                       for dll in IPOPT_DLL])] if IPOPT_DLL else None
         include_package_data = False
