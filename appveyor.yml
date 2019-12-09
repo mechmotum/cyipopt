@@ -41,10 +41,8 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
-  - $source = "https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.1-win64-intel13.1.zip"
-  - $destination = "Ipopt-3.11.1-win64-intel13.1.zip"
-  - Invoke-WebRequest $source -OutFile $destination
-  - 7z Ipopt-3.11.1-win64-intel13.1.zip
+  - ps: Start-FileDownload 'https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z'
+  - 7z 'Ipopt-3.11.0-Win32-Win64-dll.7z'
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart the
