@@ -46,6 +46,7 @@ install:
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: Start-FileDownload 'https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z'
   - 7z x Ipopt-3.11.0-Win32-Win64-dll.7z
+  - ps: "ls"
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart the
