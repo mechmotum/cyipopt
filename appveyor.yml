@@ -59,10 +59,10 @@ install:
 build: false
 
 test_script:
-  - "%CMD_IN_ENV% python setup.py install"
-  - '%CMD_IN_ENV% python -c "import ipopt"'
-  - "%CMD_IN_ENV% python test/examplehs071.py"
-  - "%CMD_IN_ENV% python test/exception_handling.py"
-  - "%CMD_IN_ENV% python test/lasso.py"
+  - "python setup.py install"
+  - 'python -c "import ipopt"'
+  - "python test/examplehs071.py"
+  - "python test/exception_handling.py"
+  - "python test/lasso.py"
   - "conda.exe install --yes scipy"
-  - "%CMD_IN_ENV% python test/rosen.py"
+  - "python test/rosen.py"
