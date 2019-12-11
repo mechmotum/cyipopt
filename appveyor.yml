@@ -38,7 +38,7 @@ install:
   # This upates conda and installs the necessary packages.
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
-  - '%PYTHON%\\Scripts\\conda.exe install --yes numpy cython future six setuptools sphinx numpydoc'
+  - '%PYTHON%\\Scripts\\conda.exe install --yes numpy cython future six setuptools sphinx numpydoc mkl'
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
