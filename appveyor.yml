@@ -5,7 +5,7 @@ environment:
     # /E:ON and /V:ON options are not enabled in the batch script intepreter
     # See: http://stackoverflow.com/a/13751649/163740
     CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
-    IPOPTDIR: "Ipopt-3.11.0-Win32-Win64-dll"
+    IPOPTDIR: "C:\projects\cyipopt"
 
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
