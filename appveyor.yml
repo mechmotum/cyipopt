@@ -61,7 +61,7 @@ build: false
 
 test_script:
   - "python setup.py install"
-  - 'python -c "import ipopt"'
+  #- 'python -c "import ipopt"'
   - "python test/examplehs071.py"
   - "python test/exception_handling.py"
   - "python test/lasso.py"
