@@ -78,7 +78,7 @@ if __name__ == '__main__':
         IPOPT_LIBS = ['Ipopt-vc8', 'IpOptFSS', 'IpOpt-vc10']
         IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib', 'x64', 'ReleaseMKL')]
         IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll',
-                     'libiomp5md.dll', 'msvcp100.dll', 'msvcr100.dll']
+                     'msvcp100.dll', 'msvcr100.dll']
 
         EXT_MODULES = [
             Extension(
