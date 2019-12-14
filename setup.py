@@ -4,7 +4,7 @@
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
-Copyright (C) 2015-2018 Matthias Kümmerer
+Copyright (C) 2015-2019 Matthias Kümmerer
 
 Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
 (original Author: Amit Aides <amitibo@tx.technion.ac.il>)
@@ -20,8 +20,6 @@ import subprocess as sp
 from setuptools import setup
 from setuptools.extension import Extension
 from Cython.Distutils import build_ext
-import Cython.Distutils
-import Cython.Compiler.Options
 import numpy as np
 import six
 
@@ -68,10 +66,7 @@ if __name__ == '__main__':
 
     if sys.platform == 'win32':
 
-        if "IPOPTDIR" in os.environ:
-            ipoptdir = os.environ["IPOPTDIR"]
-        else:
-            ipoptdir = ''
+        ipoptdir = os.environ.get('IPOPTDIR', '')
 
         IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin'),
                               np.get_include()]
@@ -116,15 +111,15 @@ if __name__ == '__main__':
             'Intended Audience :: Science/Research',
             'Operating System :: OS Independent',
             'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3.4',
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
             ],
         packages=[PACKAGE_NAME],
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
-        zip_safe=False,
+        zip_safe=False,  # required for Py27 on Windows to work
         cmdclass={'build_ext': build_ext},
         ext_modules=EXT_MODULES
     )

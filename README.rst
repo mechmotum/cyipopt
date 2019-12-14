@@ -35,36 +35,46 @@ the same behaviour as ``scipy.optimize.minimize``, for example:
 Installation
 ============
 
-The `Anaconda Python Distribution <https://www.continuum.io/why-anaconda>`_ is
-one of the easiest ways to install Python and associated packages for Linux,
-Mac, and Windows. Once Anaconda (or miniconda) is installed, you can install
-cyipopt on Linux and Mac from the Conda Forge channel with::
+Using conda
+-----------
 
-   $ conda install -c conda-forge cyipopt
+The `Anaconda Python Distribution <https://www.continuum.io/why-anaconda>`_ is
+one of the easiest ways to install Python and associated pre-complied packages
+for Linux, Mac, and Windows. Once Anaconda (or miniconda) is installed, you can
+install cyipopt on **Linux and Mac** from the Conda Forge channel with::
+
+   conda install -c conda-forge cyipopt
 
 The above command will install binary versions of all the necessary
 dependencies and cyipopt. Note that there currently are no Windows binaries.
 You will have to install from source from Windows or if you want a customized
 installation, e.g. with MKL, HSL, etc.
 
+From source
+-----------
+
 To begin installing from source you will need to install the following
 dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt
-  * Python 2.7 or 3.4+
+  * Ipopt [>= 3.10.1 for Windows]
+  * Python 2.7 or 3.5+
   * setuptools
   * cython
   * numpy
   * six
   * future
   * scipy [optional]
+  * mkl [windows]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
 against the MKL library. Or you can build Ipopt from source. The remaining
 dependencies can be installed with conda or other package managers.
+
+On Linux and Mac
+~~~~~~~~~~~~~~~~
 
 Download the source files of cyipopt and update ``setup.py`` to point to the
 header files and binaries of the Ipopt package, if ``LD_LIBRARY_PATH`` and
@@ -72,20 +82,33 @@ header files and binaries of the Ipopt package, if ``LD_LIBRARY_PATH`` and
 
 Then, execute::
 
-   $ python setup.py install
+   python setup.py install
 
-On Windows, the DLL builds can be obtained from the same source
+From source on Windows
+~~~~~~~~~~~~~~~~~~~~~~
+
+Install the dependencies with conda::
+
+   conda install numpy cython future six setuptools mkl
+
+Additionally, make sure you have a C compiler setup to compile Python C
+extensions, e.g.  Visual C++.
+
+Download and extract the cyipopt source code from Github or PyPi.
+
+Download a precompiled version of Ipopt that includes the DLL files from
 http://www.coin-or.org/download/binary/Ipopt/. Note that the current setup only
 supports Ipopt >= 3.10.1. It is advised to use the build 3.11.0 by downloading
-the ``Ipopt-3.11.0-Win32-Win64-dll.7z`` archive.
+the `Ipopt-3.11.0-Win32-Win64-dll.7z
+<https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z>`_
+archive. After Ipopt is extracted, the ``lib`` and ``include`` folders should
+be in the root cyipopt directory, i.e. adjacent to the ``setup.py`` file.
+Alternatively, you can set the environment variable ``IPOPTDIR`` to point to
+the directory that contains the ``lib`` and ``include`` directories.
 
-From there, the ``lib`` and ``include`` folders should be extracted to the root
-cyipopt directory. You can alternatively update ``setup.py`` to point to the
-ipopt directory.
+Finally, execute::
 
-Then, you can execute::
-
-   $ python setup.py install
+   python setup.py install
 
 Example Installation on Ubuntu 18.04 Using Dependencies Installed Via APT
 -------------------------------------------------------------------------
@@ -164,7 +187,6 @@ will need to be careful about selecting headers and libraries for packages in
 or out of the virtual environments in the build step. Note that six, cython,
 and numpy could alternatively be installed using Python specific package
 managers, e.g. ``pip install six cython numpy``.
-
 
 Example Installation on Ubuntu 18.04 With Custom Compiled IPOPT
 ---------------------------------------------------------------
