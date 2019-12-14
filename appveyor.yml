@@ -1,0 +1,67 @@
+environment:
+
+  global:
+    IPOPTWINDIR: "C:\\projects\\cyipopt"
+
+  matrix:
+    - PYTHON: "C:\\Miniconda-x64"
+      PYTHON_VERSION: "2.7"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "27"
+
+    - PYTHON: "C:\\Miniconda35-x64"
+      PYTHON_VERSION: "3.5"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "35"
+
+    - PYTHON: "C:\\Miniconda36-x64"
+      PYTHON_VERSION: "3.6"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "36"
+
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.7"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "37"
+
+install:
+  - ECHO "Filesystem root:"
+  - ps: "ls \"C:/\""
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  # This upates conda and installs the necessary packages.
+  - "%PYTHON%\\Scripts\\conda.exe clean --yes --all"
+  - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
+  - "%PYTHON%\\Scripts\\conda.exe update --yes --all"
+  - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
+  - '%PYTHON%\\Scripts\\conda.exe install --yes numpy cython future six setuptools sphinx numpydoc mkl'
+  - "%PYTHON%\\Scripts\\conda.exe update -y --all"
+  - "%PYTHON%\\Scripts\\conda.exe info"
+  - "%PYTHON%\\Scripts\\conda.exe list"
+
+  # This downloads and extracts a precomplied IPOPT for Windows.
+  - ps: Start-FileDownload 'https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z'
+  - 7z x Ipopt-3.11.0-Win32-Win64-dll.7z
+  - ps: "ls"
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart the
+  # parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PYTHON%\\Library\\bin;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+build: false
+
+test_script:
+  - "python setup.py install"
+  - 'python -c "import ipopt"'
+  - "python test/examplehs071.py"
+  - "python test/exception_handling.py"
+  - "python test/lasso.py"
+  - "conda.exe install --yes scipy"
+  - "python test/rosen.py"
