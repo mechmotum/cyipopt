@@ -124,6 +124,7 @@ if __name__ == '__main__':
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
+        zip_safe=False,
         cmdclass={'build_ext': build_ext},
         ext_modules=EXT_MODULES
     )
