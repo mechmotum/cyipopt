@@ -103,7 +103,7 @@ the `Ipopt-3.11.0-Win32-Win64-dll.7z
 <https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z>`_
 archive. After Ipopt is extracted, the ``lib`` and ``include`` folders should
 be in the root cyipopt directory, i.e. adjacent to the ``setup.py`` file.
-Alternatively, you can set the environment variable ``IPOPTDIR`` to point to
+Alternatively, you can set the environment variable ``IPOPTWINDIR`` to point to
 the directory that contains the ``lib`` and ``include`` directories.
 
 Finally, execute::

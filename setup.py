@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     if sys.platform == 'win32':
 
-        ipoptdir = os.environ.get('IPOPTDIR', '')
+        ipoptdir = os.environ.get('IPOPTWINDIR', '')
 
         IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin'),
                               np.get_include()]

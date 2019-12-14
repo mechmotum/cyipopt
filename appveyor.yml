@@ -1,7 +1,7 @@
 environment:
 
   global:
-    IPOPTDIR: "C:\\projects\\cyipopt"
+    IPOPTWINDIR: "C:\\projects\\cyipopt"
 
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
