@@ -1,3 +1,11 @@
+0.2.0
+=====
+
+- Improvements to the README and setup.py for Windows installations.
+- Drop Python 3.4 support and add Python 3.7 support.
+- Adding installation testing on the Appveyor CI service.
+- Added custom installation instructions for Ubuntu 18.04.
+
 0.1.9
 =====
 
