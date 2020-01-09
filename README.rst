@@ -17,6 +17,28 @@ comfort of the Python programming language.
 .. _Ipopt: https://projects.coin-or.org/Ipopt
 .. _COIN-OR: https://projects.coin-or.org/
 
+Status
+======
+
+.. list-table::
+
+   * - Anaconda
+     - .. image:: https://anaconda.org/conda-forge/cyipopt/badges/version.svg
+          :target: https://anaconda.org/conda-forge/cyipopt
+       .. image:: https://anaconda.org/conda-forge/cyipopt/badges/downloads.svg
+          :target: https://anaconda.org/conda-forge/cyipopt
+   * - PyPi
+     - .. image:: https://badge.fury.io/py/ipopt.svg
+          :target: https://pypi.org/project/ipopt
+       .. image:: https://pepy.tech/badge/ipopt
+          :target: https://pypi.org/project/ipopt
+   * - Travis CI
+     - .. image:: https://api.travis-ci.org/matthias-k/cyipopt.svg?branch=master
+          :target: https://travis-ci.org/matthias-k/cyipopt
+   * - Appveyor
+     - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
+          :target: https://ci.appveyor.com/project/moorepants/cyipopt
+
 Usage
 =====
 
