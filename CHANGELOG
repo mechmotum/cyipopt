@@ -1,6 +1,7 @@
 0.2.0
 =====
 
+- OSError now raised if pkg-config can't find ipopt on installation.
 - Improvements to the README and setup.py for Windows installations.
 - Drop Python 3.4 support and add Python 3.7 support.
 - Adding installation testing on the Appveyor CI service.
