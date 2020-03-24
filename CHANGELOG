@@ -1,6 +1,7 @@
 0.2.0
 =====
 
+- OSError now raised if pkg-config can't find ipopt on installation.
 - Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped.
 - Improvements to the README and setup.py for Windows installations.
 - Drop Python 3.4 support and add Python 3.7 support.

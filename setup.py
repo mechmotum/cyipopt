@@ -49,6 +49,13 @@ def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages),
                       stdout=sp.PIPE).communicate()[0]
+
+    if not output:  # output will be an empty string if pkg-config finds nothing
+        msg = ('pkg-config was not able to find any of the requested packages '
+               '{} on your system. Make sure pkg-config can discover the .pc '
+               'files associated with the installed packages.')
+        raise OSError(msg.format(list(packages)))
+
     if six.PY3:
         output = output.decode('utf8')
     for token in output.split():
