@@ -52,7 +52,7 @@ def pkgconfig(*packages, **kw):
 
     if not output:  # output will be an empty string if pkg-config finds nothing
         msg = ('pkg-config was not able to find any of the requested packages '
-               '({}) on your system. Make sure pkg-config can discover the .pc '
+               '{} on your system. Make sure pkg-config can discover the .pc '
                'files associated with the installed packages.')
         raise OSError(msg.format(list(packages)))
 
