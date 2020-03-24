@@ -9,11 +9,6 @@ environment:
       PYTHON_ARCH: "64"
       CONDA_PY: "27"
 
-    - PYTHON: "C:\\Miniconda35-x64"
-      PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "64"
-      CONDA_PY: "35"
-
     - PYTHON: "C:\\Miniconda36-x64"
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
@@ -23,6 +18,12 @@ environment:
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "37"
+
+    # There is not Miniconda38 on appveyor yet.
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "38"
 
 install:
   - ECHO "Filesystem root:"
@@ -36,7 +37,7 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe update --yes --all"
   - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
-  - '%PYTHON%\\Scripts\\conda.exe install --yes numpy cython future six setuptools sphinx numpydoc mkl'
+  - '%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython future six setuptools sphinx numpydoc mkl'
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"

@@ -1,6 +1,7 @@
 0.2.0
 =====
 
+- Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped.
 - Improvements to the README and setup.py for Windows installations.
 - Drop Python 3.4 support and add Python 3.7 support.
 - Adding installation testing on the Appveyor CI service.

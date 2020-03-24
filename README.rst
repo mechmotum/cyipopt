@@ -81,7 +81,7 @@ dependencies:
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
   * Ipopt [>= 3.10.1 for Windows]
-  * Python 2.7 or 3.5+
+  * Python 2.7 or 3.6+
   * setuptools
   * cython
   * numpy
