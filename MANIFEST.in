@@ -1,4 +1,6 @@
 include setup.py
+include LICENSE
+include CHANGELOG
 recursive-include ipopt *.py
 recursive-include src *.pyx *.pxd *.c
 recursive-include test *.py
