@@ -1,11 +1,18 @@
 0.2.0
 =====
 
+- Resolved compatibility issues with Windows.
+  (https://github.com/matthias-k/cyipopt/pull/49)
 - OSError now raised if pkg-config can't find ipopt on installation.
+  (https://github.com/matthias-k/cyipopt/pull/57)
 - Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped.
+  (https://github.com/matthias-k/cyipopt/pull/58)
 - Improvements to the README and setup.py for Windows installations.
+  (https://github.com/matthias-k/cyipopt/pull/54)
 - Drop Python 3.4 support and add Python 3.7 support.
+  (https://github.com/matthias-k/cyipopt/pull/51)
 - Adding installation testing on the Appveyor CI service.
+  (https://github.com/matthias-k/cyipopt/pull/50)
 - Added custom installation instructions for Ubuntu 18.04.
 
 0.1.9
