@@ -1,7 +1,7 @@
 environment:
 
   global:
-    IPOPTWINDIR: "C:\\projects\\cyipopt"
+    IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.2-win64-msvs2019-md"
 
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
@@ -38,14 +38,14 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe update --yes --all"
   - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
-  - '%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython future six setuptools sphinx numpydoc mkl'
+  - "%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython future six setuptools sphinx numpydoc"
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
 
   # This downloads and extracts a precomplied IPOPT for Windows.
-  - ps: Start-FileDownload 'https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z'
-  - 7z x Ipopt-3.11.0-Win32-Win64-dll.7z
+  - ps: Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip'
+  - 7z x Ipopt-3.13.2-win64-msvs2019-md.zip
   - ps: "ls"
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
