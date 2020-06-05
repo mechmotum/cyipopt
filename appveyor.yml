@@ -33,6 +33,7 @@ install:
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
   # This upates conda and installs the necessary packages.
+  - "CALL %PYTHON%\\Scripts\\activate.bat base"
   - "%PYTHON%\\Scripts\\conda.exe clean --yes --all"
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe update --yes --all"

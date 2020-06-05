@@ -80,7 +80,7 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [>= 3.10.1 for Windows]
+  * Ipopt [<3.13.0 and >= 3.10.1 for Windows]
   * Python 2.7 or 3.6+
   * setuptools
   * cython
@@ -108,13 +108,16 @@ Then, execute::
 
 From source on Windows
 ~~~~~~~~~~~~~~~~~~~~~~
- 
+
 Install the dependencies with conda (Anaconda or Miniconda)::
 
    conda.exe install -c conda-forge numpy cython future six setuptools mkl
 
 Additionally, make sure you have a C compiler setup to compile Python C
-extensions, e.g.  Visual C++. Build tools for VS2019 https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019 have been tested to work for conda Python 3.7 (see https://github.com/matthias-k/cyipopt/issues/52).
+extensions, e.g. Visual C++. Build tools for VS2019
+https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019
+have been tested to work for conda Python 3.7 (see
+https://github.com/matthias-k/cyipopt/issues/52).
 
 Download and extract the cyipopt source code from Github or PyPi.
 
@@ -132,8 +135,11 @@ Finally, execute::
 
    python setup.py install
 
-**NOTE:** 
-Only conda Python has been tested to work at the moment, and *not* the official python.org distribution. There is likely a binary compatibility issue between the C compiler used to build IPOPT and that used for compiling Python extensions in the official Python distribution (see https://github.com/matthias-k/cyipopt/issues/52).
+**NOTE:** Only conda Python has been tested to work at the moment, and *not*
+the official python.org distribution. There is likely a binary compatibility
+issue between the C compiler used to build IPOPT and that used for compiling
+Python extensions in the official Python distribution (see
+https://github.com/matthias-k/cyipopt/issues/52).
 
 Example Installation on Ubuntu 18.04 Using Dependencies Installed Via APT
 -------------------------------------------------------------------------
