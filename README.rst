@@ -80,7 +80,7 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [<3.13.0 and >= 3.10.1 for Windows]
+  * Ipopt [>3.13.0 for Windows]
   * Python 2.7 or 3.6+
   * setuptools
   * cython
@@ -88,7 +88,6 @@ dependencies:
   * six
   * future
   * scipy [optional]
-  * mkl [windows]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
@@ -111,7 +110,11 @@ From source on Windows
 
 Install the dependencies with conda (Anaconda or Miniconda)::
 
-   conda.exe install -c conda-forge numpy cython future six setuptools mkl
+   conda.exe install -c conda-forge numpy cython future six setuptools
+
+Or alternatively with pip::
+
+   pip install numpy cython future six setuptools
 
 Additionally, make sure you have a C compiler setup to compile Python C
 extensions, e.g. Visual C++. Build tools for VS2019
@@ -121,24 +124,23 @@ https://github.com/matthias-k/cyipopt/issues/52).
 
 Download and extract the cyipopt source code from Github or PyPi.
 
-Download a precompiled version of Ipopt that includes the DLL files from
-http://www.coin-or.org/download/binary/Ipopt/. Note that the current setup only
-supports Ipopt >= 3.10.1. It is advised to use the build 3.11.0 by downloading
-the `Ipopt-3.11.0-Win32-Win64-dll.7z
-<https://www.coin-or.org/download/binary/Ipopt/Ipopt-3.11.0-Win32-Win64-dll.7z>`_
-archive. After Ipopt is extracted, the ``lib`` and ``include`` folders should
+Download the latest precompiled version of Ipopt that includes the DLL files from
+https://github.com/coin-or/Ipopt/releases. Note that the current setup only
+supports Ipopt >= 3.13.0. The build 3.13.2 of Ipopt has been confirmed to work and
+can be downloaded from `Ipopt-3.13.2-win64-msvs2019-md.zip
+<https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip>`_
+. After Ipopt is extracted, the ``bin``, ``lib`` and ``include`` folders should
 be in the root cyipopt directory, i.e. adjacent to the ``setup.py`` file.
 Alternatively, you can set the environment variable ``IPOPTWINDIR`` to point to
-the directory that contains the ``lib`` and ``include`` directories.
+the Ipopt directory that contains the ``bin``, ``lib`` and ``include`` directories.
 
 Finally, execute::
 
    python setup.py install
 
-**NOTE:** Only conda Python has been tested to work at the moment, and *not*
-the official python.org distribution. There is likely a binary compatibility
-issue between the C compiler used to build IPOPT and that used for compiling
-Python extensions in the official Python distribution (see
+**NOTE:** It is advised to use the Anaconda or Miniconda distributions and *not* the
+official python.org distribution. Even though it has been tested to work with the
+latest builds, it is well-known for causing issues. (see
 https://github.com/matthias-k/cyipopt/issues/52).
 
 Example Installation on Ubuntu 18.04 Using Dependencies Installed Via APT
