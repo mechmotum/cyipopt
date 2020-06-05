@@ -1,3 +1,8 @@
+0.3.0dev0
+=========
+- Added support for Ipopt >=3.13 on Windows.
+  (https://github.com/matthias-k/cyipopt/pull/63)
+
 0.2.0
 =====
 
