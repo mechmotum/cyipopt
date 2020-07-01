@@ -25,9 +25,9 @@ import numpy as np
 import six
 
 if six.PY3:
-    exec(open('ipopt/version.py', encoding="utf-8").read())
+    exec(open('cyipopt/version.py', encoding="utf-8").read())
 else:
-    exec(open('ipopt/version.py').read())
+    exec(open('cyipopt/version.py').read())
 
 PACKAGE_NAME = 'ipopt'
 VERSION = __version__
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
         EXT_MODULES = [
             Extension(
-                "cyipopt", ['src/cyipopt.pyx'],
+                "cyipopt", ['cyipopt/src/cyipopt.pyx'],
                 include_dirs=IPOPT_INCLUDE_DIRS,
                 libraries=IPOPT_LIBS,
                 library_dirs=IPOPT_LIB_DIRS
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 
     else:
 
-        EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
+        EXT_MODULES = [Extension("cyipopt", ['cyipopt/src/cyipopt.pyx'],
                                  **pkgconfig('ipopt'))]
         DATA_FILES = None
         include_package_data = True
