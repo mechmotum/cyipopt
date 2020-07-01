@@ -1,35 +1,121 @@
-0.2.0
-=====
+CyIpopt Changelog
+==================
 
-- Resolved compatibility issues with Windows.
-  (https://github.com/matthias-k/cyipopt/pull/49)
-- OSError now raised if pkg-config can't find ipopt on installation.
-  (https://github.com/matthias-k/cyipopt/pull/57)
-- Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped.
-  (https://github.com/matthias-k/cyipopt/pull/58)
-- Improvements to the README and setup.py for Windows installations.
-  (https://github.com/matthias-k/cyipopt/pull/54)
-- Drop Python 3.4 support and add Python 3.7 support.
-  (https://github.com/matthias-k/cyipopt/pull/51)
-- Adding installation testing on the Appveyor CI service.
-  (https://github.com/matthias-k/cyipopt/pull/50)
+:Info: Change log for CyIpopt releases.
+:Authors: Matthias Kuemmerer (matthias.kuemmerer@bethgelab.org), Jason Moore (moorepants@gmail.com), Sam Brockie (sgb39@cam.ac.uk)
+:Date: 2020-07-01
+:Version: 1.0.0
+
+GitHub holds releases, too
+--------------------------
+
+More information can be found on GitHub in the `releases section
+<https://github.com/matthias-k/cyipopt/releases>`_.
+
+About this Changelog
+--------------------
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Formatting a New Version
+------------------------
+
+Include sections:
+
+- Added - for new features.
+- Changed - for changes in existing functionality.
+- Depricated - for soon-to-be removed features.
+- Removed - for now removed features.
+- Fixed - for any bug fixes.
+- Security - in case of vulnerabilities.
+
+Unreleased
+----------
+
+Added
++++++
+
+- Make changes as outlined in Version 1.0 proposal [`#14`_].
+- ``requirements.txt` file.
+- Dedicated tests using pytest.
+
+.. _#14: https://github.com/matthias-k/cyipopt/issues/14
+
+Changed
++++++++
+
+- Class and method names now use PEP8 standards. Old class and method names now result in a deprecation warning.
+- Module directory renamed from ``ipopt.`` to ``cyipopt``.
+- ``doc/`` folder renamed to ``docs/``.
+- Updated ``CHANGELOG.rst``.
+
+Removed
++++++++
+
+- ``test/`` folder containing examples, which have mostly been moved to ``examples/`
+
+
+Version History
+---------------
+
+[1.0.0] - 2020-07-01
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+- 
+
+Changed
++++++++
+
+- 
+
+Removed
++++++++
+
+- 
+
+
+Older Versions
+--------------
+
+[0.2.0]
+~~~~~~~
+
+- Resolved compatibility issues with Windows [PR `#49`_].
+- Adding installation testing on the Appveyor CI service [PR `#50`_].
+- Drop Python 3.4 support and add Python 3.7 support [PR `#51`_].
+- Improvements to the README and setup.py for Windows installations [PR `#54`_].
+- OSError now raised if pkg-config can't find Ipopt on installation [PR `#57`_].
+- Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped [PR `#58`_].
 - Added custom installation instructions for Ubuntu 18.04.
 
-0.1.9
-=====
+.. _#49: https://github.com/matthias-k/cyipopt/pull/49
+.. _#50: https://github.com/matthias-k/cyipopt/pull/50
+.. _#51: https://github.com/matthias-k/cyipopt/pull/51
+.. _#54: https://github.com/matthias-k/cyipopt/pull/54
+.. _#57: https://github.com/matthias-k/cyipopt/pull/57
+.. _#58: https://github.com/matthias-k/cyipopt/pull/58
+
+[0.1.9]
+~~~~~~~
 
 - Fixed encoding issue preventing installation on some OSes.
 - Removed SciPy requirements from examples.
 
-0.1.8
-=====
+[0.1.8]
+~~~~~~~
 
-- Updated setup.py to be complete and added dependencies.
+- Updated ``setup.py`` to be complete and added dependencies.
 - Added support for Travis CI to test build, install, examples, and docs.
 - Made SciPy and optional dependency.
 - Linux/Mac installation now supported via conda and conda-forge.
-- Added LICENSE file and EPL headers to each source file.
-- Fixed some PY2/3 compatibility issues.
+- Added ``LICENSE`` file and EPL headers to each source file.
+- Fixed some Python 2/3 compatibility issues.
 - Improved documentation formatting for Sphinx.
 - Strings can be passed to addOption instead of bytes strings for Python 2 and
   3.
