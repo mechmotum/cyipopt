@@ -1,4 +1,7 @@
-#Virtualenv env
+# OS-specific
+.DS_Store
+
+# Virtualenv env
 venv
 
 # Byte-compiled / optimized / DLL files
