@@ -36,7 +36,7 @@ before_script:
 script:
   # Make sure the library installs.
   - python setup.py install
-  - python -c "import ipopt"
+  - python -c "import cyipopt"
   # Run the Pytest tests.
   - conda install pytest
   - pytest
