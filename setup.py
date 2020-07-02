@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
         EXT_MODULES = [
             Extension(
-                "cyipopt", ["cyipopt/cython/ipopt_wrapper.pyx"],
+                "ipopt_wrapper", ["cyipopt/cython/ipopt_wrapper.pyx"],
                 include_dirs=IPOPT_INCLUDE_DIRS,
                 libraries=IPOPT_LIBS,
                 library_dirs=IPOPT_LIB_DIRS
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     else:
 
-        EXT_MODULES = [Extension("cyipopt", ["cyipopt/cython/ipopt_wrapper.pyx"],
+        EXT_MODULES = [Extension("ipopt_wrapper", ["cyipopt/cython/ipopt_wrapper.pyx"],
                                  **pkgconfig("ipopt"))]
         DATA_FILES = None
         include_package_data = True
