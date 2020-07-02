@@ -110,6 +110,7 @@ def handle_ext_modules_win_32():
     DATA_FILES = [(get_python_lib(), [os.path.join(IPOPT_LIB_DIRS[0], dll)
         for dll in IPOPT_DLL])] if IPOPT_DLL else None
     include_package_data = False
+    return EXT_MODULES, DATA_FILES, include_package_data
 
 def handle_ext_modules_general_os():
     ipopt_wrapper_ext = Extension("ipopt_wrapper", 
@@ -117,14 +118,15 @@ def handle_ext_modules_general_os():
     EXT_MODULES = [ipopt_wrapper_ext]
     DATA_FILES = None
     include_package_data = True
+    return EXT_MODULES, DATA_FILES, include_package_data
 
 
 if __name__ == "__main__":
 
     if sys.platform == "win32":
-        handle_ext_modules_win_32()
+        EXT_MODULES, DATA_FILES, include_package_data = handle_ext_modules_win_32()
     else:
-        handle_ext_modules_general_os()
+        EXT_MODULES, DATA_FILES, include_package_data = handle_ext_modules_general_os()
 
     setup(
         name=PACKAGE_NAME,
