@@ -1,6 +1,6 @@
 import warnings
 
-from ipopt_cython_wrapper import Problem
+from ipopt_wrapper import Problem
 
 
 __all__ = ["problem"]
