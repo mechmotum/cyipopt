@@ -1,8 +1,7 @@
 include setup.py
 include LICENSE
 include CHANGELOG
-recursive-include ipopt *.py
-recursive-include src *.pyx *.pxd *.c
+recursive-include cyipopt *.py *.pyx *.pxd *.c
 recursive-include test *.py
 recursive-include doc Makefile *.bat *.rst *.py
 prune include*
