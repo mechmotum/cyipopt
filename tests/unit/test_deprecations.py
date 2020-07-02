@@ -44,3 +44,7 @@ def test_non_pep8_method_names_deprecation(hs071_problem_instance_fixture):
 	expected_warning_msg = ""
 	with pytest.warns(FutureWarning, match=expected_warning_msg):
 		nlp.addOption('mu_strategy', 'adaptive')
+
+	expected_warning_msg = ""
+	with pytest.warns(FutureWarning, match=expected_warning_msg):
+		nlp.setProblemScaling(obj_scaling=2.0)
