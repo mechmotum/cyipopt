@@ -30,6 +30,7 @@ else:
     exec(open("cyipopt/version.py").read())
 
 PACKAGE_NAME = "cyipopt"
+DEPRICATED_PACKAGE_NAME = "ipopt"
 VERSION = __version__
 DESCRIPTION = "A Cython wrapper to the IPOPT optimization package"
 if six.PY3:
@@ -100,8 +101,9 @@ if __name__ == "__main__":
 
     else:
 
-        EXT_MODULES = [Extension("ipopt_wrapper", ["cyipopt/cython/ipopt_wrapper.pyx"],
-                                 **pkgconfig("ipopt"))]
+        ipopt_wrapper_ext = Extension("ipopt_wrapper", 
+            ["cyipopt/cython/ipopt_wrapper.pyx"], **pkgconfig("ipopt"))
+        EXT_MODULES = [ipopt_wrapper_ext]
         DATA_FILES = None
         include_package_data = True
 
@@ -125,7 +127,7 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             ],
-        packages=[PACKAGE_NAME],
+        packages=[PACKAGE_NAME, DEPRICATED_PACKAGE_NAME],
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
