@@ -127,14 +127,14 @@ def main():
     cu = [2.0e19, 40.0]
 
     nlp = ipopt.Problem(
-                n=len(x0),
-                m=len(cl),
-                problem_obj=hs071(),
-                lb=lb,
-                ub=ub,
-                cl=cl,
-                cu=cu
-                )
+        n=len(x0),
+        m=len(cl),
+        problem_obj=hs071(),
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu
+        )
 
     #
     # Set solver options
