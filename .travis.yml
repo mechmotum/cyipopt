@@ -13,7 +13,7 @@ before_install:
     fi
   - chmod +x miniconda.sh
   - ./miniconda.sh -b -p $HOME/miniconda
-  - export PATH=/home/travis/miniconda/bin:$PATH
+  - source "$HOME/miniconda/etc/profile.d/conda.sh"
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
