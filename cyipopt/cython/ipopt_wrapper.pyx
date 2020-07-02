@@ -387,7 +387,7 @@ cdef class Problem:
     def addOption(self, *args):
         """Add a keyword/value option pair to the problem.
 
-        .. deprecated:: 1.6.0
+        .. deprecated:: 1.0.0
           :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced 
           by :method:`add_option` because the latter complies with PEP8.
 
