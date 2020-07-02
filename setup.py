@@ -39,12 +39,35 @@ if six.PY3:
 else:
     with open("README.rst") as f:
         LONG_DESCRIPTION = f.read()
-KEYWORDS = ["optimization", "nonlinear programming", "ipopt", "interior-point",
-    "nlp", "coin-or", ]
+KEYWORDS = [
+    "optimization", 
+    "nonlinear programming", 
+    "ipopt", 
+    "interior-point",
+    "nlp", 
+    "coin-or", 
+    ]
 AUTHOR = "Matthias Kümmerer"
 EMAIL = "matthias.kuemmerer@bethgelab.org"
 URL = "https://github.com/matthias-k/cyipopt"
-DEPENDENCIES = ["numpy", "cython", "six", "future", "setuptools"]
+DEPENDENCIES = [
+    "numpy", 
+    "cython", 
+    "six", 
+    "future", 
+    "setuptools",
+    ]
+LICENSE = "EPL-1.0"
+CLASSIFIERS = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    ]
 
 
 def pkgconfig(*packages, **kw):
@@ -73,39 +96,35 @@ def pkgconfig(*packages, **kw):
     return kw
 
 
+def handle_ext_modules_win_32():
+    ipoptdir = os.environ.get("IPOPTWINDIR", "")
+    IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, "include", "coin"),
+                          np.get_include()]
+    IPOPT_LIBS = ["Ipopt-vc8", "IpOptFSS", "IpOpt-vc10"]
+    IPOPT_LIB_DIRS = [os.path.join(ipoptdir, "lib", "x64", "ReleaseMKL")]
+    IPOPT_DLL = ["IpOptFSS.dll", "Ipopt-vc8.dll", "IpOpt-vc10.dll",
+                 "msvcp100.dll", "msvcr100.dll"]
+    EXT_MODULES = [Extension("ipopt_wrapper", 
+        ["cyipopt/cython/ipopt_wrapper.pyx"], include_dirs=IPOPT_INCLUDE_DIRS,
+        libraries=IPOPT_LIBS, library_dirs=IPOPT_LIB_DIRS)]
+    DATA_FILES = [(get_python_lib(), [os.path.join(IPOPT_LIB_DIRS[0], dll)
+        for dll in IPOPT_DLL])] if IPOPT_DLL else None
+    include_package_data = False
+
+def handle_ext_modules_general_os():
+    ipopt_wrapper_ext = Extension("ipopt_wrapper", 
+        ["cyipopt/cython/ipopt_wrapper.pyx"], **pkgconfig("ipopt"))
+    EXT_MODULES = [ipopt_wrapper_ext]
+    DATA_FILES = None
+    include_package_data = True
+
+
 if __name__ == "__main__":
 
     if sys.platform == "win32":
-
-        ipoptdir = os.environ.get("IPOPTWINDIR", "")
-
-        IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, "include", "coin"),
-                              np.get_include()]
-        IPOPT_LIBS = ["Ipopt-vc8", "IpOptFSS", "IpOpt-vc10"]
-        IPOPT_LIB_DIRS = [os.path.join(ipoptdir, "lib", "x64", "ReleaseMKL")]
-        IPOPT_DLL = ["IpOptFSS.dll", "Ipopt-vc8.dll", "IpOpt-vc10.dll",
-                     "msvcp100.dll", "msvcr100.dll"]
-
-        EXT_MODULES = [
-            Extension(
-                "ipopt_wrapper", ["cyipopt/cython/ipopt_wrapper.pyx"],
-                include_dirs=IPOPT_INCLUDE_DIRS,
-                libraries=IPOPT_LIBS,
-                library_dirs=IPOPT_LIB_DIRS
-            )
-        ]
-        DATA_FILES = [(get_python_lib(),
-                      [os.path.join(IPOPT_LIB_DIRS[0], dll)
-                      for dll in IPOPT_DLL])] if IPOPT_DLL else None
-        include_package_data = False
-
+        handle_ext_modules_win_32()
     else:
-
-        ipopt_wrapper_ext = Extension("ipopt_wrapper", 
-            ["cyipopt/cython/ipopt_wrapper.pyx"], **pkgconfig("ipopt"))
-        EXT_MODULES = [ipopt_wrapper_ext]
-        DATA_FILES = None
-        include_package_data = True
+        handle_ext_modules_general_os()
 
     setup(
         name=PACKAGE_NAME,
@@ -116,22 +135,13 @@ if __name__ == "__main__":
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         keywords=KEYWORDS,
-        license="EPL-1.0",
-        classifiers=[
-            "Development Status :: 4 - Beta",
-            "License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)",
-            "Intended Audience :: Science/Research",
-            "Operating System :: OS Independent",
-            "Programming Language :: Python :: 2.7",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-            "Programming Language :: Python :: 3.8",
-            ],
+        license=LICENSE,
+        classifiers=CLASSIFIERS,
         packages=[PACKAGE_NAME, DEPRICATED_PACKAGE_NAME],
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
         zip_safe=False,  # required for Py27 on Windows to work
         cmdclass={"build_ext": build_ext},
-        ext_modules=EXT_MODULES
+        ext_modules=EXT_MODULES,
     )
