@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
-
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
 Copyright (C) 2017-2020 cyipopt developers
-
 Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
 (original Author: Amit Aides <amitibo@tx.technion.ac.il>)
 URL: https://github.com/matthias-k/cyipopt
@@ -19,7 +17,9 @@ import logging
 import sys
 import six
 
-__all__ = ['setLoggingLevel', 'problem']
+# from ..depricated import depricated_decorator
+
+__all__ = ['setLoggingLevel', 'Problem']
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
@@ -80,31 +80,22 @@ hessian elements num = %s
 """
 
 
-cdef class problem:
+cdef class Problem:
     """
     Wrapper class for solving optimization problems using the C interface of
     the Ipopt package.
-
     It can be used to solve general nonlinear programming problems of the form:
-
     .. math::
-
            \min_ {x \in R^n} f(x)
-
     subject to
-
     .. math::
-
            g_L \leq g(x) \leq g_U
-
            x_L \leq  x  \leq x_U
-
     Where :math:`x` are the optimization variables (possibly with upper an
     lower bounds), :math:`f(x)` is the objective function and :math:`g(x)` are
     the general nonlinear constraints. The constraints, :math:`g(x)`, have
     lower and upper bounds. Note that equality constraints can be specified by
     setting :math:`g^i_L = g^i_U`.
-
     Parameters
     ----------
     n : integer
@@ -115,7 +106,6 @@ cdef class problem:
         An object holding the problem's callbacks. If None, cyipopt will use
         self, this is useful when subclassing problem. The object is required
         to have the following attributes (some are optional):
-
             - 'objective' : function pointer
                 Callback function for evaluating objective function. The
                 callback functions accepts one parameter: x (value of the
@@ -171,7 +161,6 @@ cdef class problem:
                 terminate with the User_Requested_Stop status. The information
                 below corresponeds to the argument list passed to this
                 callback:
-
                     'alg_mod':
                         Algorithm phase: 0 is for regular, 1 is restoration.
                     'iter_count':
@@ -195,10 +184,8 @@ cdef class problem:
                         The stepsize for the primal variables.
                     'ls_trials':
                         The number of backtracking line search steps.
-
                 more information can be found in the following link:
                 http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
-
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.
@@ -211,7 +198,6 @@ cdef class problem:
     cu : array-like, shape(m, )
         Upper bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
-
 """
 
     cdef IpoptProblem __nlp
@@ -382,11 +368,9 @@ cdef class problem:
         """
         Deallcate memory resources used by the Ipopt package. Called implicitly
         by the 'problem' class destructor.
-
         Parameters
         ----------
             None
-
         Returns
         -------
             None
@@ -401,16 +385,13 @@ cdef class problem:
         """
         Add a keyword/value option pair to the problem. See the Ipopt
         documentaion for details on available options.
-
         Parameters
         ----------
         keyword : string
             Option name.
-
         val : string, int, or float
             Value of the option. The type of val should match the option
             definition as described in the Ipopt documentation.
-
         Returns
         -------
             None
@@ -444,7 +425,6 @@ cdef class problem:
         Optional function for setting scaling parameters for the problem.
         To use the scaling parameters set the option 'nlp_scaling_method' to
         'user-scaling'.
-
         Parameters
         ----------
         obj_scaling : float
@@ -458,7 +438,6 @@ cdef class problem:
             The scaling factors for the variables. If None, no scaling is done.
         g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If None, no scaling is done.
-
         Returns
         -------
             None
@@ -510,12 +489,10 @@ cdef class problem:
         """
         Returns the optimal solution and an info dictionary. Solves the posed
         optimization problem starting at point x.
-
         Parameters
         ----------
         x : array-like, shape(n, )
             Initial guess.
-
         Returns
         -------
         x : array, shape(n, )
@@ -537,7 +514,6 @@ cdef class problem:
                 gives the status of the algorithm
             'status_msg': string
                 gives the status of the algorithm as a message
-
         """
 
         if self.__n != len(x):
