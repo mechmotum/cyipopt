@@ -37,7 +37,8 @@ Added
 
 - Make changes as outlined in Version 1.0 proposal [`#14`_].
 - ``requirements.txt` file.
-- Dedicated tests using pytest.
+- Dedicated tests using pytest in ``tests/`` directory.
+- ``examples/`` directory.
 
 .. _#14: https://github.com/matthias-k/cyipopt/issues/14
 
