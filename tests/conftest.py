@@ -10,7 +10,7 @@ import pytest
 import ipopt
 
 
-@pytest.fixture(scope=module)
+@pytest.fixture(scope="module")
 def hs071_fixture():
 	"""Return a default implementation of the hs071 test problem.
 
