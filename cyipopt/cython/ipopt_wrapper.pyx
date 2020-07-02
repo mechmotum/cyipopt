@@ -17,7 +17,7 @@ import logging
 import sys
 import six
 
-# from ..depricated import depricated_decorator
+from cyipopt.deprecated import deprecated_warning
 
 __all__ = ['setLoggingLevel', 'Problem']
 
@@ -84,6 +84,7 @@ cdef class Problem:
     """
     Wrapper class for solving optimization problems using the C interface of
     the Ipopt package.
+
     It can be used to solve general nonlinear programming problems of the form:
     .. math::
            \min_ {x \in R^n} f(x)
@@ -96,6 +97,7 @@ cdef class Problem:
     the general nonlinear constraints. The constraints, :math:`g(x)`, have
     lower and upper bounds. Note that equality constraints can be specified by
     setting :math:`g^i_L = g^i_U`.
+
     Parameters
     ----------
     n : integer
@@ -198,7 +200,7 @@ cdef class Problem:
     cu : array-like, shape(m, )
         Upper bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
-"""
+    """
 
     cdef IpoptProblem __nlp
     cdef public object __objective
@@ -381,17 +383,30 @@ cdef class Problem:
 
         self.__nlp = NULL
 
-    def addOption(self, keyword, val):
+    @deprecated_warning("add_option")
+    def addOption(self, *args):
+        """Add a keyword/value option pair to the problem.
+
+        .. deprecated:: 1.6.0
+          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced 
+          by :method:`add_option` because the latter complies with PEP8.
+
+        """
+        return self.add_option(*args)
+
+    def add_option(self, keyword, val):
         """
         Add a keyword/value option pair to the problem. See the Ipopt
         documentaion for details on available options.
+
         Parameters
         ----------
-        keyword : string
+        keyword : str
             Option name.
-        val : string, int, or float
+        val : str, int or float
             Value of the option. The type of val should match the option
             definition as described in the Ipopt documentation.
+
         Returns
         -------
             None
