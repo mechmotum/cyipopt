@@ -384,7 +384,7 @@ cdef class Problem:
         self.__nlp = NULL
 
     @deprecated_warning("add_option")
-    def addOption(self, *args):
+    def addOption(self, *args, **kwargs):
         """Add a keyword/value option pair to the problem.
 
         .. deprecated:: 1.0.0
@@ -392,7 +392,7 @@ cdef class Problem:
           by :method:`add_option` because the latter complies with PEP8.
 
         """
-        return self.add_option(*args)
+        return self.add_option(*args, **kwargs)
 
     def add_option(self, keyword, val):
         """
@@ -435,11 +435,24 @@ cdef class Problem:
         if not ret_val:
             raise TypeError("Error while assigning an option")
 
-    def setProblemScaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+    @deprecated_warning("set_problem_scaling")
+    def setProblemScaling(self, *args, **kwargs):
+        """Optional function for setting scaling parameters for the problem.
+
+        .. deprecated:: 1.0.0
+          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is 
+          replaced by :method:`set_problem_scaling` because the latter complies 
+          with PEP8.
+
         """
-        Optional function for setting scaling parameters for the problem.
+        return self.set_problem_scaling(*args, **kwargs)
+
+    def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+        """Optional function for setting scaling parameters for the problem.
+
         To use the scaling parameters set the option 'nlp_scaling_method' to
         'user-scaling'.
+
         Parameters
         ----------
         obj_scaling : float
@@ -453,6 +466,7 @@ cdef class Problem:
             The scaling factors for the variables. If None, no scaling is done.
         g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If None, no scaling is done.
+        
         Returns
         -------
             None
