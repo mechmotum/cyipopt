@@ -39,5 +39,4 @@ script:
   - conda install pytest
   - pytest
   # Make sure the Sphinx docs build.
-  - cd docs; make clean; cd ..
-  - make html
+  - cd docs && make clean && make html && cd ..
