@@ -496,7 +496,7 @@ cdef class Problem:
             g_scaling_p = NULL
         else:
             if len(g_scaling) != self.__m:
-                raise ValueError('g_scaling must either be None or have length n.')
+                raise ValueError('g_scaling must either be None or have length m.')
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
             g_scaling_p = <Number*>np_g_scaling.data
