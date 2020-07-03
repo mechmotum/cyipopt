@@ -35,6 +35,7 @@ def test_non_pep8_class_name_deprecation(
 			cu=hs071_constraint_upper_bounds_fixture,
 			)
 
+
 def test_non_pep8_method_names_deprecation(hs071_problem_instance_fixture):
 	"""Ensure use of old non-PEP8 methods API raises FutureWarning to user."""
 	nlp = hs071_problem_instance_fixture
