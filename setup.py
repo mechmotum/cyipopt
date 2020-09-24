@@ -76,12 +76,13 @@ if __name__ == '__main__':
 
         ipoptdir = os.environ.get('IPOPTWINDIR', '')
 
-        IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin'),
+        IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin-or'),
                               np.get_include()]
-        IPOPT_LIBS = ['Ipopt-vc8', 'IpOptFSS', 'IpOpt-vc10']
-        IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib', 'x64', 'ReleaseMKL')]
-        IPOPT_DLL = ['IpOptFSS.dll', 'Ipopt-vc8.dll', 'IpOpt-vc10.dll',
-                     'msvcp100.dll', 'msvcr100.dll']
+        IPOPT_LIBS = ['ipopt.dll', 'ipoptamplinterface.dll']
+        IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib')]
+        IPOPT_DLL = ['ipopt-3.dll', 'ipoptamplinterface-3.dll', 'libifcoremd.dll',
+                     'libmmd.dll', 'msvcp140.dll', 'svml_dispmd.dll', 'vcruntime140.dll']
+        IPOPT_DLL_DIRS = [os.path.join(ipoptdir, 'bin')]
 
         EXT_MODULES = [
             Extension(
@@ -92,7 +93,7 @@ if __name__ == '__main__':
             )
         ]
         DATA_FILES = [(get_python_lib(),
-                      [os.path.join(IPOPT_LIB_DIRS[0], dll)
+                      [os.path.join(IPOPT_DLL_DIRS[0], dll)
                       for dll in IPOPT_DLL])] if IPOPT_DLL else None
         include_package_data = False
 
