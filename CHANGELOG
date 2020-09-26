@@ -81,8 +81,15 @@ Removed
 Older Versions
 --------------
 
-[0.2.0]
-~~~~~~~
+[0.3.0] - TBC
+~~~~~~~~~~~~~
+
+- Added support for Ipopt >=3.13 on Windows [PR `#63`_].
+
+.. _#63: https://github.com/matthias-k/cyipopt/pull/63
+
+[0.2.0] - 2020-06-2020
+~~~~~~~~~~~~~~~~~~~~~~
 
 - Resolved compatibility issues with Windows [PR `#49`_].
 - Adding installation testing on the Appveyor CI service [PR `#50`_].
@@ -99,14 +106,14 @@ Older Versions
 .. _#57: https://github.com/matthias-k/cyipopt/pull/57
 .. _#58: https://github.com/matthias-k/cyipopt/pull/58
 
-[0.1.9]
-~~~~~~~
+[0.1.9] - 2019-09-24
+~~~~~~~~~~~~~~~~~~~~
 
 - Fixed encoding issue preventing installation on some OSes.
 - Removed SciPy requirements from examples.
 
-[0.1.8]
-~~~~~~~
+[0.1.8] - 2019-09-22
+~~~~~~~~~~~~~~~~~~~~
 
 - Updated ``setup.py`` to be complete and added dependencies.
 - Added support for Travis CI to test build, install, examples, and docs.

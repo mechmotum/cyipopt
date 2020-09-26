@@ -40,23 +40,23 @@ else:
     with open("README.rst") as f:
         LONG_DESCRIPTION = f.read()
 KEYWORDS = [
-    "optimization", 
-    "nonlinear programming", 
-    "ipopt", 
+    "optimization",
+    "nonlinear programming",
+    "ipopt",
     "interior-point",
-    "nlp", 
-    "coin-or", 
-    ]
+    "nlp",
+    "coin-or",
+]
 AUTHOR = "Matthias Kümmerer"
 EMAIL = "matthias.kuemmerer@bethgelab.org"
 URL = "https://github.com/matthias-k/cyipopt"
 DEPENDENCIES = [
-    "numpy", 
-    "cython", 
-    "six", 
-    "future", 
+    "numpy",
+    "cython",
+    "six",
+    "future",
     "setuptools",
-    ]
+]
 LICENSE = "EPL-1.0"
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
@@ -67,7 +67,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
-    ]
+]
 
 
 def pkgconfig(*packages, **kw):
@@ -98,23 +98,30 @@ def pkgconfig(*packages, **kw):
 
 def handle_ext_modules_win_32():
     ipoptdir = os.environ.get("IPOPTWINDIR", "")
-    IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, "include", "coin"),
+    IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, "include", "coin-or"),
                           np.get_include()]
-    IPOPT_LIBS = ["Ipopt-vc8", "IpOptFSS", "IpOpt-vc10"]
-    IPOPT_LIB_DIRS = [os.path.join(ipoptdir, "lib", "x64", "ReleaseMKL")]
-    IPOPT_DLL = ["IpOptFSS.dll", "Ipopt-vc8.dll", "IpOpt-vc10.dll",
-                 "msvcp100.dll", "msvcr100.dll"]
-    EXT_MODULES = [Extension("ipopt_wrapper", 
-        ["cyipopt/cython/ipopt_wrapper.pyx"], include_dirs=IPOPT_INCLUDE_DIRS,
-        libraries=IPOPT_LIBS, library_dirs=IPOPT_LIB_DIRS)]
-    DATA_FILES = [(get_python_lib(), [os.path.join(IPOPT_LIB_DIRS[0], dll)
-        for dll in IPOPT_DLL])] if IPOPT_DLL else None
+    IPOPT_LIBS = ["ipopt.dll", "ipoptamplinterface.dll"]
+    IPOPT_LIB_DIRS = [os.path.join(ipoptdir, "lib")]
+    IPOPT_DLL = ["ipopt-3.dll", "ipoptamplinterface-3.dll", "libifcoremd.dll",
+                 "libmmd.dll", "msvcp140.dll", "svml_dispmd.dll",
+                 "vcruntime140.dll"]
+    IPOPT_DLL_DIRS = [os.path.join(ipoptdir, "bin")]
+    EXT_MODULES = [Extension("ipopt_wrapper",
+                             ["cyipopt/cython/ipopt_wrapper.pyx"],
+                             include_dirs=IPOPT_INCLUDE_DIRS,
+                             libraries=IPOPT_LIBS,
+                             library_dirs=IPOPT_LIB_DIRS)]
+    DATA_FILES = [(get_python_lib(),
+                  [os.path.join(IPOPT_DLL_DIRS[0], dll)
+                  for dll in IPOPT_DLL])] if IPOPT_DLL else None
     include_package_data = False
     return EXT_MODULES, DATA_FILES, include_package_data
 
+
 def handle_ext_modules_general_os():
-    ipopt_wrapper_ext = Extension("ipopt_wrapper", 
-        ["cyipopt/cython/ipopt_wrapper.pyx"], **pkgconfig("ipopt"))
+    ipopt_wrapper_ext = Extension("ipopt_wrapper",
+                                  ["cyipopt/cython/ipopt_wrapper.pyx"],
+                                  **pkgconfig("ipopt"))
     EXT_MODULES = [ipopt_wrapper_ext]
     DATA_FILES = None
     include_package_data = True
@@ -124,10 +131,10 @@ def handle_ext_modules_general_os():
 if __name__ == "__main__":
 
     if sys.platform == "win32":
-        EXT_MODULES, DATA_FILES, include_package_data = handle_ext_modules_win_32()
+        ext_module_data = handle_ext_modules_win_32()
     else:
-        EXT_MODULES, DATA_FILES, include_package_data = handle_ext_modules_general_os()
-
+        ext_module_data = handle_ext_modules_general_os()
+    EXT_MODULES, DATA_FILES, include_package_data = ext_module_data
     setup(
         name=PACKAGE_NAME,
         version=VERSION,
