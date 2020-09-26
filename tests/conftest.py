@@ -204,12 +204,3 @@ def hs071_problem_instance_with_options_fixture(hs071_problem_instance_fixture):
 	nlp.add_option('mu_strategy', 'adaptive')
 	nlp.add_option('tol', 1e-7)
 	return nlp
-	
-	
-
-
-
-
-
-
-
