@@ -68,6 +68,29 @@ STATUS_MESSAGES = {
     Internal_Error: b'An unknown internal error occurred. Please contact the Ipopt authors through the mailing list.'
 }
 
+# Map the ipopt status to a string matching the Ipopt enum
+STATUS_ENUM_STR = {
+    Solve_Succeeded: b'Solve_Succeeded',
+    Solved_To_Acceptable_Level: b'Solved_To_Acceptable_Level',
+    Infeasible_Problem_Detected: b'Infeasible_Problem_Detected',
+    Search_Direction_Becomes_Too_Small: b'Search_Direction_Becomes_Too_Small',
+    Diverging_Iterates: b'Diverging_Iterates',
+    User_Requested_Stop: b'User_Requested_Stop',
+    Feasible_Point_Found: b'Feasible_Point_Found',
+    Maximum_Iterations_Exceeded: b'Maximum_Iterations_Exceeded',
+    Restoration_Failed: b'Restoration_Failed',
+    Error_In_Step_Computation: b'Error_In_Step_Computation',
+    Maximum_CpuTime_Exceeded: b'Maximum_CpuTime_Exceeded',
+    Not_Enough_Degrees_Of_Freedom: b'Not_Enough_Degrees_Of_Freedom',
+    Invalid_Problem_Definition: b'Invalid_Problem_Definition',
+    Invalid_Option: b'Invalid_Option',
+    Invalid_Number_Detected: b'Invalid_Number_Detected',
+    Unrecoverable_Exception: b'Unrecoverable_Exception',
+    NonIpopt_Exception_Thrown: b'NonIpopt_Exception_Thrown',
+    Insufficient_Memory: b'Insufficient_Memory',
+    Internal_Error: b'Internal_Error'
+}
+
 INF = 10**19
 
 CREATE_PROBLEM_MSG = """
