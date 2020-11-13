@@ -47,8 +47,8 @@ install:
 
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: >-
-    If ($env:IPOPT -eq "ipopt") {
-    } Else {
+    if ($env:IPOPT -eq "ipopt") {
+    } else {
         Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip'
         7z x Ipopt-3.13.2-win64-msvs2019-md.zip
         ls
