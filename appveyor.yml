@@ -49,7 +49,7 @@ install:
   # done from inside the powershell script as it would require to restart the
   # parent CMD process).
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PYTHON%\\Library\\bin;%PATH%"
-  - "SET IPOPTWINDIR=%CONDA_PREFIX%\\Library
+  - "SET IPOPTWINDIR=%CONDA_PREFIX%\\Library"
 
   # Check that we have the expected version and architecture for Python
   - "python --version"
