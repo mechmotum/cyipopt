@@ -17,6 +17,7 @@ import sys
 import os.path
 from distutils.sysconfig import get_python_lib
 import subprocess as sp
+import shutil
 
 from setuptools import setup
 from setuptools.extension import Extension
@@ -72,9 +73,10 @@ def pkgconfig(*packages, **kw):
 
 if __name__ == '__main__':
 
-    if sys.platform == 'XXX':  # 'win32':
+    ipoptdir = os.environ.get('IPOPTWINDIR', '')
 
-        ipoptdir = os.environ.get('IPOPTWINDIR', '')
+    if ((sys.platform == 'win32' and ipoptdir) or
+        (sys.platform == 'win32' and shutil.which('pkg-config') is None)):
 
         # On the conda-forge windows build ipopt the headers are in:
         # %LIBRARY_PREFIX%/include/coin-or/
