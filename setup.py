@@ -72,14 +72,22 @@ def pkgconfig(*packages, **kw):
 
 if __name__ == '__main__':
 
-    if sys.platform == 'win32':
+    if sys.platform == 'XXX':  # 'win32':
 
         ipoptdir = os.environ.get('IPOPTWINDIR', '')
 
+        # On the conda-forge windows build ipopt the headers are in:
+        # %LIBRARY_PREFIX%/include/coin-or/
         IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, 'include', 'coin-or'),
                               np.get_include()]
+
+        # On the conda-forge windows build the binaries are:
+        # %LIBRARY_PREFIX%/lib/libipopt.lib
+        # %LIBRARY_PREFIX%/bin/libipopt.dll
+
         IPOPT_LIBS = ['ipopt.dll', 'ipoptamplinterface.dll']
         IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib')]
+
         IPOPT_DLL = ['ipopt-3.dll', 'ipoptamplinterface-3.dll', 'libifcoremd.dll',
                      'libmmd.dll', 'msvcp140.dll', 'svml_dispmd.dll', 'vcruntime140.dll']
         IPOPT_DLL_DIRS = [os.path.join(ipoptdir, 'bin')]
