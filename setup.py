@@ -47,6 +47,10 @@ DEPENDENCIES = ['numpy', 'cython', 'six', 'future', 'setuptools']
 
 def pkgconfig(*packages, **kw):
     """Based on http://code.activestate.com/recipes/502261-python-distutils-pkg-config/#c2"""
+    if sys.platform == 'win32':
+        #D:/bld/ipopt_1605616866017/_h_env/Library/lib/pkg-config/ipopt.pc
+        pass
+
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages),
