@@ -105,7 +105,29 @@ if __name__ == '__main__':
 
     ipoptdir = os.environ.get('IPOPTWINDIR', '')
 
-    if ((sys.platform == 'win32' and ipoptdir) or
+    if (sys.platform == 'win32' and os.environ.get('CONDA_FORGE')):
+        import sys
+        from pathlib import Path
+        conda_prefix = Path(sys.executable).as_posix().split('/')[-3]
+
+        IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, 'include', 'coin-or'),
+                              np.get_include()]
+        IPOPT_LIBS = ['libipopt.lib']
+        IPOPT_LIB_DIRS = [os.path.join(conda_prefix, 'lib')]
+
+        IPOPT_DLL = ['libipopt.dll', ]
+        IPOPT_DLL_DIRS = [os.path.join(conda_prefix, 'bin')]
+
+        EXT_MODULES = [
+            Extension(
+                "cyipopt", ['src/cyipopt.pyx'],
+                include_dirs=IPOPT_INCLUDE_DIRS,
+                libraries=IPOPT_LIBS,
+                library_dirs=IPOPT_LIB_DIRS
+            )
+        ]
+
+    elif ((sys.platform == 'win32' and ipoptdir) or
         (sys.platform == 'win32' and shutil.which('pkg-config') is None)):
 
         # On the conda-forge windows build ipopt the headers are in:

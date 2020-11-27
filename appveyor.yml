@@ -2,6 +2,7 @@ environment:
 
   global:
     PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
+    CONDA_FORGE: "true"
 
   matrix:
     #- PYTHON: "C:\\Miniconda-x64"
