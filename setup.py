@@ -74,6 +74,7 @@ def pkgconfig(*packages, **kw):
     http://code.activestate.com/recipes/502261-python-distutils-pkg-config/#c2
 
     """
+    print('PKG_CONFIG_PATH:')
     print(os.environ.get('PKG_CONFIG_PATH'))
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
