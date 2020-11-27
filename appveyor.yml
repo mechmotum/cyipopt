@@ -55,7 +55,7 @@ install:
   - ECHO "IPOPT files::"
   - "dir %PKG_CONFIG_PATH%"
   - "dir %PYTHON%\\Library\\include\\coin-or"
-  - "dir %PYTHON%\\Library\\lib\\ipopt*"
+  - "dir %PYTHON%\\Library\\lib"
 
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: >-
