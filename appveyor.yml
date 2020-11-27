@@ -44,7 +44,7 @@ install:
   - ECHO "IPOPT files::"
   - ps: "ls \"%PYTHON%/Library/include/coin-or\""
   - ps: "ls \"%PYTHON%/Library/lib/ipopt*\""
-  - ps: "ls \"%PKG_CONFIG_PATH%\""
+  - ps: "ls %PKG_CONFIG_PATH%"
 
   # This upates conda and installs the necessary packages.
   - "CALL %PYTHON%\\Scripts\\activate.bat base"
