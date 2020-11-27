@@ -110,13 +110,13 @@ if __name__ == '__main__':
         print(sys.executable)
         conda_prefix = os.path.split(sys.executable)[0]
 
-        IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, 'include', 'coin-or'),
-                              np.get_include()]
+        IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, 'Library', 'include',
+                                           'coin-or'), np.get_include()]
         IPOPT_LIBS = ['libipopt.lib']
-        IPOPT_LIB_DIRS = [os.path.join(conda_prefix, 'lib')]
+        IPOPT_LIB_DIRS = [os.path.join(conda_prefix, 'Library', 'lib')]
 
         IPOPT_DLL = ['libipopt.dll', ]
-        IPOPT_DLL_DIRS = [os.path.join(conda_prefix, 'bin')]
+        IPOPT_DLL_DIRS = [os.path.join(conda_prefix, 'Library', 'bin')]
 
         EXT_MODULES = [
             Extension(
