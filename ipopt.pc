@@ -10,5 +10,3 @@ Version: 3.13.3
 Cflags: -I${includedir}
 Libs: -L${libdir} -lipopt
 Requires.private:  -llapack
-Libs: -L${libdir} -lipopt -lm -ldl
-Requires:  -llapack
