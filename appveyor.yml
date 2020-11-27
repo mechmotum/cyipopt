@@ -41,6 +41,11 @@ install:
   - ECHO "Installed SDKs:"
   - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
 
+  - ECHO "IPOPT files::"
+  - ps: "ls \"%PYTHON%/Library/include/coin-or\""
+  - ps: "ls \"%PYTHON%/Library/lib/ipopt*\""
+  - ps: "ls \"%PKG_CONFIG_PATH%\""
+
   # This upates conda and installs the necessary packages.
   - "CALL %PYTHON%\\Scripts\\activate.bat base"
   - "%PYTHON%\\Scripts\\conda.exe clean --yes --all"
