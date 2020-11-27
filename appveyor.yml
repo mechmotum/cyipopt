@@ -1,7 +1,7 @@
 environment:
 
   global:
-    - PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
+    PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
 
   matrix:
     #- PYTHON: "C:\\Miniconda-x64"
@@ -57,7 +57,7 @@ install:
   - "dir %PYTHON%\\Library\\include\\coin-or"
   - "dir %PYTHON%\\Library\\lib"
 
-  - "copy ipopt.pc %PKG_CONFIG_PATH%\\"
+  - "copy ipopt.pc %PKG_CONFIG_PATH%\\ipopt.pc"
 
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: >-
