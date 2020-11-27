@@ -53,9 +53,9 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe list"
 
   - ECHO "IPOPT files::"
-  - ps: "ls %PYTHON%\\Library\\include\\coin-or"
-  - ps: "ls %PYTHON%\\Library\\lib\\ipopt*"
-  - ps: "ls %PKG_CONFIG_PATH%"
+  - "dir %PKG_CONFIG_PATH%"
+  - "dir %PYTHON%\\Library\\include\\coin-or"
+  - "dir %PYTHON%\\Library\\lib\\ipopt*"
 
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: >-
