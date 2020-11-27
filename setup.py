@@ -149,7 +149,7 @@ if __name__ == '__main__':
     else:
 
         EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
-                                 **pkgconfig('libipopt'))]
+                                 **pkgconfig('ipopt'))]
         DATA_FILES = None
         include_package_data = True
 
