@@ -15,7 +15,7 @@ environment:
       CONDA_PY: "36"
       IPOPT: "ipopt "
       PKGCONFIG: "pkg-config "
-      PKG_CONFIG: "%PYTHON%\\Library\\lib\\pkg-config"
+      PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
 
     - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.7"
@@ -23,7 +23,7 @@ environment:
       CONDA_PY: "37"
       IPOPT: "ipopt "
       PKGCONFIG: "pkg-config "
-      PKG_CONFIG: "%PYTHON%\\Library\\lib\\pkg-config"
+      PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
 
     # There is not Miniconda38 on appveyor yet.
     - PYTHON: "C:\\Miniconda37-x64"
@@ -32,7 +32,7 @@ environment:
       CONDA_PY: "38"
       IPOPT: "ipopt "
       PKGCONFIG: "pkg-config "
-      PKG_CONFIG: "%PYTHON%\\Library\\lib\\pkg-config"
+      PKG_CONFIG_PATH: "%PYTHON%\\Library\\lib\\pkg-config"
 
 install:
   - ECHO "Filesystem root:"

@@ -47,10 +47,6 @@ DEPENDENCIES = ['numpy', 'cython', 'six', 'future', 'setuptools']
 
 def pkgconfig(*packages, **kw):
     """Based on http://code.activestate.com/recipes/502261-python-distutils-pkg-config/#c2"""
-    if sys.platform == 'win32':
-        #D:/bld/ipopt_1605616866017/_h_env/Library/lib/pkg-config/ipopt.pc
-        pass
-
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages),
@@ -91,11 +87,20 @@ if __name__ == '__main__':
         # %LIBRARY_PREFIX%/lib/libipopt.lib
         # %LIBRARY_PREFIX%/bin/libipopt.dll
 
+        # These are the specific dll's in the IPOPT 3.13.2 binary download:
+        # https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip
         IPOPT_LIBS = ['ipopt.dll', 'ipoptamplinterface.dll']
         IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib')]
 
-        IPOPT_DLL = ['ipopt-3.dll', 'ipoptamplinterface-3.dll', 'libifcoremd.dll',
-                     'libmmd.dll', 'msvcp140.dll', 'svml_dispmd.dll', 'vcruntime140.dll']
+        IPOPT_DLL = [
+            'ipopt-3.dll',
+            'ipoptamplinterface-3.dll',
+            'libifcoremd.dll',
+            'libmmd.dll',
+            'msvcp140.dll',
+            'svml_dispmd.dll',
+            'vcruntime140.dll',
+        ]
         IPOPT_DLL_DIRS = [os.path.join(ipoptdir, 'bin')]
 
         EXT_MODULES = [
