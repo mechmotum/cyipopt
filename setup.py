@@ -112,7 +112,7 @@ if __name__ == '__main__':
 
         IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, 'Library', 'include',
                                            'coin-or'), np.get_include()]
-        IPOPT_LIBS = ['libipopt.lib']
+        IPOPT_LIBS = ['libipopt']
         IPOPT_LIB_DIRS = [os.path.join(conda_prefix, 'Library', 'lib')]
 
         IPOPT_DLL = ['libipopt.dll', ]
