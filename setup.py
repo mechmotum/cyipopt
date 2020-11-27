@@ -46,7 +46,35 @@ DEPENDENCIES = ['numpy', 'cython', 'six', 'future', 'setuptools']
 
 
 def pkgconfig(*packages, **kw):
-    """Based on http://code.activestate.com/recipes/502261-python-distutils-pkg-config/#c2"""
+    """Returns a dictionary containing the include and library flags to pass to
+    a Python extension that depends on the provided packages.
+
+    Parameters
+    ==========
+    *packages : one or more strings
+        These are the names of ``.pc`` files that pkg-config can locate, for
+        example ``ipopt`` for the ``ipopt.pc`` file.
+    **kw : list of strings
+        Any values that should be preset in the returned dictionary. These can
+        include lists of items for: ``include_dirs``, ``library_dirs``,
+        ``libraries``, ``extra_compile_args``.
+
+    Returns
+    =======
+    kw : dictionary
+        Dictionary containing the keys: ``include_dirs``, ``library_dirs``,
+        ``libraries``, ``extra_compile_args`` that are mapped to lists of
+        strings.
+
+    Notes
+    =====
+
+    This function is based on:
+
+    http://code.activestate.com/recipes/502261-python-distutils-pkg-config/#c2
+
+    """
+    print(os.environ.get('PKG_CONFIG_PATH'))
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = sp.Popen(["pkg-config", "--libs", "--cflags"] + list(packages),
@@ -60,6 +88,7 @@ def pkgconfig(*packages, **kw):
 
     if six.PY3:
         output = output.decode('utf8')
+
     for token in output.split():
         if token[:2] in flag_map:
             kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
@@ -87,7 +116,7 @@ if __name__ == '__main__':
         # %LIBRARY_PREFIX%/lib/libipopt.lib
         # %LIBRARY_PREFIX%/bin/libipopt.dll
 
-        # These are the specific dll's in the IPOPT 3.13.2 binary download:
+        # These are the specific binaries in the IPOPT 3.13.2 binary download:
         # https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip
         IPOPT_LIBS = ['ipopt.dll', 'ipoptamplinterface.dll']
         IPOPT_LIB_DIRS = [os.path.join(ipoptdir, 'lib')]
@@ -118,13 +147,8 @@ if __name__ == '__main__':
 
     else:
 
-        if sys.platform == 'win32':
-            lib_name = 'libipopt.lib'
-        else:
-            lib_name = 'ipopt'
-
         EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
-                                 **pkgconfig(lib_name))]
+                                 **pkgconfig('ipopt'))]
         DATA_FILES = None
         include_package_data = True
 
