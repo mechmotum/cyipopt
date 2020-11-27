@@ -118,8 +118,13 @@ if __name__ == '__main__':
 
     else:
 
+        if sys.platform == 'win32':
+            lib_name = 'libipopt.lib'
+        else:
+            lib_name = 'ipopt'
+
         EXT_MODULES = [Extension("cyipopt", ['src/cyipopt.pyx'],
-                                 **pkgconfig('ipopt'))]
+                                 **pkgconfig(lib_name))]
         DATA_FILES = None
         include_package_data = True
 
