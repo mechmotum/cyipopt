@@ -126,6 +126,8 @@ if __name__ == '__main__':
                 library_dirs=IPOPT_LIB_DIRS
             )
         ]
+        DATA_FILES = None
+        include_package_data = True
 
     elif ((sys.platform == 'win32' and ipoptdir) or
         (sys.platform == 'win32' and shutil.which('pkg-config') is None)):
