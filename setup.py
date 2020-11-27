@@ -107,8 +107,8 @@ if __name__ == '__main__':
 
     if (sys.platform == 'win32' and os.environ.get('CONDA_FORGE')):
         import sys
-        from pathlib import Path
-        conda_prefix = Path(sys.executable).as_posix().split('/')[-3]
+        print(sys.executable)
+        conda_prefix = os.path.split(os.path.split(sys.executable)[0])[0]
 
         IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, 'include', 'coin-or'),
                               np.get_include()]
