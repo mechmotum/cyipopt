@@ -1,5 +1,9 @@
 0.3.0dev0
 =========
+
+- Added support for Conda Forge Windows Ipopt >=3.13 binaries using the
+  IPOPTWINDIR="USECONDAFORGEIPOPT" environment variable value.
+  (https://github.com/matthias-k/cyipopt/pull/78)
 - Added support for Ipopt >=3.13 on Windows.
   (https://github.com/matthias-k/cyipopt/pull/63)
 
