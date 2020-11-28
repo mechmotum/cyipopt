@@ -26,6 +26,7 @@ before_script:
   - conda list
   - pip --version
   - pip freeze
+  - ls -al "$HOME/miniconda/lib/pkgconfig"
 script:
   # Make sure the library installs.
   - python setup.py install
