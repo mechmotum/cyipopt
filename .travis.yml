@@ -19,7 +19,7 @@ before_install:
   - conda config --add channels conda-forge
   - conda update -q conda
 install:
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION "lapack<3.9.0" numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION libblas liblapack numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
   - conda activate test-env
 before_script:
   - conda info
