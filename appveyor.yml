@@ -30,6 +30,13 @@ environment:
       IPOPT: "ipopt "
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "38"
+      IPOPT: ""
+      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.2-win64-msvs2019-md"
+
 install:
   - ECHO "Filesystem root:"
   - ps: "ls \"C:/\""
