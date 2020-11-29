@@ -6,7 +6,7 @@ environment:
       PYTHON_ARCH: "64"
       CONDA_PY: "27"
       IPOPT: ""
-      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.2-win64-msvs2019-md"
+      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.3-win64-msvs2019-md"
 
     - PYTHON: "C:\\Miniconda36-x64"
       PYTHON_VERSION: "3.6"
@@ -35,7 +35,7 @@ environment:
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
       IPOPT: ""
-      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.2-win64-msvs2019-md"
+      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.3-win64-msvs2019-md"
 
 install:
   - ECHO "Filesystem root:"
@@ -58,8 +58,8 @@ install:
   # This downloads and extracts a precomplied IPOPT for Windows.
   - ps: >-
       if(!($env:IPOPT -eq "ipopt ")){
-        Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip'
-        7z x Ipopt-3.13.2-win64-msvs2019-md.zip
+        Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip'
+        7z x Ipopt-3.13.3-win64-msvs2019-md.zip
         ls
       }
 
