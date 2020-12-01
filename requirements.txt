@@ -4,3 +4,4 @@ ipopt
 numpy
 pkg-config
 setuptools
+six

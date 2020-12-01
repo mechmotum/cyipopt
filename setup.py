@@ -45,6 +45,7 @@ DEPENDENCIES = ["numpy",
                 "cython",
                 "future",
                 "setuptools",
+                "six"
                 ]
 LICENSE = "EPL-1.0"
 CLASSIFIERS = [
