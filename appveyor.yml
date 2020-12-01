@@ -1,29 +1,45 @@
 environment:
 
-  global:
-    IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.2-win64-msvs2019-md"
-
+  # NOTE : There is no conda-forge ipopt build for Python 2.7, so we use the
+  # official IPOPT binaries. Python 3 is tested with conda-forge's ipopt, but
+  # we also test at least the latest Python with the official ipopt binaries
+  # too.
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "27"
+      IPOPT: ""
+      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.3-win64-msvs2019-md"
 
     - PYTHON: "C:\\Miniconda36-x64"
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
       CONDA_PY: "36"
+      IPOPT: "ipopt "
+      IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "37"
+      IPOPT: "ipopt "
+      IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     # There is not Miniconda38 on appveyor yet.
     - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
+      IPOPT: "ipopt "
+      IPOPTWINDIR: "USECONDAFORGEIPOPT"
+
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "38"
+      IPOPT: ""
+      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.3-win64-msvs2019-md"
 
 install:
   - ECHO "Filesystem root:"
@@ -38,15 +54,18 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe update --yes --all"
   - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
-  - "%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython future six setuptools sphinx numpydoc"
+  - "%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython %IPOPT%future six setuptools sphinx numpydoc"
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
 
   # This downloads and extracts a precomplied IPOPT for Windows.
-  - ps: Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip'
-  - 7z x Ipopt-3.13.2-win64-msvs2019-md.zip
-  - ps: "ls"
+  - ps: >-
+      if(!($env:IPOPT -eq "ipopt ")){
+        Start-FileDownload 'https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip'
+        7z x Ipopt-3.13.3-win64-msvs2019-md.zip
+        ls
+      }
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart the
