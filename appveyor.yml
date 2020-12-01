@@ -82,7 +82,7 @@ build: false
 test_script:
   # Test package install
   - "python setup.py install"
-  - 'python -c "import ipopt"'
+  - 'python -c "import cyipopt"'
 
   # Run test suite
   - "conda.exe install --yes --file tests/requirements.txt"
