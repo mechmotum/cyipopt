@@ -19,7 +19,7 @@ import logging
 import sys
 import six
 
-from cyipopt.deprecated import deprecated_warning
+from cyipopt.utils import deprecated_warning
 
 __all__ = ['setLoggingLevel', 'Problem']
 
