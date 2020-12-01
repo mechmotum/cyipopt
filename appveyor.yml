@@ -17,22 +17,24 @@ environment:
       IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
-    - PYTHON: "C:\\Miniconda38-x64"
+    # There is not Miniconda38 on appveyor yet so use Miniconda37.
+    - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
       IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
-    # There is not Miniconda39 on appveyor yet.
-    - PYTHON: "C:\\Miniconda38-x64"
+    # There is not Miniconda39 on appveyor yet so use Miniconda37.
+    - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "64"
       CONDA_PY: "39"
       IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
-    - PYTHON: "C:\\Miniconda38-x64"
+    # There is not Miniconda38 on appveyor yet so use Miniconda37.
+    - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
