@@ -105,7 +105,7 @@ the *objective*, *gradient*, *constraints*, *jacobian*, and *hessian* of the pro
 	    global hs
 
 	    hs = sps.coo_matrix(np.tril(np.ones((4, 4))))
-	    return (hs.col, hs.row)
+	    return (hs.row, hs.col)
 
 	def hessian(self, x, lagrange, obj_factor):
 	    #
