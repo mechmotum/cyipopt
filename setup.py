@@ -41,11 +41,11 @@ KEYWORDS = ["optimization",
 AUTHOR = "Matthias Kümmerer"
 EMAIL = "matthias.kuemmerer@bethgelab.org"
 URL = "https://github.com/matthias-k/cyipopt"
-DEPENDENCIES = ["numpy",
-                "cython",
-                "future",
-                "setuptools",
-                "six"
+DEPENDENCIES = ["numpy>=1.15",
+                "cython>=0.26",
+                "future>=0.15",
+                "setuptools>=39.0",
+                "six>=1.11"
                 ]
 LICENSE = "EPL-1.0"
 CLASSIFIERS = [
