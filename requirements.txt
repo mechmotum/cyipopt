@@ -1,11 +1,6 @@
-python
-
-numpy
-ipopt
 cython
-setuptools
-pkg-config
-six
 future
-
-pytest
+ipopt
+numpy
+pkg-config
+setuptools
