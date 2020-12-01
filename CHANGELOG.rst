@@ -2,7 +2,6 @@ CyIpopt Changelog
 ==================
 
 :Info: Change log for CyIpopt releases.
-:Authors: Matthias Kuemmerer (matthias.kuemmerer@bethgelab.org), Jason Moore (moorepants@gmail.com), Sam Brockie (sgb39@cam.ac.uk)
 :Date: 2020-07-01
 :Version: 1.0.0
 
