@@ -30,7 +30,7 @@ else:
     exec(open("cyipopt/version.py").read())
 
 PACKAGE_NAME = "cyipopt"
-DEPRICATED_PACKAGE_NAME = "ipopt"
+DEPRECATED_PACKAGE_NAME = "ipopt"
 VERSION = __version__
 DESCRIPTION = "A Cython wrapper to the IPOPT optimization package"
 if six.PY3:
@@ -200,7 +200,7 @@ if __name__ == '__main__':
         keywords=KEYWORDS,
         license=LICENSE,
         classifiers=CLASSIFIERS,
-        packages=[PACKAGE_NAME, DEPRICATED_PACKAGE_NAME],
+        packages=[PACKAGE_NAME, DEPRECATED_PACKAGE_NAME],
         install_requires=DEPENDENCIES,
         include_package_data=include_package_data,
         data_files=DATA_FILES,
