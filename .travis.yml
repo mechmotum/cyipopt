@@ -23,7 +23,9 @@ install:
   # lapacke inadvertently. Setting lapack < 3.9.0 ensures the .pc files are
   # available. See this issue:
   # https://github.com/conda-forge/blas-feedstock/issues/58
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION "lapack<3.9.0" numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION 
+  - conda install "lapack<3.9.0"
+  - conda install -y -q --file requirements.txt
   - conda activate test-env
 
 before_script:
@@ -37,7 +39,8 @@ script:
   - python setup.py install
   - python -c "import cyipopt"
   # Run the Pytest tests.
-  - conda install pytest
+  - conda install -y -q --file tests/requirements.txt
   - pytest
   # Make sure the Sphinx docs build.
+  - conda install -y -q --file docs/requirements.txt
   - cd docs && make clean && make html && cd ..
