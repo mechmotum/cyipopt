@@ -1,6 +1,8 @@
 include setup.py
+include AUTHORS
 include LICENSE
 include CHANGELOG
+include README.rst
 recursive-include ipopt *.py
 recursive-include src *.pyx *.pxd *.c
 recursive-include test *.py
