@@ -39,7 +39,7 @@ script:
   - python setup.py install
   - python -c "import cyipopt"
   # Run the Pytest tests.
-  - conda install -y -q --file tests/requirements.txt
+  - conda install -y -q pytest>=3.3.2
   - pytest
   # Make sure the Sphinx docs build.
   - conda install -y -q --file docs/requirements.txt

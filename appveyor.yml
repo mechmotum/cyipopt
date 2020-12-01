@@ -85,5 +85,5 @@ test_script:
   - 'python -c "import cyipopt"'
 
   # Run test suite
-  - "conda.exe install --yes --file tests/requirements.txt"
+  - "conda.exe install --yes pytest>=3.3.2"
   - "pytest"
