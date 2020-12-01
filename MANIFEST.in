@@ -1,11 +1,11 @@
 include setup.py
 include AUTHORS
 include LICENSE
-include CHANGELOG
+include CHANGELOG.rst
 include README.rst
 recursive-include cyipopt *.py *.pyx *.pxd *.c
 recursive-include ipopt *.py
-recursive-include test *.py
-recursive-include doc Makefile *.bat *.rst *.py
+recursive-include tests *.py
+recursive-include docs *.bat *.rst *.py
 prune include*
 prune lib*
