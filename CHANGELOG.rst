@@ -35,9 +35,11 @@ Added
 +++++
 
 - Make changes as outlined in Version 1.0 proposal [`#14`_].
-- ``requirements.txt` file.
-- Dedicated tests using pytest in ``tests/`` directory.
+- ``requirements.txt`` file.
+- Dedicated tests using pytest in ``cyipopt/tests/`` directory.
 - ``examples/`` directory.
+- Support for Python 3.9.
+- Minimum version requirements for all dependencies.
 
 .. _#14: https://github.com/matthias-k/cyipopt/issues/14
 
@@ -52,12 +54,17 @@ Changed
 Deprecated
 ++++++++++
 
-- 
+- Package being imported by ``import ipopt`` (replaced by ``import cyipopt``).
+- Use of non-PEP8 named classes/function/methods, e.g. ``cyipopt.problem`` (replaced by ``cyipopt.Problem``), ``cyipopt.problem.addOption`` (replaced by ``cyipopt.Problem.add_option``), ``cyipopt.problem.setProblemScaling`` (replaced by ``cyipopt.Problem.set_problem_scaling``) etc.
 
 Removed
 +++++++
 
-- ``test/`` folder containing examples, which have mostly been moved to ``examples/`
+- ``test/`` folder containing examples, which have mostly been moved to ``examples/``
+- ``docker/``, ``vagrant/`` and ``Makefile`` [`#83`_].
+- Support for Python 2.7.
+
+.. _#83: https://github.com/matthias-k/cyipopt/issues/83
 
 
 Version History
