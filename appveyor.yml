@@ -9,14 +9,14 @@ environment:
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
       CONDA_PY: "36"
-      IPOPT: "ipopt "
+      IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       CONDA_PY: "37"
-      IPOPT: "ipopt "
+      IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     # There is not Miniconda38 on appveyor yet.
@@ -24,7 +24,7 @@ environment:
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
-      IPOPT: "ipopt "
+      IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     # There is not Miniconda39 on appveyor yet.
@@ -32,7 +32,7 @@ environment:
       PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "64"
       CONDA_PY: "39"
-      IPOPT: "ipopt "
+      IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
     - PYTHON: "C:\\Miniconda37-x64"
@@ -55,7 +55,8 @@ install:
   - "%PYTHON%\\Scripts\\conda.exe update --yes conda"
   - "%PYTHON%\\Scripts\\conda.exe update --yes --all"
   - "%PYTHON%\\Scripts\\conda.exe config --prepend channels conda-forge"
-  - "%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% numpy cython %IPOPT%future six setuptools sphinx numpydoc"
+  - "%PYTHON%\\Scripts\\conda.exe install --yes python=%PYTHON_VERSION% %IPOPT%"
+  - "%PYTHON%\\Scripts\\conda.exe install --yes --freeze-installed --file requirements.txt"
   - "%PYTHON%\\Scripts\\conda.exe update -y --all"
   - "%PYTHON%\\Scripts\\conda.exe info"
   - "%PYTHON%\\Scripts\\conda.exe list"
@@ -80,10 +81,10 @@ install:
 build: false
 
 test_script:
+  # Test package install
   - "python setup.py install"
   - 'python -c "import ipopt"'
-  - "python test/examplehs071.py"
-  - "python test/exception_handling.py"
-  - "python test/lasso.py"
-  - "conda.exe install --yes scipy"
-  - "python test/rosen.py"
+
+  # Run test suite
+  - "conda.exe install --yes --file tests/requirements.txt"
+  - "pytest"
