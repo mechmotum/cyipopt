@@ -81,15 +81,18 @@ Removed
 Older Versions
 --------------
 
-[0.3.0] - TBC
-~~~~~~~~~~~~~
+[0.3.0] - 2020-12-01
+~~~~~~~~~~~~~~~~~~~~
 
 - Added support for Ipopt >=3.13 on Windows [PR `#63`_].
+- Added support for Conda Forge Windows Ipopt >=3.13 binaries using the
+  IPOPTWINDIR="USECONDAFORGEIPOPT" environment variable value [PR `#78`_].
 
 .. _#63: https://github.com/matthias-k/cyipopt/pull/63
+.. _#78: https://github.com/matthias-k/cyipopt/pull/78
 
-[0.2.0] - 2020-06-2020
-~~~~~~~~~~~~~~~~~~~~~~
+[0.2.0] - 2020-06-05
+~~~~~~~~~~~~~~~~~~~~
 
 - Resolved compatibility issues with Windows [PR `#49`_].
 - Adding installation testing on the Appveyor CI service [PR `#50`_].

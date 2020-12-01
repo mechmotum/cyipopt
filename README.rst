@@ -124,15 +124,27 @@ https://github.com/matthias-k/cyipopt/issues/52).
 
 Download and extract the cyipopt source code from Github or PyPi.
 
+Obtain IPOPT one of two ways:
+
+1. Using official IPOPTs binaries:
+
 Download the latest precompiled version of Ipopt that includes the DLL files from
 https://github.com/coin-or/Ipopt/releases. Note that the current setup only
-supports Ipopt >= 3.13.0. The build 3.13.2 of Ipopt has been confirmed to work and
-can be downloaded from `Ipopt-3.13.2-win64-msvs2019-md.zip
-<https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip>`_
+supports Ipopt >= 3.13.0. The build 3.13.3 of Ipopt has been confirmed to work and
+can be downloaded from `Ipopt-3.13.3-win64-msvs2019-md.zip
+<https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip>`_
 . After Ipopt is extracted, the ``bin``, ``lib`` and ``include`` folders should
 be in the root cyipopt directory, i.e. adjacent to the ``setup.py`` file.
 Alternatively, you can set the environment variable ``IPOPTWINDIR`` to point to
 the Ipopt directory that contains the ``bin``, ``lib`` and ``include`` directories.
+
+2. Using Conda Forge's IPOPT binary:
+
+If using conda, you can install an IPOPT binary from Conda Forge::
+
+    conda.exe install -c conda-forge ipopt
+
+The environment variable ``IPOPTWINDIR`` should then be set to ``USECONDAFORGEIPOPT``.
 
 Finally, execute::
 
