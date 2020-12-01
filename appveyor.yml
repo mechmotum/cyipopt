@@ -1,5 +1,9 @@
 environment:
 
+  # NOTE : There is no conda-forge ipopt build for Python 2.7, so we use the
+  # official IPOPT binaries. Python 3 is tested with conda-forge's ipopt, but
+  # we also test at least the latest Python with the official ipopt binaries
+  # too.
   matrix:
     - PYTHON: "C:\\Miniconda-x64"
       PYTHON_VERSION: "2.7"

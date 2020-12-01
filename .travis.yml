@@ -19,6 +19,10 @@ before_install:
   - conda config --add channels conda-forge
   - conda update -q conda
 install:
+  # NOTE : conda-forge removed the .pc files for blas, cblas, lapack, and
+  # lapacke inadvertently. Setting lapack < 3.9.0 ensures the .pc files are
+  # available. See this issue:
+  # https://github.com/conda-forge/blas-feedstock/issues/58
   - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION "lapack<3.9.0" numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
   - conda activate test-env
 before_script:
