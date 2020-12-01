@@ -117,7 +117,8 @@ def handle_ext_modules_win_32_conda_forge_ipopt():
                                        "coin-or"), np.get_include()]
     IPOPT_LIBS = ["libipopt"]
     IPOPT_LIB_DIRS = [os.path.join(conda_prefix, "Library", "lib")]
-    EXT_MODULES = [Extension("cyipopt", ["src/cyipopt.pyx"],
+    EXT_MODULES = [Extension("ipopt_wrapper",
+                             ["cyipopt/cython/ipopt_wrapper.pyx"],
                              include_dirs=IPOPT_INCLUDE_DIRS,
                              libraries=IPOPT_LIBS,
                              library_dirs=IPOPT_LIB_DIRS)]
@@ -144,7 +145,8 @@ def handle_ext_modules_win_32_other_ipopt():
                  "vcruntime140.dll",
                  ]
     IPOPT_DLL_DIRS = [os.path.join(ipoptdir, "bin")]
-    EXT_MODULES = [Extension("cyipopt", ["src/cyipopt.pyx"],
+    EXT_MODULES = [Extension("ipopt_wrapper",
+                             ["cyipopt/cython/ipopt_wrapper.pyx"],
                              include_dirs=IPOPT_INCLUDE_DIRS,
                              libraries=IPOPT_LIBS,
                              library_dirs=IPOPT_LIB_DIRS)]
