@@ -5,13 +5,6 @@ environment:
   # we also test at least the latest Python with the official ipopt binaries
   # too.
   matrix:
-    - PYTHON: "C:\\Miniconda-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-      CONDA_PY: "27"
-      IPOPT: ""
-      IPOPTWINDIR: "C:\\projects\\cyipopt\\Ipopt-3.13.3-win64-msvs2019-md"
-
     - PYTHON: "C:\\Miniconda36-x64"
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
@@ -31,6 +24,14 @@ environment:
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       CONDA_PY: "38"
+      IPOPT: "ipopt "
+      IPOPTWINDIR: "USECONDAFORGEIPOPT"
+
+    # There is not Miniconda39 on appveyor yet.
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.9"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "39"
       IPOPT: "ipopt "
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
