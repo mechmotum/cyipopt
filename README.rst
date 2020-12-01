@@ -368,7 +368,7 @@ Reading the docs
 
 After installing::
 
-   $ cd doc
+   $ cd docs
    $ make html
 
 Then, direct your browser to ``build/html/index.html``.
@@ -376,7 +376,19 @@ Then, direct your browser to ``build/html/index.html``.
 Testing
 =======
 
-You can test the installation by running the examples under the folder ``test\``.
+You can test the installation by running each of the examples in the ``examples/`` directory.
+
+If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
+
+    $ pip install pytest
+
+if you are using a Python ``venv``, or with::
+
+    $ conda install pytest
+
+if you have a ``conda`` virtual environment set up. The tests can then run by calling::
+
+    $ pytest
 
 Conditions of use
 =================
@@ -388,5 +400,5 @@ cyipopt is open-source code released under the EPL_ license.
 Contributing
 ============
 
-For bug reports use the github issue tracker. You can also send wishes,
+For bug reports use the GitHub issue tracker. You can also send wishes,
 comments, patches, etc. to matthias.kuemmerer@bethgelab.org
