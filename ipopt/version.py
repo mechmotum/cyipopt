@@ -13,4 +13,4 @@ URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 """
 
-__version__ = '0.3.0'
+__version__ = '0.4.0.dev0'
