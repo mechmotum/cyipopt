@@ -358,7 +358,7 @@ cdef class Problem:
 
         if self.__hessian is None:
             log('Hessian callback not given, using approximation', logging.INFO)
-            self.addOption(b'hessian_approximation', b'limited-memory')
+            self.add_option(b'hessian_approximation', b'limited-memory')
 
         self.__exception = None
 
