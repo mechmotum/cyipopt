@@ -1,12 +1,65 @@
+"""Backward-compatible module."""
+
 import warnings
 
+from .minimize import IpoptProblemWrapper as CyipoptIpoptProblemWrapper
+from .minimize import convert_to_bytes as cyipopt_convert_to_bytes
+from .minimize import get_bounds as cyipopt_get_bounds
+from .minimize import get_constraint_bounds as cyipopt_get_constraint_bounds
 from .minimize import minimize_ipopt as cyipopt_minimize_ipopt
 
 
+__all__ = ["get_bounds", "minimize_ipopt"]
+
+
+def make_future_warning_error_msg(func_name):
+    msg = (f"'{func_name}' from 'ipopt.ipopt_wrapper' has been replaced by "
+           f"'{func_name}' from 'cyipopt.minimize'. Please import using "
+           f"'from cyipopt.minimize import {func_name}' (or similar) and "
+           f"remove all references to 'ipopt.ipopt_wrapper.{func_name}' in "
+           f"your code as this will be deprecated in a future release.")
+    return msg
+
+
+def convert_to_bytes(*args, **kwargs):
+    """Wrapper around `convert_to_bytes` for backwards compatibility."""
+    msg = make_future_warning_error_msg("convert_to_bytes")
+    warnings.warn(msg, FutureWarning)
+    return cyipopt_convert_to_bytes(*args, **kwargs)
+
+
+def get_bounds(*args, **kwargs):
+    """Wrapper around `get_bounds` for backwards compatibility."""
+    msg = make_future_warning_error_msg("get_bounds")
+    warnings.warn(msg, FutureWarning)
+    return cyipopt_get_bounds(*args, **kwargs)
+
+
+def get_constraint_bounds(*args, **kwargs):
+    """Wrapper around `get_constraint_bounds` for backwards compatibility."""
+    msg = make_future_warning_error_msg("get_constraint_bounds")
+    warnings.warn(msg, FutureWarning)
+    return cyipopt_get_constraint_bounds(*args, **kwargs)
+
+
 def minimize_ipopt(*args, **kwargs):
-    msg = ("'minimize_ipopt' from 'ipopt.ipopt_wrapper' has been replaced by 'minimize_ipopt' from 'cyipopt.minimize'. Please "
-           "import using 'from cyipopt.minimize import minimize_ipopt' (or similar) and remove all references to "
-           "'ipopt.ipopt_wrapper.minimize_ipopt' in your code as this will be deprecated in a "
-           "future release.")
+    """Wrapper around `minimize_ipopt` for backwards compatibility."""
+    msg = make_future_warning_error_msg("minimize_ipopt")
     warnings.warn(msg, FutureWarning)
     return cyipopt_minimize_ipopt(*args, **kwargs)
+
+
+def replace_option(options, oldname, newname):
+    """Wrapper around `replace_option` for backwards compatibility."""
+    msg = make_future_warning_error_msg("replace_option")
+    warnings.warn(msg, FutureWarning)
+    return cyipopt_replace_option(*args, **kwargs)
+
+
+class IpoptProblemWrapper:
+    """Wrapper around `IpoptProblemWrapper` for backwards compatibility."""
+
+    def __new__(self, *args, **kwargs):
+        msg = make_future_warning_error_msg("IpoptProblemWrapper")
+        warnings.warn(msg, FutureWarning)
+        return CyipoptIpoptProblemWrapper(*args, **kwargs)
