@@ -25,7 +25,7 @@ install:
   # https://github.com/conda-forge/blas-feedstock/issues/58
   - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION
   - conda activate test-env
-  - conda install lapack<3.9.0
+  - conda install "lapack<3.9.0"
   - conda install -y -q --file requirements.txt
 
 before_script:
