@@ -87,3 +87,5 @@ test_script:
   # Run test suite
   - "conda.exe install --yes pytest>=3.3.2"
   - "pytest"
+  - "conda.exe install --yes scipy>=0.19.1"
+  - "pytest"
