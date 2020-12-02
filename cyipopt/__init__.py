@@ -42,6 +42,7 @@ comfort of the Python programming language. cyipopt is available under the EPL
 from __future__ import absolute_import
 
 from ipopt_wrapper import *
-from .minimize import minimize_ipopt
+from .ipopt_wrapper import *
+from .minimize import *
 from .utils import *
 from .version import __version__
