@@ -10,9 +10,6 @@ from functools import wraps
 from ipopt_wrapper import Problem
 
 
-__all__ = ["problem"]
-
-
 def deprecated_warning(new_name):
     """Decorator that issues a FutureWarning for deprecated functionality.
 
