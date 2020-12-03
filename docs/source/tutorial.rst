@@ -31,12 +31,12 @@ Getting started
 
 Before you can use cyipopt, you have to import it::
 
-  import ipopt
+  import cyipopt
 
 Defining the problem
 --------------------
 
-To define the problem we use the :class:`ipopt.problem` class::
+To define the problem we use the :class:`cyipopt.Problem` class::
 
     x0 = [1.0, 5.0, 5.0, 1.0]
     
@@ -46,7 +46,7 @@ To define the problem we use the :class:`ipopt.problem` class::
     cl = [25.0, 40.0]
     cu = [2.0e19, 40.0]
 
-    nlp = ipopt.problem(
+    nlp = cyipopt.Problem(
                 n=len(x0),
                 m=len(cl),
                 problem_obj=hs071(),
@@ -56,7 +56,7 @@ To define the problem we use the :class:`ipopt.problem` class::
                 cu=cu
                 )
 
-The constructor of the :class:`ipopt.problem` class requires *n*: the number of variables in the problem,
+The constructor of the :class:`cyipopt.Problem` class requires *n*: the number of variables in the problem,
 *m*: the number of constraints in the problem, *lb* and *ub*: lower and upper bounds on the variables, and
 *cl* and *cu*: lower and upper bounds of the constraints. *problem_obj* is an object whose methods implement
 the *objective*, *gradient*, *constraints*, *jacobian*, and *hessian* of the problem::
@@ -161,17 +161,17 @@ should return a lower traingular matrix (flattened).
 Setting optimization parameters
 -------------------------------
 
-Setting optimization parameters is done by calling the :func:`ipopt.problem.addOption` method, e.g.::
+Setting optimization parameters is done by calling the :func:`cyipopt.Problem.add_option` method, e.g.::
 
-    nlp.addOption('mu_strategy', 'adaptive')
-    nlp.addOption('tol', 1e-7)
+    nlp.add_option('mu_strategy', 'adaptive')
+    nlp.add_option('tol', 1e-7)
 
 The different options and their possible values are described in the `ipopt documentation <http://www.coin-or.org/Ipopt/documentation/node59.html>`_.
 
 Executing the solver
 --------------------
 
-The optimization algorithm is run by calling the :func:`ipopt.problem.solve` method, which accepts the starting
+The optimization algorithm is run by calling the :func:`cyipopt.Problem.solve` method, which accepts the starting
 point for the optimization as its only parameter::
 
     x, info = nlp.solve(x0)
@@ -183,7 +183,7 @@ Where to go from here
 ---------------------
 
 Once you feel sufficiently familiar with the basics, feel free to dig into the
-:ref:`reference <reference>`. For more examples, check the :file:`test/` subdirectory of the distribution.
+:ref:`reference <reference>`. For more examples, check the :file:`examples/` subdirectory of the distribution.
 
 .. [1] W. Hock and K. Schittkowski. 
    Test examples for nonlinear programming codes. 
