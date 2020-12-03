@@ -21,7 +21,7 @@ dependencies:
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
   * Ipopt
-  * python 2.7 or 3.4+
+  * python 3.6+
   * setuptools
   * cython
   * numpy
@@ -42,34 +42,6 @@ Then, execute::
 
    $ python setup.py install
 
-Docker container
-================
-
-The subdirectory `docker` contains a docker container with preinstalled ipopt
-and cyipopt.  To build the container, cd into the `docker` directory and run
-`make`. Then you can start the container by::
-
-   docker run -it matthiask/ipopt /bin/bash
-
-and either call `ipopt` directly or start a ipython shell and `import ipopt`.
-
-Vagrant environment
-===================
-
-The subdirectory `vagrant` contains a `Vagrantfile` that installs ipopt and
-cyipopt in OS provision. To build the environment, cd into the `vagrant`
-directory and run `vagrant up` (Requires that you have Vagrant+VirtualBox
-installed). Then you can access the system by::
-
-   vagrant ssh
-
-and either call `ipopt` directly or start a python shell and `import ipopt`.
-Also, if you get `source files <http://www.coin-or.org/download/binary/Ipopt/>`
-of coinhsl and put it in the `vagrant` directory, the vagrant provision will
-detect and add them in the ipopt compiling process, and then you will have
-ma57, ma27, and other solvers available on ipopt binary (ma97 and mc68 were
-removed to avoid compilation errors).
-
 Reading the docs
 ================
 
@@ -83,12 +55,17 @@ Then, direct your browser to ``build/html/index.html``.
 Testing
 =======
 
-You can test the installation by running the examples under the folder ``test\``.
+You can test the installation by running each of the examples in the ``examples/`` directory.
 
-.. note::
+If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
 
-    Under linux you might need to let the OS know where to look for the Ipopt lib files,
-    e.g. use::
+    $ pip install pytest
 
-        $ export LD_LIBRARY_PATH=<PATH to Ipopt lib files>
+if you are using a Python ``venv``, or with::
+
+    $ conda install pytest
+
+if you have a ``conda`` virtual environment set up. The tests can then run by calling::
+
+    $ pytest
 

@@ -26,7 +26,8 @@ import numpy as np
 import ipopt
 
 
-class hs071(object):
+class hs071:
+
     def __init__(self):
         pass
 
@@ -125,15 +126,15 @@ def main():
     cl = [25.0, 40.0]
     cu = [2.0e19, 40.0]
 
-    nlp = ipopt.problem(
-                n=len(x0),
-                m=len(cl),
-                problem_obj=hs071(),
-                lb=lb,
-                ub=ub,
-                cl=cl,
-                cu=cu
-                )
+    nlp = ipopt.Problem(
+        n=len(x0),
+        m=len(cl),
+        problem_obj=hs071(),
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu
+        )
 
     #
     # Set solver options

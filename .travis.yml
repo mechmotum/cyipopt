@@ -1,16 +1,25 @@
-language: python
+language: 
+  - python
+
+os:
+  - linux
+
+dist:
+  - xenial
+
 python:
-  - 2.7
   - 3.6
   - 3.7
   - 3.8
+  - 3.9
+
+env:
+  - IPOPT_VERSION=3.12
+  - IPOPT_VERSION=3.13
+
 before_install:
   - sudo apt-get update
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - chmod +x miniconda.sh
   - ./miniconda.sh -b -p $HOME/miniconda
   - source "$HOME/miniconda/etc/profile.d/conda.sh"
@@ -18,26 +27,31 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda config --add channels conda-forge
   - conda update -q conda
+
 install:
   # NOTE : conda-forge removed the .pc files for blas, cblas, lapack, and
   # lapacke inadvertently. Setting lapack < 3.9.0 ensures the .pc files are
   # available. See this issue:
   # https://github.com/conda-forge/blas-feedstock/issues/58
-  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION "lapack<3.9.0" numpy cython ipopt future six setuptools sphinx numpydoc pkg-config
+  - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION
   - conda activate test-env
+  - conda install -y -q "lapack<3.9.0" cython>=0.26 future>=0.15 "ipopt=$IPOPT_VERSION" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 six>=1.11
+
 before_script:
-  - conda info
+  - conda info -a
   - conda list
   - pip --version
   - pip freeze
+
 script:
   # Make sure the library installs.
   - python setup.py install
-  - python -c "import ipopt"
-  - python test/examplehs071.py
-  - python test/exception_handling.py
-  - python test/lasso.py
-  - conda install scipy
-  - python test/rosen.py
-  # Make sure the docs build.
-  - cd doc && make html && cd ..
+  - python -c "import cyipopt"
+  # Run the Pytest tests.
+  - conda install -y -q pytest>=3.3.2
+  - pytest
+  - conda install -y -q scipy>=0.19.1
+  - pytest
+  # Make sure the Sphinx docs build.
+  - conda install -y -q --file docs/requirements.txt
+  - cd docs && make clean && make html && cd ..

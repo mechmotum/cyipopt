@@ -27,7 +27,7 @@ Status
           :target: https://anaconda.org/conda-forge/cyipopt
        .. image:: https://anaconda.org/conda-forge/cyipopt/badges/downloads.svg
           :target: https://anaconda.org/conda-forge/cyipopt
-   * - PyPi
+   * - PyPI
      - .. image:: https://badge.fury.io/py/ipopt.svg
           :target: https://pypi.org/project/ipopt
        .. image:: https://pepy.tech/badge/ipopt
@@ -49,7 +49,7 @@ the same behaviour as ``scipy.optimize.minimize``, for example:
 .. code:: python
 
     from scipy.optimize import rosen, rosen_der
-    from ipopt import minimize_ipopt
+    from cyipopt import minimize_ipopt
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     res = minimize_ipopt(rosen, x0, jac=rosen_der)
     print(res)
@@ -80,8 +80,8 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [>3.13.0 for Windows]
-  * Python 2.7 or 3.6+
+  * Ipopt
+  * Python 3.6+
   * setuptools
   * cython
   * numpy
@@ -363,41 +363,12 @@ descriptions::
     This is Ipopt version 3.12.11, running with linear solver ma27.
     ...
 
-Docker container
-================
-
-The subdirectory ``docker`` contains a docker container with preinstalled ipopt
-and cyipopt.  To build the container, cd into the ``docker`` directory and run
-``make``. Then you can start the container by::
-
-   $ docker run -it matthiask/ipopt /bin/bash
-
-and either call ``ipopt`` directly or start a ipython shell and ``import ipopt``.
-
-Vagrant environment
-===================
-
-The subdirectory ``vagrant`` contains a ``Vagrantfile`` that installs ipopt and
-cyipopt in OS provision. To build the environment, cd into the ``vagrant``
-directory and run ``vagrant up`` (Requires that you have Vagrant+VirtualBox
-installed). Then you can access the system by::
-
-   $ vagrant ssh
-
-and either call ``ipopt`` directly or start a python shell and ``import
-ipopt``.  Also, if you get `source files
-<http://www.coin-or.org/download/binary/Ipopt/>` of coinhsl and put it in the
-``vagrant`` directory, the vagrant provision will detect and add them in the
-ipopt compiling process, and then you will have ma57, ma27, and other solvers
-available on ipopt binary (ma97 and mc68 were removed to avoid compilation
-errors).
-
 Reading the docs
 ================
 
 After installing::
 
-   $ cd doc
+   $ cd docs
    $ make html
 
 Then, direct your browser to ``build/html/index.html``.
@@ -405,7 +376,19 @@ Then, direct your browser to ``build/html/index.html``.
 Testing
 =======
 
-You can test the installation by running the examples under the folder ``test\``.
+You can test the installation by running each of the examples in the ``examples/`` directory.
+
+If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
+
+    $ pip install pytest
+
+if you are using a Python ``venv``, or with::
+
+    $ conda install pytest
+
+if you have a ``conda`` virtual environment set up. The tests can then run by calling::
+
+    $ pytest
 
 Conditions of use
 =================
@@ -417,5 +400,5 @@ cyipopt is open-source code released under the EPL_ license.
 Contributing
 ============
 
-For bug reports use the github issue tracker. You can also send wishes,
+For bug reports use the GitHub issue tracker. You can also send wishes,
 comments, patches, etc. to matthias.kuemmerer@bethgelab.org

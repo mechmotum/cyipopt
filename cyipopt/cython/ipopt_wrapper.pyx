@@ -18,8 +18,11 @@ from ipopt cimport *
 import logging
 import sys
 import six
+import warnings
 
-__all__ = ['setLoggingLevel', 'problem']
+from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
+
+__all__ = ["setLoggingLevel", "Problem", "problem"]
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
@@ -80,25 +83,18 @@ hessian elements num = %s
 """
 
 
-cdef class problem:
+cdef class Problem:
     """
     Wrapper class for solving optimization problems using the C interface of
     the Ipopt package.
 
     It can be used to solve general nonlinear programming problems of the form:
-
     .. math::
-
            \min_ {x \in R^n} f(x)
-
     subject to
-
     .. math::
-
            g_L \leq g(x) \leq g_U
-
            x_L \leq  x  \leq x_U
-
     Where :math:`x` are the optimization variables (possibly with upper an
     lower bounds), :math:`f(x)` is the objective function and :math:`g(x)` are
     the general nonlinear constraints. The constraints, :math:`g(x)`, have
@@ -115,7 +111,6 @@ cdef class problem:
         An object holding the problem's callbacks. If None, cyipopt will use
         self, this is useful when subclassing problem. The object is required
         to have the following attributes (some are optional):
-
             - 'objective' : function pointer
                 Callback function for evaluating objective function. The
                 callback functions accepts one parameter: x (value of the
@@ -171,7 +166,6 @@ cdef class problem:
                 terminate with the User_Requested_Stop status. The information
                 below corresponeds to the argument list passed to this
                 callback:
-
                     'alg_mod':
                         Algorithm phase: 0 is for regular, 1 is restoration.
                     'iter_count':
@@ -195,10 +189,8 @@ cdef class problem:
                         The stepsize for the primal variables.
                     'ls_trials':
                         The number of backtracking line search steps.
-
                 more information can be found in the following link:
                 http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
-
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.
@@ -211,8 +203,7 @@ cdef class problem:
     cu : array-like, shape(m, )
         Upper bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting cl[i] = cu[i].
-
-"""
+    """
 
     cdef IpoptProblem __nlp
     cdef public object __objective
@@ -368,7 +359,7 @@ cdef class problem:
 
         if self.__hessian is None:
             log('Hessian callback not given, using approximation', logging.INFO)
-            self.addOption(b'hessian_approximation', b'limited-memory')
+            self.add_option(b'hessian_approximation', b'limited-memory')
 
         self.__exception = None
 
@@ -382,11 +373,9 @@ cdef class problem:
         """
         Deallcate memory resources used by the Ipopt package. Called implicitly
         by the 'problem' class destructor.
-
         Parameters
         ----------
             None
-
         Returns
         -------
             None
@@ -397,17 +386,27 @@ cdef class problem:
 
         self.__nlp = NULL
 
-    def addOption(self, keyword, val):
+    @deprecated_warning("add_option")
+    def addOption(self, *args, **kwargs):
+        """Add a keyword/value option pair to the problem.
+
+        .. deprecated:: 1.0.0
+          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced 
+          by :method:`add_option` because the latter complies with PEP8.
+
+        """
+        return self.add_option(*args, **kwargs)
+
+    def add_option(self, keyword, val):
         """
         Add a keyword/value option pair to the problem. See the Ipopt
         documentaion for details on available options.
 
         Parameters
         ----------
-        keyword : string
+        keyword : str
             Option name.
-
-        val : string, int, or float
+        val : str, int or float
             Value of the option. The type of val should match the option
             definition as described in the Ipopt documentation.
 
@@ -439,9 +438,21 @@ cdef class problem:
         if not ret_val:
             raise TypeError("Error while assigning an option")
 
-    def setProblemScaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+    @deprecated_warning("set_problem_scaling")
+    def setProblemScaling(self, *args, **kwargs):
+        """Optional function for setting scaling parameters for the problem.
+
+        .. deprecated:: 1.0.0
+          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is 
+          replaced by :method:`set_problem_scaling` because the latter complies 
+          with PEP8.
+
         """
-        Optional function for setting scaling parameters for the problem.
+        return self.set_problem_scaling(*args, **kwargs)
+
+    def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+        """Optional function for setting scaling parameters for the problem.
+
         To use the scaling parameters set the option 'nlp_scaling_method' to
         'user-scaling'.
 
@@ -458,7 +469,7 @@ cdef class problem:
             The scaling factors for the variables. If None, no scaling is done.
         g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If None, no scaling is done.
-
+        
         Returns
         -------
             None
@@ -488,7 +499,7 @@ cdef class problem:
             g_scaling_p = NULL
         else:
             if len(g_scaling) != self.__m:
-                raise ValueError('g_scaling must either be None or have length n.')
+                raise ValueError('g_scaling must either be None or have length m.')
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
             g_scaling_p = <Number*>np_g_scaling.data
@@ -510,12 +521,10 @@ cdef class problem:
         """
         Returns the optimal solution and an info dictionary. Solves the posed
         optimization problem starting at point x.
-
         Parameters
         ----------
         x : array-like, shape(n, )
             Initial guess.
-
         Returns
         -------
         x : array, shape(n, )
@@ -537,7 +546,6 @@ cdef class problem:
                 gives the status of the algorithm
             'status_msg': string
                 gives the status of the algorithm as a message
-
         """
 
         if self.__n != len(x):
@@ -886,3 +894,30 @@ cdef Bool intermediate_cb(
         return True
 
     return ret_val
+
+
+class problem(Problem):
+    """Class to continue support for old API.
+
+    .. deprecated:: 1.0.0
+      :class:`problem` will be removed in CyIpopt 1.1.0, it is replaced
+      by :class:`Problem` because the latter complies with PEP8.
+
+    For full documentation of this class including its attributes and methods
+    please see :class:`Problem`.
+
+    This class acts as a wrapper to the new :class:`Problem` class. It simply
+    issues a :warning:`FutureWarning` to the user before passing all args and
+    kwargs through to :class:`Problem`.
+
+    Returns
+    -------
+    :obj:`Problem`
+            Instance created with the `args` and `kwargs` parameters.
+
+    """
+
+    def __new__(cls, *args, **kwargs):
+        msg = generate_deprecation_warning_msg("class", "problem", "Problem")
+        warnings.warn(msg, FutureWarning)
+        return super(problem, cls).__new__(cls, *args, **kwargs)

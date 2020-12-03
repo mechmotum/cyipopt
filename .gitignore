@@ -1,4 +1,7 @@
-#Virtualenv env
+# OS-specific
+.DS_Store
+
+# Virtualenv env
 venv
 
 # Byte-compiled / optimized / DLL files
@@ -7,6 +10,7 @@ __pycache__/
 
 # C extensions
 *.so
+cyipopt/cython/ipopt_wrapper.c
 
 # Distribution / packaging
 .Python
