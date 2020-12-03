@@ -55,12 +55,17 @@ Then, direct your browser to ``build/html/index.html``.
 Testing
 =======
 
-You can test the installation by running the examples under the folder ``test\``.
+You can test the installation by running each of the examples in the ``examples/`` directory.
 
-.. note::
+If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
 
-    Under linux you might need to let the OS know where to look for the Ipopt lib files,
-    e.g. use::
+    $ pip install pytest
 
-        $ export LD_LIBRARY_PATH=<PATH to Ipopt lib files>
+if you are using a Python ``venv``, or with::
+
+    $ conda install pytest
+
+if you have a ``conda`` virtual environment set up. The tests can then run by calling::
+
+    $ pytest
 
