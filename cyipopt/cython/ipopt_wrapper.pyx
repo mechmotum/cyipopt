@@ -22,7 +22,7 @@ import warnings
 
 from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 
-__all__ = ['setLoggingLevel', 'Problem']
+__all__ = ["setLoggingLevel", "Problem", "problem"]
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
