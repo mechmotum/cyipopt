@@ -1,11 +1,31 @@
 language: 
   - python
 
-python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "3.9"
+os:
+  - linux
+
+dist:
+  - xenial
+
+jobs:
+  include:
+    - name: "Python 3.6"
+      python: 3.6
+      env:
+        - IPOPT_VERSION=3.13
+    - name: "Python 3.7"
+      python: 3.7
+      env:
+        - IPOPT_VERSION=3.13
+    - name: "Python 3.8"
+      python: 3.8
+      env:
+        - IPOPT_VERSION=3.12
+        - IPOPT_VERSION=3.13
+    - name: "Python 3.9"
+      python: 3.9
+      env:
+        - IPOPT_VERSION=3.13
 
 before_install:
   - sudo apt-get update
@@ -25,8 +45,7 @@ install:
   # https://github.com/conda-forge/blas-feedstock/issues/58
   - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION
   - conda activate test-env
-  - conda install "lapack<3.9.0"
-  - conda install -y -q --file requirements.txt
+  - conda install -y -q --file "lapack<3.9.0" cython>=0.26 future>=0.15 "ipopt=$IPOPT_VERSION" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 six>=1.11
 
 before_script:
   - conda info -a
