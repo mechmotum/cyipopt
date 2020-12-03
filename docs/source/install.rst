@@ -21,7 +21,7 @@ dependencies:
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
   * Ipopt
-  * python 2.7 or 3.4+
+  * python 3.6+
   * setuptools
   * cython
   * numpy
