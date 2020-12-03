@@ -8,7 +8,7 @@ the :ref:`tutorial <tutorial>` for further details, as the class and
 function raw specifications may not be enough to give full guidelines on their
 uses.
 
-.. autoclass:: ipopt.problem
+.. autoclass:: cyipopt.Problem
    :members:
 
-.. autofunction:: ipopt.minimize_ipopt
+.. autofunction:: cyipopt.minimize_ipopt
