@@ -10,6 +10,14 @@ environment:
       IPOPT: "ipopt"
       IPOPTWINDIR: "USECONDAFORGEIPOPT"
 
+    # Test IPOPT 3.11 specifically for backwards compatibility
+    - PYTHON: "C:\\Miniconda37-x64"
+      PYTHON_VERSION: "3.7"
+      PYTHON_ARCH: "64"
+      CONDA_PY: "37"
+      IPOPT: "ipopt>=3.11,<3.13"
+      IPOPTWINDIR: "USECONDAFORGEIPOPT"
+
     - PYTHON: "C:\\Miniconda37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
