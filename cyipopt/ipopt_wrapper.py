@@ -2,11 +2,11 @@
 
 import warnings
 
-from .minimize import IpoptProblemWrapper as CyipoptIpoptProblemWrapper
-from .minimize import convert_to_bytes as cyipopt_convert_to_bytes
-from .minimize import get_bounds as cyipopt_get_bounds
-from .minimize import get_constraint_bounds as cyipopt_get_constraint_bounds
-from .minimize import minimize_ipopt as cyipopt_minimize_ipopt
+from .scipy_interface import IpoptProblemWrapper as CyipoptIpoptProblemWrapper
+from .scipy_interface import convert_to_bytes as cyipopt_convert_to_bytes
+from .scipy_interface import get_bounds as cyipopt_get_bounds
+from .scipy_interface import get_constraint_bounds as cyipopt_get_constraint_bounds
+from .scipy_interface import minimize_ipopt as cyipopt_minimize_ipopt
 
 
 __all__ = ["get_bounds", "minimize_ipopt"]
@@ -14,8 +14,8 @@ __all__ = ["get_bounds", "minimize_ipopt"]
 
 def make_future_warning_error_msg(func_name):
     msg = (f"'{func_name}' from 'ipopt.ipopt_wrapper' has been replaced by "
-           f"'{func_name}' from 'cyipopt.minimize'. Please import using "
-           f"'from cyipopt.minimize import {func_name}' (or similar) and "
+           f"'{func_name}' from 'cyipopt.scipy_interface'. Please import using "
+           f"'from cyipopt.scipy_interface import {func_name}' (or similar) and "
            f"remove all references to 'ipopt.ipopt_wrapper.{func_name}' in "
            f"your code as this will be deprecated in a future release.")
     return msg
