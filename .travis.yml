@@ -45,7 +45,7 @@ install:
   # https://github.com/conda-forge/blas-feedstock/issues/58
   - conda create -q -n test-env python=$TRAVIS_PYTHON_VERSION
   - conda activate test-env
-  - conda install -y -q --file "lapack<3.9.0" cython>=0.26 future>=0.15 "ipopt=$IPOPT_VERSION" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 six>=1.11
+  - conda install -y -q "lapack<3.9.0" cython>=0.26 future>=0.15 "ipopt=$IPOPT_VERSION" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 six>=1.11
 
 before_script:
   - conda info -a
