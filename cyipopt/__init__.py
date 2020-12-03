@@ -44,5 +44,4 @@ from __future__ import absolute_import
 from ipopt_wrapper import *
 from .ipopt_wrapper import *
 from .scipy_interface import *
-from .utils import *
 from .version import __version__
