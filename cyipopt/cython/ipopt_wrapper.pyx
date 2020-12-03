@@ -18,6 +18,7 @@ from ipopt cimport *
 import logging
 import sys
 import six
+import warnings
 
 from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 
