@@ -42,34 +42,6 @@ Then, execute::
 
    $ python setup.py install
 
-Docker container
-================
-
-The subdirectory `docker` contains a docker container with preinstalled ipopt
-and cyipopt.  To build the container, cd into the `docker` directory and run
-`make`. Then you can start the container by::
-
-   docker run -it matthiask/ipopt /bin/bash
-
-and either call `ipopt` directly or start a ipython shell and `import ipopt`.
-
-Vagrant environment
-===================
-
-The subdirectory `vagrant` contains a `Vagrantfile` that installs ipopt and
-cyipopt in OS provision. To build the environment, cd into the `vagrant`
-directory and run `vagrant up` (Requires that you have Vagrant+VirtualBox
-installed). Then you can access the system by::
-
-   vagrant ssh
-
-and either call `ipopt` directly or start a python shell and `import ipopt`.
-Also, if you get `source files <http://www.coin-or.org/download/binary/Ipopt/>`
-of coinhsl and put it in the `vagrant` directory, the vagrant provision will
-detect and add them in the ipopt compiling process, and then you will have
-ma57, ma27, and other solvers available on ipopt binary (ma97 and mc68 were
-removed to avoid compilation errors).
-
 Reading the docs
 ================
 
