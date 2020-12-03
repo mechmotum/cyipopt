@@ -49,7 +49,7 @@ the same behaviour as ``scipy.optimize.minimize``, for example:
 .. code:: python
 
     from scipy.optimize import rosen, rosen_der
-    from ipopt import minimize_ipopt
+    from cyipopt import minimize_ipopt
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     res = minimize_ipopt(rosen, x0, jac=rosen_der)
     print(res)
@@ -80,8 +80,8 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [>3.13.0 for Windows]
-  * Python 2.7 or 3.6+
+  * Ipopt
+  * Python 3.6+
   * setuptools
   * cython
   * numpy
