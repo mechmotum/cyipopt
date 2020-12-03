@@ -52,7 +52,7 @@ def deprecated_warning(new_name):
     return decorate
 
 
-class problem:
+class problem(Problem):
     """Class to continue support for old API.
 
     .. deprecated:: 1.0.0
@@ -73,10 +73,10 @@ class problem:
 
     """
 
-    def __new__(self, *args, **kwargs):
+    def __new__(cls, *args, **kwargs):
         msg = generate_deprecation_warning_msg("class", "problem", "Problem")
         warnings.warn(msg, FutureWarning)
-        return Problem(*args, **kwargs)
+        return super(problem, cls).__new__(cls, *args, **kwargs)
 
 
 def generate_deprecation_warning_msg(what,
