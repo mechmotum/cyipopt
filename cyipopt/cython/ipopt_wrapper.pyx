@@ -432,16 +432,18 @@ cdef class Problem:
         self.__nlp = NULL
 
     def close(self):
-        """Deallcate memory resources used by the Ipopt package.
+        """Deallocate memory resources used by the Ipopt package.
 
-        Called implicitly by the 'problem' class destructor.
+        Called implicitly by the :class:`Problem` class destructor.
 
         Parameters
         ----------
             None
+
         Returns
         -------
             None
+
         """
 
         if self.__nlp != NULL:
@@ -476,6 +478,7 @@ cdef class Problem:
         Returns
         -------
             None
+
         """
         if six.PY3 and isinstance(keyword, type("")):
             keyword = bytes(keyword, "utf-8")
@@ -540,6 +543,7 @@ cdef class Problem:
         Returns
         -------
             None
+
         """
 
         try:
@@ -583,13 +587,15 @@ cdef class Problem:
             raise TypeError("Error while setting the scaling of the problem.")
 
     def solve(self, x, lagrange=[], zl=[], zu=[]):
-        """
-        Returns the optimal solution and an info dictionary. Solves the posed
-        optimization problem starting at point x.
+        """Returns the optimal solution and an info dictionary.
+
+        Solves the posed optimization problem starting at point x.
+
         Parameters
         ----------
         x : array-like, shape(n, )
             Initial guess.
+
         Returns
         -------
         x : array, shape(n, )
@@ -611,6 +617,7 @@ cdef class Problem:
                 gives the status of the algorithm
             'status_msg': string
                 gives the status of the algorithm as a message
+
         """
 
         if self.__n != len(x):
