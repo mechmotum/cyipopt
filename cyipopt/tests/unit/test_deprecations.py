@@ -42,6 +42,10 @@ def test_non_pep8_class_name_deprecation(hs071_defintion_instance_fixture,
                             cl=hs071_constraint_lower_bounds_fixture,
                             cu=hs071_constraint_upper_bounds_fixture,
                             )
+
+
+def test_non_pep8_set_logging_level_deprecation():
+    """Ensure use of old non-PEP8 classes API raises FutureWarning to user."""
     expected_warning_msg = ("The function named 'setLoggingLevel' will soon "
                             "be deprecated in CyIpopt. Please replace all "
                             "uses and use 'set_logging_level' going forward.")
