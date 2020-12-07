@@ -55,7 +55,7 @@ Deprecated
 ++++++++++
 
 - Package being imported by ``import ipopt`` (replaced by ``import cyipopt``).
-- Use of non-PEP8 named classes/function/methods, e.g. ``cyipopt.problem`` (replaced by ``cyipopt.Problem``), ``cyipopt.problem.addOption`` (replaced by ``cyipopt.Problem.add_option``), ``cyipopt.problem.setProblemScaling`` (replaced by ``cyipopt.Problem.set_problem_scaling``) etc.
+- Use of non-PEP8 named classes/function/methods, e.g. ``cyipopt.setLoggingLevel`` (replaced by ``cyipopt.set_logging_level``), ``cyipopt.problem`` (replaced by ``cyipopt.Problem``), ``cyipopt.problem.addOption`` (replaced by ``cyipopt.Problem.add_option``), ``cyipopt.problem.setProblemScaling`` (replaced by ``cyipopt.Problem.set_problem_scaling``) etc.
 
 Removed
 +++++++
