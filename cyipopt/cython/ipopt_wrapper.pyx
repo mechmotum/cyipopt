@@ -62,8 +62,8 @@ STATUS_MESSAGES = {
                       b"optimal point, satisfying the convergence tolerances "
                       b"(can be specified by options)."),
     Solved_To_Acceptable_Level: (b"Algorithm stopped at a point that was "
-                                 b"converged, not to "desired" tolerances, "
-                                 b"but to "acceptable" tolerances (see the "
+                                 b"converged, not to \"desired\" tolerances, "
+                                 b"but to \"acceptable\" tolerances (see the "
                                  b"acceptable-... options)."),
     Infeasible_Problem_Detected: (b"Algorithm converged to a point of local "
                                   b"infeasibility. Problem may be "
