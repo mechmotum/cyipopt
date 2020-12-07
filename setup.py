@@ -116,7 +116,7 @@ def handle_ext_modules_win_32_conda_forge_ipopt():
 
     IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, "Library", "include",
                                        "coin-or"), np.get_include()]
-    IPOPT_LIBS = ["libipopt"]
+    IPOPT_LIBS = ["ipopt-3"]
     IPOPT_LIB_DIRS = [os.path.join(conda_prefix, "Library", "lib")]
     EXT_MODULES = [Extension("ipopt_wrapper",
                              ["cyipopt/cython/ipopt_wrapper.pyx"],
