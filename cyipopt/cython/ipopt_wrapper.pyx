@@ -37,6 +37,15 @@ cdef int verbosity = logging.DEBUG
 
 
 def set_logging_level(level=None):
+    """Set the logger verbosity to the specified level.
+
+    Parameters
+    ----------
+    level : int
+        The verbosity of the logger. This threshold is used to determine which
+        logging messages are logged by this module's :func:`log` function.
+
+    """
     global verbosity
 
     if not level:
@@ -48,6 +57,20 @@ def set_logging_level(level=None):
 
 @deprecated_warning("set_logging_level")
 def setLoggingLevel(level=None):
+    """Function to continue support for old API.
+
+    .. deprecated:: 1.0.0
+      :func:`setLoggingLevel` will be removed in CyIpopt 1.1.0, it is replaced
+      by :func:`set_logging_level` because the latter complies with PEP8.
+
+    For full documentation of this function please see
+    :func:`set_logging_level`.
+
+    This function acts as a wrapper to the new :func:`set_logging_level`
+    function. It simply issues a :warning:`FutureWarning` to the user before
+    passing all args and kwargs through to :func:`set_logging_level`.
+
+    """
     set_logging_level(level)
 
 
