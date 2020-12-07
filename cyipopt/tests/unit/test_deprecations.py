@@ -42,6 +42,11 @@ def test_non_pep8_class_name_deprecation(hs071_defintion_instance_fixture,
                             cl=hs071_constraint_lower_bounds_fixture,
                             cu=hs071_constraint_upper_bounds_fixture,
                             )
+    expected_warning_msg = ("The function named 'setLoggingLevel' will soon "
+                            "be deprecated in CyIpopt. Please replace all "
+                            "uses and use 'set_logging_level' going forward.")
+    with pytest.warns(FutureWarning, match=expected_warning_msg):
+        cyipopt.setLoggingLevel()
 
 
 def test_non_pep8_method_names_deprecation(hs071_problem_instance_fixture):
