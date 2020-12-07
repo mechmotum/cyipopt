@@ -46,7 +46,7 @@ def set_logging_level(level=None):
         verbosity = level
 
 
-@deprecated_warning
+@deprecated_warning("set_logging_level")
 def setLoggingLevel(level=None):
     set_logging_level(level)
 
@@ -396,7 +396,7 @@ cdef class Problem:
         SetIntermediateCallback(self.__nlp, intermediate_cb)
 
         if self.__hessian is None:
-            msg = "Hessian callback not given, using approximation"
+            msg = b"Hessian callback not given, using approximation"
             log(msg, logging.INFO)
             self.add_option(b"hessian_approximation", b"limited-memory")
 
@@ -591,7 +591,7 @@ cdef class Problem:
         """
 
         if self.__n != len(x):
-            raise ValueError('Wrong length of x0')
+            raise ValueError("Wrong length of x0.")
 
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_x = np.array(x, dtype=DTYPEd).flatten()
 
@@ -649,7 +649,7 @@ cdef Bool objective_cb(Index n,
                        UserDataPtr user_data
                        ):
 
-    log("objective_cb", logging.INFO)
+    log(b"objective_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -670,7 +670,7 @@ cdef Bool gradient_cb(Index n,
                       UserDataPtr user_data
                       ):
 
-    log("gradient_cb", logging.INFO)
+    log(b"gradient_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -702,7 +702,7 @@ cdef Bool constraints_cb(Index n,
                          UserDataPtr user_data
                          ):
 
-    log("constraints_cb", logging.INFO)
+    log(b"constraints_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -710,7 +710,7 @@ cdef Bool constraints_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
 
     if not self.__constraints:
-        log("Constraints callback not defined", logging.DEBUG)
+        log(b"Constraints callback not defined", logging.DEBUG)
         return True
 
     for i in range(n):
@@ -741,7 +741,7 @@ cdef Bool jacobian_cb(Index n,
                       UserDataPtr user_data
                       ):
 
-    log("jacobian_cb", logging.INFO)
+    log(b"jacobian_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -751,10 +751,10 @@ cdef Bool jacobian_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_jac_g
 
     if values == NULL:
-        log("Querying for iRow/jCol indices of the jacobian", logging.INFO)
+        log(b"Querying for iRow/jCol indices of the jacobian", logging.INFO)
 
         if not self.__jacobianstructure:
-            msg = "Jacobian callback not defined. assuming a dense jacobian"
+            msg = b"Jacobian callback not defined. assuming a dense jacobian"
             log(msg, logging.INFO)
 
             #
@@ -781,10 +781,10 @@ cdef Bool jacobian_cb(Index n,
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
     else:
-        log("Querying for jacobian", logging.INFO)
+        log(b"Querying for jacobian", logging.INFO)
 
         if not self.__jacobian:
-            log("Jacobian callback not defined", logging.DEBUG)
+            log(b"Jacobian callback not defined", logging.DEBUG)
             return True
 
         for i in range(n):
@@ -818,7 +818,7 @@ cdef Bool hessian_cb(Index n,
                      UserDataPtr user_data
                      ):
 
-    log("hessian_cb", logging.INFO)
+    log(b"hessian_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -829,12 +829,12 @@ cdef Bool hessian_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_h
 
     if values == NULL:
-        msg = "Querying for iRow/jCol indices of the Hessian"
+        msg = b"Querying for iRow/jCol indices of the Hessian"
         log(msg, logging.INFO)
 
         if not self.__hessianstructure:
-            msg = ("Hessian callback not defined. assuming a lower triangle "
-                   "Hessian")
+            msg = (b"Hessian callback not defined. assuming a lower triangle "
+                   b"Hessian")
             log(msg, logging.INFO)
 
             #
@@ -864,8 +864,8 @@ cdef Bool hessian_cb(Index n,
             jCol[i] = np_jCol[i]
     else:
         if not self.__hessian:
-            msg = ("Hessian callback not defined but called by the Ipopt "
-                   "algorithm")
+            msg = (b"Hessian callback not defined but called by the Ipopt "
+                   b"algorithm")
             log(msg, logging.ERROR)
             return False
 
@@ -903,7 +903,7 @@ cdef Bool intermediate_cb(Index alg_mod,
                           UserDataPtr user_data
                           ):
 
-    log("intermediate_cb", logging.INFO)
+    log(b"intermediate_cb", logging.INFO)
 
     cdef object self = <object>user_data
 
