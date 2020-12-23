@@ -37,7 +37,7 @@ Status
           :target: https://cyipopt.readthedocs.io/en/latest/?badge=latest
           :alt: Documentation Status
    * - Travis CI
-     - .. image:: https://api.travis-ci.org/matthias-k/cyipopt.svg?branch=master
+     - .. image:: https://api.travis-ci.org/mechmotum/cyipopt.svg?branch=master
           :target: https://travis-ci.org/matthias-k/cyipopt
    * - Appveyor
      - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
