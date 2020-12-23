@@ -38,7 +38,7 @@ Status
           :alt: Documentation Status
    * - Travis CI
      - .. image:: https://api.travis-ci.org/mechmotum/cyipopt.svg?branch=master
-          :target: https://travis-ci.org/matthias-k/cyipopt
+          :target: https://travis-ci.org/mechmotum/cyipopt
    * - Appveyor
      - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
           :target: https://ci.appveyor.com/project/moorepants/cyipopt
