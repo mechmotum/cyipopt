@@ -1,0 +1,11 @@
+name: rtd-env
+channels:
+        - conda-forge
+dependencies:
+        - cython
+        - future
+        - numpy
+        - numpydoc
+        - setuptools
+        - six
+        - sphinx
