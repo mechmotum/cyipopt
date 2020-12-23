@@ -376,7 +376,7 @@ cdef class Problem:
         self.__nlp = NULL
 
     def close(self):
-        """Deallcate memory resources used by the Ipopt package. Called
+        """Deallocate memory resources used by the Ipopt package. Called
         implicitly by the 'problem' class destructor.
 
         """
