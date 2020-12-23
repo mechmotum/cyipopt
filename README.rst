@@ -34,7 +34,7 @@ Status
           :target: https://pypi.org/project/ipopt
    * - Read the Docs
      - .. image:: https://readthedocs.org/projects/cyipopt/badge/?version=stable
-          :target: https://cyipopt.readthedocs.io/en/stable/?badge=stable
+          :target: https://cyipopt.readthedocs.io/en/latest/?badge=latest
           :alt: Documentation Status
    * - Travis CI
      - .. image:: https://api.travis-ci.org/matthias-k/cyipopt.svg?branch=master
