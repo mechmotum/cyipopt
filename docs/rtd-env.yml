@@ -4,6 +4,7 @@ channels:
 dependencies:
         - cython
         - future
+        - ipopt
         - numpy
         - numpydoc
         - setuptools
