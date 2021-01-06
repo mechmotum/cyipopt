@@ -1,4 +1,4 @@
-name: rtd-env
+name: cyipopt-rtd-env
 channels:
         - conda-forge
 dependencies:

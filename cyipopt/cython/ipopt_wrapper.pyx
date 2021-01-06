@@ -89,12 +89,18 @@ cdef class Problem:
     the Ipopt package.
 
     It can be used to solve general nonlinear programming problems of the form:
+
     .. math::
-           \min_ {x \in R^n} f(x)
+
+       \min_ {x \in R^n} f(x)
+
     subject to
+
     .. math::
-           g_L \leq g(x) \leq g_U
-           x_L \leq  x  \leq x_U
+
+       g_L \leq g(x) \leq g_U
+       x_L \leq  x  \leq x_U
+
     Where :math:`x` are the optimization variables (possibly with upper an
     lower bounds), :math:`f(x)` is the objective function and :math:`g(x)` are
     the general nonlinear constraints. The constraints, :math:`g(x)`, have
@@ -190,7 +196,7 @@ cdef class Problem:
                     'ls_trials':
                         The number of backtracking line search steps.
                 more information can be found in the following link:
-                http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
+                https://coin-or.github.io/Ipopt/OUTPUT.html
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.
@@ -370,15 +376,9 @@ cdef class Problem:
         self.__nlp = NULL
 
     def close(self):
-        """
-        Deallcate memory resources used by the Ipopt package. Called implicitly
-        by the 'problem' class destructor.
-        Parameters
-        ----------
-            None
-        Returns
-        -------
-            None
+        """Deallocate memory resources used by the Ipopt package. Called
+        implicitly by the 'problem' class destructor.
+
         """
 
         if self.__nlp != NULL:
@@ -391,7 +391,7 @@ cdef class Problem:
         """Add a keyword/value option pair to the problem.
 
         .. deprecated:: 1.0.0
-          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced 
+          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
           by :method:`add_option` because the latter complies with PEP8.
 
         """
@@ -443,8 +443,8 @@ cdef class Problem:
         """Optional function for setting scaling parameters for the problem.
 
         .. deprecated:: 1.0.0
-          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is 
-          replaced by :method:`set_problem_scaling` because the latter complies 
+          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
+          replaced by :method:`set_problem_scaling` because the latter complies
           with PEP8.
 
         """
@@ -469,10 +469,11 @@ cdef class Problem:
             The scaling factors for the variables. If None, no scaling is done.
         g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If None, no scaling is done.
-        
+
         Returns
         -------
-            None
+        None
+
         """
 
         try:
@@ -521,10 +522,12 @@ cdef class Problem:
         """
         Returns the optimal solution and an info dictionary. Solves the posed
         optimization problem starting at point x.
+
         Parameters
         ----------
         x : array-like, shape(n, )
             Initial guess.
+
         Returns
         -------
         x : array, shape(n, )
@@ -546,6 +549,7 @@ cdef class Problem:
                 gives the status of the algorithm
             'status_msg': string
                 gives the status of the algorithm as a message
+
         """
 
         if self.__n != len(x):
