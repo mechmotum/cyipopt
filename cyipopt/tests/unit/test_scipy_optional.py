@@ -46,7 +46,8 @@ def test_minimize_ipopt_nojac_if_scipy():
     from scipy.optimize import rosen
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     options = {"tol": 1e-7}
-    res = cyipopt.minimize_ipopt(rosen, x0,options=options)
+    res = cyipopt.minimize_ipopt(rosen, x0, options=options)
+
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun") , 0)
     assert res.get("status") == 0
