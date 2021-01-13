@@ -63,7 +63,7 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
     constr = {"fun": lambda x: rosen(x)-1.0, "type": "ineq"}
     res = cyipopt.minimize_ipopt(rosen, x0, constraints=constr)
     assert isinstance(res, dict)
-    assert np.isclose(res.get("fun") , 1)
+    assert np.isclose(res.get("fun"), 1)
     assert res.get("status") == 0
     assert res.get("success") is True
     expected_res = np.array([1.001867, 0.99434067, 1.05070075, 1.17906312, 1.38103001])
