@@ -35,7 +35,6 @@ else:
 
 import cyipopt
 
-
 class IpoptProblemWrapper(object):
     def __init__(self, fun, args=(), kwargs=None, jac=None, hess=None, hessp=None,
                  constraints=(), eps=1e-8):
@@ -59,18 +58,20 @@ class IpoptProblemWrapper(object):
         self._constraint_funs = []
         self._constraint_jacs = []
         self._constraint_args = []
+        self._constraint_kwargs = []
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
             con_fun = con['fun']
             con_jac = con.get('jac', None)
-            if con_jac is None:
-                con_fun = FunctionWithApproxJacobian(con_fun, epsilon=eps, verbose=False)
-                con_jac = con_fun.jac
             con_args = con.get('args', [])
+            con_kwargs = con.get('kwargs', [])
+            if con_jac is None:
+                con_jac = lambda x0, *args, **kwargs: approx_fprime(x0, con_fun, eps, *args, **kwargs)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
             self._constraint_args.append(con_args)
+            self._constraint_kwargs.append(con_kwargs)
         # Set up evaluation counts
         self.nfev = 0
         self.njev = 0
