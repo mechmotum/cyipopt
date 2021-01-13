@@ -45,8 +45,13 @@ def test_minimize_ipopt_nojac_if_scipy():
     """If SciPy is installed `minimize_ipopt` works without Jacobian."""
     from scipy.optimize import rosen
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+<<<<<<< HEAD
     options = {"tol":1e-7}
     res = cyipopt.minimize_ipopt(rosen, x0, options=options)
+=======
+    options = {"tol": 1e-7}
+    res = cyipopt.minimize_ipopt(rosen, x0,options=options)
+>>>>>>> 49f8bb877780e2a55d8815daa28b58666c25e603
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun") , 0)
     assert res.get("status") == 0
@@ -64,7 +69,12 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun") , 1)
     assert res.get("status") == 0
+<<<<<<< HEAD
     assert res.get("success") is True
     expected_res = np.array([1.001867, 0.99434067, 1.05070075, 1.17906312, 1.38103001])
     np.testing.assert_allclose(res.get("x"), expected_res)
     
+=======
+    assert res.get("success") == True
+    np.testing.assert_allclose(res.get("x"), np.array([1.001867  , 0.99434067, 1.05070075, 1.17906312, 1.38103001]))
+>>>>>>> 49f8bb877780e2a55d8815daa28b58666c25e603
