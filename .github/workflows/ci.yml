@@ -19,6 +19,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install
+    - name: Install dependencies
+      run: |
+        sudo apt-get install \
+          build-essential \
+          coinor-libipopt1v5 coinor-libipopt-dev \
+          gfortran lcov pkg-config python-dev zlib1g-dev
+
+    - name: Install package
       run: |
         pip install .
