@@ -21,9 +21,11 @@ import subprocess as sp
 from setuptools import setup
 from setuptools.extension import Extension
 
-from setuptools import dist
 # install requirements before import
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy'])
+from setuptools import dist
+SETUP_REQUIRES = ['cython>=0.26', 'numpy>=1.15']
+dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
+
 from Cython.Distutils import build_ext
 import numpy as np
 
@@ -199,7 +201,6 @@ if __name__ == "__main__":
           license=LICENSE,
           classifiers=CLASSIFIERS,
           packages=[PACKAGE_NAME, DEPRECATED_PACKAGE_NAME],
-          setup_requires=['setuptools>=18.0', 'cython'],
           install_requires=DEPENDENCIES,
           include_package_data=include_package_data,
           data_files=DATA_FILES,
