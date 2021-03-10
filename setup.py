@@ -195,6 +195,7 @@ if __name__ == "__main__":
           license=LICENSE,
           classifiers=CLASSIFIERS,
           packages=[PACKAGE_NAME, DEPRECATED_PACKAGE_NAME],
+          setup_requires=['setuptools>=18.0', 'cython'],
           install_requires=DEPENDENCIES,
           include_package_data=include_package_data,
           data_files=DATA_FILES,
