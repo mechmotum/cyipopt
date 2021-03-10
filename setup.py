@@ -27,7 +27,12 @@ except ImportError:
     def build_ext(*args, **kwargs):
         from Cython.Distutils import build_ext
         return build_ext(*args, **kwargs)
-import numpy as np
+try:
+    from numpy import get_include
+except ImportError:
+    def get_include(*args, **kwargs):
+        import nump as np
+        return np.get_include(*args, **kwargs)
 
 
 exec(open("cyipopt/version.py", encoding="utf-8").read())
@@ -112,7 +117,7 @@ def pkgconfig(*packages, **kw):
         else:
             kw.setdefault("extra_compile_args", []).append(token)
 
-    kw["include_dirs"] += [np.get_include()]
+    kw["include_dirs"] += [get_include()]
 
     return kw
 
@@ -121,7 +126,7 @@ def handle_ext_modules_win_32_conda_forge_ipopt():
     conda_prefix = os.path.split(sys.executable)[0]
 
     IPOPT_INCLUDE_DIRS = [os.path.join(conda_prefix, "Library", "include",
-                                       "coin-or"), np.get_include()]
+                                       "coin-or"), get_include()]
     IPOPT_LIBS = ["ipopt-3"]
     IPOPT_LIB_DIRS = [os.path.join(conda_prefix, "Library", "lib")]
     EXT_MODULES = [Extension("ipopt_wrapper",
@@ -136,7 +141,7 @@ def handle_ext_modules_win_32_conda_forge_ipopt():
 
 def handle_ext_modules_win_32_other_ipopt():
     IPOPT_INCLUDE_DIRS = [os.path.join(ipoptdir, "include", "coin-or"),
-                          np.get_include()]
+                          get_include()]
 
     # These are the specific binaries in the IPOPT 3.13.2 binary download:
     # https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.2/Ipopt-3.13.2-win64-msvs2019-md.zip
