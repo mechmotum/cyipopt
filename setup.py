@@ -20,7 +20,13 @@ import subprocess as sp
 
 from setuptools import setup
 from setuptools.extension import Extension
-from Cython.Distutils import build_ext
+try:
+    from Cython.Distutils import build_ext
+except ImportError:
+    # create closure for deferred import
+    def build_ext(*args, **kwargs):
+        from Cython.Distutils import build_ext
+        return build_ext(*args, **kwargs)
 import numpy as np
 
 
