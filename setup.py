@@ -24,8 +24,6 @@ from setuptools.extension import Extension
 # install requirements before import
 from setuptools import dist
 SETUP_REQUIRES = [
-    "setuptools >= 39.0",
-    "wheel >= 0.26.2",
     "cython >= 0.26",
     "numpy>=1.15",
 ]
