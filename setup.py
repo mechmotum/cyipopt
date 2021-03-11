@@ -20,6 +20,15 @@ import subprocess as sp
 
 from setuptools import setup
 from setuptools.extension import Extension
+
+# install requirements before import
+from setuptools import dist
+SETUP_REQUIRES = [
+    "cython >= 0.26",
+    "numpy >= 1.15",
+]
+dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
+
 from Cython.Distutils import build_ext
 import numpy as np
 
@@ -41,12 +50,13 @@ KEYWORDS = ["optimization",
 AUTHOR = "Matthias Kümmerer"
 EMAIL = "matthias.kuemmerer@bethgelab.org"
 URL = "https://github.com/matthias-k/cyipopt"
-DEPENDENCIES = ["numpy>=1.15",
-                "cython>=0.26",
-                "future>=0.15",
-                "setuptools>=39.0",
-                "six>=1.11"
-                ]
+INSTALL_REQUIRES = [
+    "numpy>=1.15",
+    "cython>=0.26",
+    "future>=0.15",
+    "setuptools>=39.0",
+    "six>=1.11",
+]
 LICENSE = "EPL-1.0"
 CLASSIFIERS = [
     "Development Status :: 4 - Beta",
@@ -195,7 +205,8 @@ if __name__ == "__main__":
           license=LICENSE,
           classifiers=CLASSIFIERS,
           packages=[PACKAGE_NAME, DEPRECATED_PACKAGE_NAME],
-          install_requires=DEPENDENCIES,
+          setup_requires=SETUP_REQUIRES,
+          install_requires=INSTALL_REQUIRES,
           include_package_data=include_package_data,
           data_files=DATA_FILES,
           zip_safe=False,  # required for Py27 on Windows to work
