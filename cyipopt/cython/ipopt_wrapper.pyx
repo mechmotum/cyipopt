@@ -38,7 +38,7 @@ def setLoggingLevel(level=None):
     global verbosity
 
     if not level:
-        logger = logging.getLogger()
+        logger = logging.getLogger('cyipopt')
         verbosity = logger.getEffectiveLevel()
     else:
         verbosity = level
@@ -47,7 +47,7 @@ setLoggingLevel()
 
 cdef inline void log(char* msg, int level):
      if level >= verbosity:
-         logging.log(level, msg)
+         logging.getLogger('cyipopt').log(level, msg)
 
 STATUS_MESSAGES = {
     Solve_Succeeded: b'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).',
