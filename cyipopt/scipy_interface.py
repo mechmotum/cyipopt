@@ -26,6 +26,7 @@ else:
     SCIPY_INSTALLED = True
     del scipy
     from scipy.optimize import approx_fprime
+    from scipy.optimize._numdiff import approx_derivative
     try:
         from scipy.optimize import OptimizeResult
     except ImportError:
@@ -98,6 +99,7 @@ class IpoptProblemWrapper(object):
             con_args = con.get('args', [])
             con_kwargs = con.get('kwargs', [])
             if con_jac is None:
+                # con_jac = lambda x: approx_derivative(con_fun, x, method='3-point', rel_step=eps)
                 wrapper = cyipopt.utils.FunctionWithApproxJacobian(con_fun, eps)
                 con_fun = wrapper.func
                 con_jac = wrapper.jac

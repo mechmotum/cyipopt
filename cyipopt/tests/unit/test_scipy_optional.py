@@ -59,11 +59,10 @@ def test_minimize_ipopt_nojac_if_scipy():
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_nojac_constraints_if_scipy():
     """ `minimize_ipopt` works without Jacobian and with constraints"""
-    from scipy.optimize import rosen
+    from scipy.optimize import rosen, rosen_der
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     constr = {"fun": lambda x: rosen(x) - 1.0, "type": "ineq"}
     res = cyipopt.minimize_ipopt(rosen, x0, constraints=constr)
-    print(res)
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun"), 1.0)
     assert res.get("status") == 0
