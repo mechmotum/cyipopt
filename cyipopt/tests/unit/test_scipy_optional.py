@@ -15,6 +15,7 @@ import pytest
 import cyipopt
 
 
+
 @pytest.mark.skipif("scipy" in sys.modules,
                     reason="Test only valid if no Scipy available.")
 def test_minimize_ipopt_import_error_if_no_scipy():
@@ -62,14 +63,14 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
     from scipy.optimize import rosen, rosen_der
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     constr = {"fun": lambda x: rosen(x) - 1.0, "type": "ineq"}
-    res = cyipopt.minimize_ipopt(rosen, x0, constraints=constr)
+    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, constraints=constr)
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun"), 1.0)
     assert res.get("status") == 0
     assert res.get("success") is True
-    expected_res = np.array([1.001867, 0.99434067, 1.05070075, 1.17906312,
-                             1.38103001])
+    expected_res = np.array([1.00407015, 0.99655763, 1.05556205, 1.18568342, 1.38386505])
     np.testing.assert_allclose(res.get("x"), expected_res)
+
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
@@ -81,9 +82,10 @@ def test_minimize_ipopt_nojac_constraints_vectorvalued_if_scipy():
     x0 = np.array([0.5, 0.75])
     bounds = [np.array([0, 1]), np.array([-0.5, 2.0])]
     expected_res = 0.25 * np.ones_like(x0)
-    eq_cons = {'fun' : lambda x: x - expected_res, 'type': 'eq'}
+    eq_cons = {"fun" : lambda x: x - expected_res, "type": "eq"}
     res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, bounds=bounds, constraints=[eq_cons])
     assert isinstance(res, dict)
     assert res.get("status") == 0
     assert res.get("success") is True
     np.testing.assert_allclose(res.get("x"), expected_res)
+    
