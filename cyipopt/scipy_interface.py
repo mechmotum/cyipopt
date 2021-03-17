@@ -35,6 +35,8 @@ else:
 
 import cyipopt
 
+from scipy.optimize._numdiff import approx_derivative
+
 
 class IpoptProblemWrapper(object):
     """Class used to map an scipy minimize definition to a cyipopt problem.
@@ -99,7 +101,7 @@ class IpoptProblemWrapper(object):
             con_args = con.get('args', [])
             con_kwargs = con.get('kwargs', [])
             if con_jac is None:
-                con_jac = lambda x0, *args, **kwargs: approx_fprime(x0, con_fun, eps, *args, **kwargs)
+                con_jac = lambda x, *args, **kwargs: approx_derivative(con_fun, x, method='2-point', args=args, kwargs=kwargs)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
             self._constraint_args.append(con_args)
