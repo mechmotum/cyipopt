@@ -46,10 +46,22 @@ now considered the primary repository.** The fork includes a SciPy-style
 interface, ability to handle exceptions in the callback functions, and docker
 container for easy usage.
 
+Installation
+============
+
+We recommend using conda to install cyipopt on Linux, Mac, and Windows::
+
+   conda install -c conda-forge cyipopt
+
+Other `installation options`_ are present in the documentation.
+
+.. _installation options: https://github.com/mechmotum/cyipopt/blob/master/docs/source/install.rst
+
 License
 =======
 
-cyipopt is open-source code released under the EPL_ license.
+cyipopt is open-source code released under the EPL_ license, see the
+``LICENSE`` file.
 
 .. _EPL: http://www.eclipse.org/legal/epl-v10.html
 
