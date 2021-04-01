@@ -16,7 +16,7 @@ cyipopt from the Conda Forge channel with::
 The above command will install binary versions of all the necessary
 dependencies as well as cyipopt. Conda Forge supplies a basic build of Ipopt
 that is suitable for many use cases. You will have to install from source if
-you want a customized Ipopt installation, e.g. with HSL solvers.
+you want a customized Ipopt installation.
 
 .. _Conda: https://docs.conda.io
 
@@ -28,7 +28,7 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt
+  * Ipopt [>= 3.13 on Windows]
   * Python 3.6+
   * setuptools
   * cython
@@ -45,15 +45,19 @@ dependencies can be installed with conda or other package managers.
 On Linux and Mac
 ~~~~~~~~~~~~~~~~
 
-For Linux and Mac, the ``ipopt`` executable should be in your path.
+For Linux and Mac, the ``ipopt`` executable should be in your path and
+discoverable by pkg-config, i.e. this command should return a valid result::
 
-Download the source files of cyipopt and update ``setup.py`` to point to the
-header files and binaries of the Ipopt package, if ``LD_LIBRARY_PATH`` and
-``pkg_config`` are not setup to find ipopt on their own.
+   pkg-config --libs --cflags ipopt
 
-Then, execute::
+You will need to install Ipopt in a system location or set ``LD_LIBRARY_PATH``
+if pkg-config does not find the executable.
+
+Once all the dependencies are installed, execute::
 
    python setup.py install
+
+to build and install the package.
 
 From source on Windows
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -78,15 +82,16 @@ Obtain IPOPT one of two ways:
 
 1. Using official IPOPTs binaries:
 
-Download the latest precompiled version of Ipopt that includes the DLL files from
-https://github.com/coin-or/Ipopt/releases. Note that the current setup only
-supports Ipopt >= 3.13.0. The build 3.13.3 of Ipopt has been confirmed to work and
-can be downloaded from `Ipopt-3.13.3-win64-msvs2019-md.zip
-<https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip>`_
-. After Ipopt is extracted, the ``bin``, ``lib`` and ``include`` folders should
+Download the latest precompiled version of Ipopt that includes the DLL files
+from https://github.com/coin-or/Ipopt/releases. Note that the current setup
+only supports Ipopt >= 3.13.0. The build 3.13.3 of Ipopt has been confirmed to
+work and can be downloaded from `Ipopt-3.13.3-win64-msvs2019-md.zip
+<https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip>`_.
+After Ipopt is extracted, the ``bin``, ``lib`` and ``include`` folders should
 be in the root cyipopt directory, i.e. adjacent to the ``setup.py`` file.
 Alternatively, you can set the environment variable ``IPOPTWINDIR`` to point to
-the Ipopt directory that contains the ``bin``, ``lib`` and ``include`` directories.
+the Ipopt directory that contains the ``bin``, ``lib`` and ``include``
+directories.
 
 2. Using Conda Forge's IPOPT binary:
 
@@ -105,8 +110,8 @@ official python.org distribution. Even though it has been tested to work with th
 latest builds, it is well-known for causing issues. (see
 https://github.com/matthias-k/cyipopt/issues/52).
 
-Example Installation on Ubuntu 18.04 Using Dependencies Installed Via APT
--------------------------------------------------------------------------
+Install on Ubuntu 18.04 Using Dependencies Installed Via APT
+------------------------------------------------------------
 
 All of the dependencies can be installed with Ubuntu's package manager::
 
@@ -183,8 +188,8 @@ or out of the virtual environments in the build step. Note that six, cython,
 and numpy could alternatively be installed using Python specific package
 managers, e.g. ``pip install six cython numpy``.
 
-Example Installation on Ubuntu 18.04 With Custom Compiled IPOPT
----------------------------------------------------------------
+Installation on Ubuntu 18.04 With Custom Compiled IPOPT
+-------------------------------------------------------
 
 Install system wide dependencies::
 
