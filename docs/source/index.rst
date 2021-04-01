@@ -39,6 +39,7 @@ Contents:
    install
    tutorial
    reference
+   development
 
 Indices and tables
 ==================

@@ -1,7 +1,24 @@
 .. _tutorial:
 
-Tutorial
-========
+=====
+Usage
+=====
+
+SciPy Compatible Interface
+==========================
+
+For simple cases where you do not need the full power of sparse and structured
+Jacobians etc, ``cyipopt`` provides the function ``minimize_ipopt`` which has
+the same behaviour as ``scipy.optimize.minimize``, for example::
+
+   from scipy.optimize import rosen, rosen_der
+   from cyipopt import minimize_ipopt
+   x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+   res = minimize_ipopt(rosen, x0, jac=rosen_der)
+   print(res)
+
+Problem Interface
+=================
 
 In this example we will use cyipopt to solve an example problem, number 71 from
 the Hock-Schittkowsky test suite [1]_,
@@ -193,7 +210,7 @@ the status of the algorithm, the value of the constraints multipliers at the
 solution, and more.
 
 Where to go from here
----------------------
+=====================
 
 Once you feel sufficiently familiar with the basics, feel free to dig into the
 :ref:`reference <reference>`. For more examples, check the :file:`examples/`
