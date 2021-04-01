@@ -43,21 +43,6 @@ Status
      - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
           :target: https://ci.appveyor.com/project/moorepants/cyipopt
 
-Usage
-=====
-
-For simple cases where you do not need the full power of sparse and structured
-Jacobians etc, ``cyipopt`` provides the function ``minimize_ipopt`` which has
-the same behaviour as ``scipy.optimize.minimize``, for example:
-
-.. code:: python
-
-    from scipy.optimize import rosen, rosen_der
-    from cyipopt import minimize_ipopt
-    x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-    res = minimize_ipopt(rosen, x0, jac=rosen_der)
-    print(res)
-
 Installation
 ============
 
