@@ -5,11 +5,8 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2020 cyipopt developers
+Copyright (C) 2017-2021 cyipopt developers
 
-Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
-(original Author: Amit Aides <amitibo@tx.technion.ac.il>)
-URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 
 Usage::
@@ -30,10 +27,10 @@ Usage::
 #
 from __future__ import division
 import numpy as np
-import ipopt
+import cyipopt
 
 
-class lasso(ipopt.problem):
+class lasso(cyipopt.Problem):
     def __init__(self, A, y):
 
         self._A = A
@@ -54,12 +51,12 @@ class lasso(ipopt.problem):
         #
         # Set solver options
         #
-        self.addOption('derivative_test', 'second-order')
-        self.addOption('jac_d_constant', 'yes')
-        self.addOption('hessian_constant', 'yes')
-        self.addOption('mu_strategy', 'adaptive')
-        self.addOption('max_iter', 100)
-        self.addOption('tol', 1e-8)
+        self.add_option('derivative_test', 'second-order')
+        self.add_option('jac_d_constant', 'yes')
+        self.add_option('hessian_constant', 'yes')
+        self.add_option('mu_strategy', 'adaptive')
+        self.add_option('max_iter', 100)
+        self.add_option('tol', 1e-8)
 
     def solve(self, _lambda):
 
