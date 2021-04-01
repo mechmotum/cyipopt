@@ -1,8 +1,3 @@
-**This repository was forked from https://bitbucket.org/amitibo/cyipopt and is
-now considered the primary repository.** The fork includes a SciPy-style
-interface, ability to handle exceptions in the callback functions, and docker
-container for easy usage.
-
 ==================
 README for cyipopt
 ==================
@@ -43,41 +38,16 @@ Status
      - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
           :target: https://ci.appveyor.com/project/moorepants/cyipopt
 
-Building the documentation
-==========================
-
-First, install sphinx, e.g.::
-
-   conda install sphinx
-
-Then, after installing cyipopt, navigate to a directory that contains the
-source code and execute::
-
-   $ cd docs
-   $ make html
-
-Once the build process finishes, direct your web browser to
-``build/html/index.html``.
-
-Testing
+History
 =======
 
-You can test the installation by running each of the examples in the ``examples/`` directory.
+**This repository was forked from https://bitbucket.org/amitibo/cyipopt and is
+now considered the primary repository.** The fork includes a SciPy-style
+interface, ability to handle exceptions in the callback functions, and docker
+container for easy usage.
 
-If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
-
-    $ pip install pytest
-
-if you are using a Python ``venv``, or with::
-
-    $ conda install pytest
-
-if you have a ``conda`` virtual environment set up. The tests can then run by calling::
-
-    $ pytest
-
-Conditions of use
-=================
+License
+=======
 
 cyipopt is open-source code released under the EPL_ license.
 
