@@ -6,7 +6,7 @@ Ipopt_ (Interior Point OPTimizer, pronounced eye-pea-opt) is a software package
 for large-scale nonlinear optimization. Ipopt is available from the COIN-OR_
 initiative, under the Eclipse Public License (EPL).
 
-cyipopt is a Python wrapper around Ipopt. It enables using Ipopt from the
+**cyipopt** is a Python wrapper around Ipopt. It enables using Ipopt from the
 comfort of the Python programming language.
 
 .. _Ipopt: https://projects.coin-or.org/Ipopt
