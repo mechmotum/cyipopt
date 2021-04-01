@@ -64,17 +64,18 @@ Installation
 Using conda
 -----------
 
-The `Anaconda Python Distribution <https://www.continuum.io/why-anaconda>`_ is
-one of the easiest ways to install Python and associated pre-complied packages
-for Linux, Mac, and Windows. Once Anaconda (or miniconda) is installed, you can
-install cyipopt on **Linux and Mac** from the Conda Forge channel with::
+Conda_ is a cross platform package manager and provides the easiest mechanism
+to install cyipopt on Linux, Mac, and Windows. Once conda is installed, install
+cyipopt from the Conda Forge channel with::
 
    conda install -c conda-forge cyipopt
 
 The above command will install binary versions of all the necessary
-dependencies and cyipopt. Note that there currently are no Windows binaries.
-You will have to install from source from Windows or if you want a customized
-installation, e.g. with MKL, HSL, etc.
+dependencies as well as cyipopt. Conda Forge supplies a basic build of Ipopt
+that is suitable for many use cases. You will have to install from source if
+you want a customized Ipopt installation, e.g. with HSL solvers.
+
+.. _Conda: https://docs.conda.io
 
 From source
 -----------
@@ -100,6 +101,8 @@ dependencies can be installed with conda or other package managers.
 
 On Linux and Mac
 ~~~~~~~~~~~~~~~~
+
+For Linux and Mac, the ``ipopt`` executable should be in your path.
 
 Download the source files of cyipopt and update ``setup.py`` to point to the
 header files and binaries of the Ipopt package, if ``LD_LIBRARY_PATH`` and
@@ -367,15 +370,21 @@ descriptions::
     This is Ipopt version 3.12.11, running with linear solver ma27.
     ...
 
-Reading the docs
-================
+Building the documentation
+==========================
 
-After installing::
+First, install sphinx, e.g.::
+
+   conda install sphinx
+
+Then, after installing cyipopt, navigate to a directory that contains the
+source code and execute::
 
    $ cd docs
    $ make html
 
-Then, direct your browser to ``build/html/index.html``.
+Once the build process finishes, direct your web browser to
+``build/html/index.html``.
 
 Testing
 =======
@@ -404,5 +413,5 @@ cyipopt is open-source code released under the EPL_ license.
 Contributing
 ============
 
-For bug reports use the GitHub issue tracker. You can also send wishes,
-comments, patches, etc. to matthias.kuemmerer@bethgelab.org
+For bug reports, feature requests, comments, patches use the GitHub issue
+tracker and/or pull request system.
