@@ -11,11 +11,20 @@ For simple cases where you do not need the full power of sparse and structured
 Jacobians etc, ``cyipopt`` provides the function ``minimize_ipopt`` which has
 the same behaviour as ``scipy.optimize.minimize``, for example::
 
-   from scipy.optimize import rosen, rosen_der
-   from cyipopt import minimize_ipopt
-   x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-   res = minimize_ipopt(rosen, x0, jac=rosen_der)
-   print(res)
+   >>> from scipy.optimize import rosen, rosen_der
+   >>> from cyipopt import minimize_ipopt
+   >>> x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+   >>> res = minimize_ipopt(rosen, x0, jac=rosen_der)
+   >>> print(res)
+       fun: 2.1256746564022273e-18
+      info: {'x': array([1., 1., 1., 1., 1.]), 'g': array([], dtype=float64), 'obj_val': 2.1256746564022273e-18, 'mult_g': array([], dtype=float64), 'mult_x_L': array([0., 0., 0., 0., 0.]), 'mult_x_U': array([0., 0., 0., 0., 0.]), 'status': 0, 'status_msg': b'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).'}
+    message: b'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).'
+      nfev: 200
+       nit: 37
+      njev: 39
+    status: 0
+   success: True
+         x: array([1., 1., 1., 1., 1.])
 
 Problem Interface
 =================

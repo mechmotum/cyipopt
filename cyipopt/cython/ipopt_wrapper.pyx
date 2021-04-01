@@ -112,27 +112,28 @@ cdef class Problem:
         Number of constraints.
     problem_obj: object, optional (default=None)
         An object holding the problem's callbacks. If None, cyipopt will use
-        self, this is useful when subclassing problem. The object is required
-        to have the following attributes (some are optional):
-            - 'objective' : function pointer
+        ``self``, this is useful when subclassing ``Problem``. The object is
+        required to have the following attributes and methods (some are
+        optional):
+            - ``objective`` : function pointer
                 Callback function for evaluating objective function. The
                 callback functions accepts one parameter: x (value of the
                 optimization variables at which the objective is to be
                 evaluated). The function should return the objective function
                 value at the point x.
-            - 'constraints' : function pointer
+            - ``constraints`` : function pointer
                 Callback function for evaluating constraint functions. The
                 callback functions accepts one parameter: x (value of the
                 optimization variables at which the constraints are to be
                 evaluated). The function should return the constraints values
                 at the point x.
-            - 'gradient' : function pointer
+            - ``gradient`` : function pointer
                 Callback function for evaluating gradient of objective
                 function. The callback functions accepts one parameter: x
                 (value of the optimization variables at which the gradient is
                 to be evaluated). The function should return the gradient of
                 the objective function at the point x.
-            - 'jacobian' : function pointer
+            - ``jacobian`` : function pointer
                 Callback function for evaluating Jacobian of constraint
                 functions. The callback functions accepts one parameter: x
                 (value of the optimization variables at which the jacobian is
@@ -140,11 +141,11 @@ cdef class Problem:
                 jacobian as calculated using x. The values should be returned
                 as a 1-dim numpy array (using the same order as you used when
                 specifying the sparsity structure)
-            - 'jacobianstructure' : function pointer, optional (default=None)
+            - ``jacobianstructure`` : function pointer, optional (default=None)
                 Callback function that accepts no parameters and returns the
                 sparsity structure of the Jacobian (the row and column indices
                 only). If None, the Jacobian is assumed to be dense.
-            - 'hessian' : function pointer, optional (default=None)
+            - ``hessian`` : function pointer, optional (default=None)
                 Callback function for evaluating Hessian of the Lagrangian
                 function. The callback functions accepts three parameters x
                 (value of the optimization variables at which the hessian is to
@@ -154,58 +155,59 @@ cdef class Problem:
                 function should return the values of the Hessian as calculated
                 using x, lambda and objective_factor. The values should be
                 returned as a 1-dim numpy array (using the same order as you
-                used when specifying the sparsity structure). If None, the
+                used when specifying the sparsity structure). If ``None``, the
                 Hessian is calculated numerically.
-            - 'hessianstructure' : function pointer, optional (default=None)
+            - ``hessianstructure`` : function pointer, optional (default=None)
                 Callback function that accepts no parameters and returns the
                 sparsity structure of the Hessian of the lagrangian (the row
-                and column indices only). If None, the Hessian is assumed to be
-                dense.
-            - 'intermediate' : function pointer, optional (default=None)
+                and column indices only). If ``None``, the Hessian is assumed
+                to be dense.
+            - ``intermediate`` : function pointer, optional (default=None)
                 Optional. Callback function that is called once per iteration
                 (during the convergence check), and can be used to obtain
                 information about the optimization status while Ipopt solves
                 the problem. If this callback returns False, Ipopt will
-                terminate with the User_Requested_Stop status. The information
-                below corresponeds to the argument list passed to this
-                callback:
-                    'alg_mod':
+                terminate with the ``User_Requested_Stop status``. The
+                information below corresponeds to the argument list passed to
+                this callback:
+                    ``alg_mod``:
                         Algorithm phase: 0 is for regular, 1 is restoration.
-                    'iter_count':
+                    ``iter_count``:
                         The current iteration count.
-                    'obj_value':
+                    ``obj_value``:
                         The unscaled objective value at the current point
-                    'inf_pr':
+                    ``inf_pr``:
                         The scaled primal infeasibility at the current point.
-                    'inf_du':
+                    ``inf_du``:
                         The scaled dual infeasibility at the current point.
-                    'mu':
+                    ``mu``:
                         The value of the barrier parameter.
-                    'd_norm':
+                    ``d_norm``:
                         The infinity norm (max) of the primal step.
-                    'regularization_size':
+                    ``regularization_size``:
                         The value of the regularization term for the Hessian
                         of the Lagrangian in the augmented system.
-                    'alpha_du':
+                    ``alpha_du``:
                         The stepsize for the dual variables.
-                    'alpha_pr':
+                    ``alpha_pr``:
                         The stepsize for the primal variables.
-                    'ls_trials':
+                    ``ls_trials``:
                         The number of backtracking line search steps.
                 more information can be found in the following link:
                 https://coin-or.github.io/Ipopt/OUTPUT.html
     lb : array-like, shape(n, )
-        Lower bounds on variables, where n is the dimension of x.
-        To assume no lower bounds pass values lower then 10^-19.
+        Lower bounds on variables, where n is the dimension of x. To assume no
+        lower bounds pass values lower then ``10^-19``.
     ub : array-like, shape(n, )
-        Upper bounds on variables, where n is the dimension of x..
-        To assume no upper bounds pass values higher then 10^-19.
+        Upper bounds on variables, where n is the dimension of x. To assume no
+        upper bounds pass values higher then ``10^-19``.
     cl : array-like, shape(m, )
         Lower bounds on constraints, where m is the number of constraints.
-        Equality constraints can be specified by setting cl[i] = cu[i].
+        Equality constraints can be specified by setting ``cl[i] = cu[i]``.
     cu : array-like, shape(m, )
         Upper bounds on constraints, where m is the number of constraints.
-        Equality constraints can be specified by setting cl[i] = cu[i].
+        Equality constraints can be specified by setting ``cl[i] = cu[i]``.
+
     """
 
     cdef IpoptProblem __nlp
@@ -450,8 +452,8 @@ cdef class Problem:
     def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
         """Optional function for setting scaling parameters for the problem.
 
-        To use the scaling parameters set the option 'nlp_scaling_method' to
-        'user-scaling'.
+        To use the scaling parameters set the option ``nlp_scaling_method`` to
+        ``user-scaling``.
 
         Parameters
         ----------
@@ -463,9 +465,11 @@ cdef class Problem:
             is negative, then Ipopt will maximize the objective function
             instead of minimizing it.
         x_scaling : array-like, shape(n, )
-            The scaling factors for the variables. If None, no scaling is done.
+            The scaling factors for the variables. If ``None``, no scaling is
+            done.
         g_scaling : array-like, shape(m, )
-            The scaling factors for the constrains. If None, no scaling is done.
+            The scaling factors for the constrains. If ``None``, no scaling is
+            done.
 
         Returns
         -------
@@ -530,21 +534,21 @@ cdef class Problem:
         x : array, shape(n, )
             Optimal solution.
         info: dictionary
-            'x': ndarray, shape(n, )
+            ``x``: ndarray, shape(n, )
                 optimal solution
-            'g': ndarray, shape(m, )
+            ``g``: ndarray, shape(m, )
                 constraints at the optimal solution
-            'obj_val': float
+            ``obj_val``: float
                 objective value at optimal solution
-            'mult_g': ndarray, shape(m, )
+            ``mult_g``: ndarray, shape(m, )
                 final values of the constraint multipliers
-            'mult_x_L': ndarray, shape(n, )
+            ``mult_x_L``: ndarray, shape(n, )
                 bound multipliers at the solution
-            'mult_x_U': ndarray, shape(n, )
+            ``mult_x_U``: ndarray, shape(n, )
                 bound multipliers at the solution
-            'status': integer
+            ``status``: integer
                 gives the status of the algorithm
-            'status_msg': string
+            ``status_msg``: string
                 gives the status of the algorithm as a message
 
         """
