@@ -216,7 +216,7 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None,
     their ipopt-equivalents ``print_level`` and ``max_iter``.
     """
     if not SCIPY_INSTALLED:
-        msg = 'Install SciPy to use the minimize_ipopt function.'
+        msg = 'Install SciPy to use the `minimize_ipopt` function.'
         raise ImportError(msg)
 
     _x0 = np.atleast_1d(x0)
