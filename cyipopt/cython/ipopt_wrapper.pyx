@@ -9,17 +9,18 @@ Copyright (C) 2017-2021 cyipopt developers
 License: EPL 1.0
 """
 
-import numpy as np
-cimport numpy as np
-from ipopt cimport *
 import logging
 import sys
-import six
 import warnings
 
-from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
+import numpy as np
+cimport numpy as np
+import six
 
-__all__ = ["setLoggingLevel", "Problem", "problem"]
+from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
+from ipopt cimport *
+
+__all__ = ["set_logging_level", "setLoggingLevel", "Problem", "problem"]
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
@@ -31,7 +32,17 @@ ctypedef np.double_t DTYPEd_t
 #
 cdef int verbosity = logging.DEBUG
 
-def setLoggingLevel(level=None):
+
+def set_logging_level(level=None):
+    """Set the logger verbosity to the specified level.
+
+    Parameters
+    ----------
+    level : int
+        The verbosity of the logger. This threshold is used to determine which
+        logging messages are logged by this module's :func:`log` function.
+
+    """
     global verbosity
 
     if not level:
@@ -40,32 +51,69 @@ def setLoggingLevel(level=None):
     else:
         verbosity = level
 
-setLoggingLevel()
+
+@deprecated_warning("set_logging_level")
+def setLoggingLevel(level=None):
+    """Function to continue support for old API.
+
+    .. deprecated:: 1.0.0
+      :func:`setLoggingLevel` will be removed in CyIpopt 1.1.0, it is replaced
+      by :func:`set_logging_level` because the latter complies with PEP8.
+
+    For full documentation of this function please see
+    :func:`set_logging_level`.
+
+    This function acts as a wrapper to the new :func:`set_logging_level`
+    function. It simply issues a :warning:`FutureWarning` to the user before
+    passing all args and kwargs through to :func:`set_logging_level`.
+
+    """
+    set_logging_level(level)
+
+
+set_logging_level()
 
 cdef inline void log(char* msg, int level):
      if level >= verbosity:
          logging.getLogger('cyipopt').log(level, msg)
 
 STATUS_MESSAGES = {
-    Solve_Succeeded: b'Algorithm terminated successfully at a locally optimal point, satisfying the convergence tolerances (can be specified by options).',
-    Solved_To_Acceptable_Level: b'Algorithm stopped at a point that was converged, not to "desired" tolerances, but to "acceptable" tolerances (see the acceptable-... options).',
-    Infeasible_Problem_Detected: b'Algorithm converged to a point of local infeasibility. Problem may be infeasible.',
-    Search_Direction_Becomes_Too_Small: b'Algorithm proceeds with very little progress.',
-    Diverging_Iterates: b'It seems that the iterates diverge.',
-    User_Requested_Stop: b'The user call-back function intermediate_callback (see Section 3.3.4 in the documentation) returned false, i.e., the user code requested a premature termination of the optimization.',
-    Feasible_Point_Found: b'Feasible point for square problem found.',
-    Maximum_Iterations_Exceeded: b'Maximum number of iterations exceeded (can be specified by an option).',
-    Restoration_Failed: b'Restoration phase failed, algorithm doesn\'t know how to proceed.',
-    Error_In_Step_Computation: b'An unrecoverable error occurred while Ipopt tried to compute the search direction.',
-    Maximum_CpuTime_Exceeded: b'Maximum CPU time exceeded.',
-    Not_Enough_Degrees_Of_Freedom: b'Problem has too few degrees of freedom.',
-    Invalid_Problem_Definition: b'Invalid problem definition.',
-    Invalid_Option: b'Invalid option encountered.',
-    Invalid_Number_Detected: b'Algorithm received an invalid number (such as NaN or Inf) from the NLP; see also option check_derivatives_for_naninf',
-    Unrecoverable_Exception: b'Some uncaught Ipopt exception encountered.',
-    NonIpopt_Exception_Thrown: b'Unknown Exception caught in Ipopt',
-    Insufficient_Memory: b'Not enough memory.',
-    Internal_Error: b'An unknown internal error occurred. Please contact the Ipopt authors through the mailing list.'
+    Solve_Succeeded: (b"Algorithm terminated successfully at a locally "
+                      b"optimal point, satisfying the convergence tolerances "
+                      b"(can be specified by options)."),
+    Solved_To_Acceptable_Level: (b"Algorithm stopped at a point that was "
+                                 b"converged, not to \"desired\" tolerances, "
+                                 b"but to \"acceptable\" tolerances (see the "
+                                 b"acceptable-... options)."),
+    Infeasible_Problem_Detected: (b"Algorithm converged to a point of local "
+                                  b"infeasibility. Problem may be "
+                                  b"infeasible."),
+    Search_Direction_Becomes_Too_Small: (b"Algorithm proceeds with very "
+                                         b"little progress."),
+    Diverging_Iterates: b"It seems that the iterates diverge.",
+    User_Requested_Stop: (b"The user call-back function intermediate_callback "
+                          b"(see Section 3.3.4 in the documentation) returned "
+                          b"false, i.e., the user code requested a premature "
+                          b"termination of the optimization."),
+    Feasible_Point_Found: b"Feasible point for square problem found.",
+    Maximum_Iterations_Exceeded: (b"Maximum number of iterations exceeded "
+                                  b"(can be specified by an option)."),
+    Restoration_Failed: (b"Restoration phase failed, algorithm doesn\'t know "
+                         b"how to proceed."),
+    Error_In_Step_Computation: (b"An unrecoverable error occurred while Ipopt "
+                                b"tried to compute the search direction."),
+    Maximum_CpuTime_Exceeded: b"Maximum CPU time exceeded.",
+    Not_Enough_Degrees_Of_Freedom: b"Problem has too few degrees of freedom.",
+    Invalid_Problem_Definition: b"Invalid problem definition.",
+    Invalid_Option: b"Invalid option encountered.",
+    Invalid_Number_Detected: (b"Algorithm received an invalid number (such as "
+                              b"NaN or Inf) from the NLP; see also option "
+                              b"check_derivatives_for_naninf."),
+    Unrecoverable_Exception: b"Some uncaught Ipopt exception encountered.",
+    NonIpopt_Exception_Thrown: b"Unknown Exception caught in Ipopt.",
+    Insufficient_Memory: b"Not enough memory.",
+    Internal_Error: (b"An unknown internal error occurred. Please contact the "
+                     b"Ipopt authors through the mailing list."),
 }
 
 INF = 10**19
@@ -228,22 +276,22 @@ cdef class Problem:
                  cu=None):
 
         if not isinstance(n, six.integer_types) or not n > 0:
-            raise TypeError('n must be a positive integer')
+            raise TypeError("n must be a positive integer")
 
         if problem_obj is None:
-            log(b'problem_obj is not defined, using self', logging.INFO)
+            log(b"problem_obj is not defined, using self", logging.INFO)
             problem_obj = self
 
         self.__n = n
 
         if lb is None:
-            lb = -INF*np.ones(n)
+            lb = -INF * np.ones(n)
 
         if ub is None:
-            ub = INF*np.ones(n)
+            ub = INF * np.ones(n)
 
         if len(lb) != len(ub) or len(lb) != n:
-            raise ValueError('lb and ub must either be None or have length n.')
+            raise ValueError("lb and ub must either be None or have length n.")
 
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.array(lb, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.array(ub, dtype=DTYPEd).flatten()
@@ -252,7 +300,7 @@ cdef class Problem:
         # Handle the constraints
         #
         if not isinstance(m, six.integer_types) or not m >= 0:
-            raise TypeError('m must be zero or a positive integer')
+            raise TypeError("m must be zero or a positive integer")
 
         if m < 1:
             m = 0
@@ -260,14 +308,18 @@ cdef class Problem:
             cu = np.zeros(0)
         else:
             if cl is None and cu is None:
-                raise ValueError('Neither cl nor cu defined. At least one should be defined.')
+                msg = ("Neither cl nor cu defined. At least one should be "
+                       "defined.")
+                raise ValueError(msg)
             elif cl is None:
-                cl = -INF*np.ones(m)
+                cl = -INF * np.ones(m)
             elif cu is None:
-                cu = INF*np.ones(m)
+                cu = INF * np.ones(m)
 
         if len(cl) != len(cu) or len(cl) != m:
-            raise ValueError('cl an cu must either be None (but not both) or have length m.')
+            msg = ("cl an cu must either be None (but not both) or have "
+                   "length m.")
+            raise ValueError(msg)
 
         self.__m = m
 
@@ -277,26 +329,34 @@ cdef class Problem:
         #
         # Handle the callbacks
         #
-        self.__objective = getattr(problem_obj, 'objective', None)
-        self.__constraints = getattr(problem_obj, 'constraints', None)
-        self.__gradient = getattr(problem_obj, 'gradient', None)
-        self.__jacobian = getattr(problem_obj, 'jacobian', None)
-        self.__jacobianstructure = getattr(problem_obj, 'jacobianstructure', None)
-        self.__hessian = getattr(problem_obj, 'hessian', None)
-        self.__hessianstructure = getattr(problem_obj, 'hessianstructure', None)
-        self.__intermediate = getattr(problem_obj, 'intermediate', None)
+        self.__objective = getattr(problem_obj, "objective", None)
+        self.__constraints = getattr(problem_obj, "constraints", None)
+        self.__gradient = getattr(problem_obj, "gradient", None)
+        self.__jacobian = getattr(problem_obj, "jacobian", None)
+        self.__jacobianstructure = getattr(problem_obj,
+                                           "jacobianstructure",
+                                           None)
+        self.__hessian = getattr(problem_obj, "hessian", None)
+        self.__hessianstructure = getattr(problem_obj,
+                                          "hessianstructure",
+                                          None)
+        self.__intermediate = getattr(problem_obj, "intermediate", None)
 
         #
         # Verify that the objective and gradient callbacks are defined
         #
         if self.__objective is None or self.__gradient is None:
-            raise ValueError('Both the "objective" and "gradient" callbacks must be defined.')
+            msg = ("Both the \"objective\" and \"gradient\" callbacks must be "
+                   "defined.")
+            raise ValueError(msg)
 
         #
         # Verify that the constraints and jacobian callbacks are defined
         #
         if m > 0 and (self.__constraints is None or self.__jacobian is None):
-            raise ValueError('Both the "constrains" and "jacobian" callbacks must be defined.')
+            msg = ("Both the \"constrains\" and \"jacobian\" callbacks must "
+                   "be defined.")
+            raise ValueError(msg)
 
         cdef Index nele_jac = self.__m * self.__n
         cdef Index nele_hess = <Index>(<long>self.__n * (<long>self.__n - 1) / 2)
@@ -310,61 +370,63 @@ cdef class Problem:
             nele_hess = len(ret_val[0])
         else:
             if self.__hessian is None:
-                log(b'Hessian callback not given, setting nele_hess to 0', logging.INFO)
+                msg = b"Hessian callback not given, setting nele_hess to 0"
+                log(msg, logging.INFO)
                 nele_hess = 0
             elif self.__n > 2**16:
-                raise ValueError('Number of varialbes is too large for using dense Hessian')
+                msg = ("Number of varialbes is too large for using dense "
+                       "Hessian")
+                raise ValueError(msg)
 
         #
         # Some input checking
         #
         if self.__m == 0 and nele_jac != 0:
-            raise ValueError('m == 0 and number of jacobian elements != 0')
+            raise ValueError("m == 0 and number of jacobian elements != 0")
 
         if self.__m > 0 and nele_jac < 0:
-            raise ValueError('m > 0 and number of jacobian elements < 1')
+            raise ValueError("m > 0 and number of jacobian elements < 1")
 
         if nele_hess < 0:
-            raise ValueError('number of hessian elements < 0')
+            raise ValueError("number of hessian elements < 0")
 
-        creation_msg = CREATE_PROBLEM_MSG % (
-                            repr(self.__n),
-                            repr(self.__m),
-                            repr(nele_jac),
-                            repr(nele_hess)
-                            )
+        creation_msg = CREATE_PROBLEM_MSG % (repr(self.__n),
+                                             repr(self.__m),
+                                             repr(nele_jac),
+                                             repr(nele_hess)
+                                             )
         if six.PY3:
-            creation_msg = creation_msg.encode('utf8')
+            creation_msg = creation_msg.encode("utf8")
 
         log(creation_msg, logging.DEBUG)
 
         # TODO: verify that the numpy arrays use C order
-        self.__nlp = CreateIpoptProblem(
-                            self.__n,
-                            <Number*>np_lb.data,
-                            <Number*>np_ub.data,
-                            self.__m,
-                            <Number*>np_cl.data,
-                            <Number*>np_cu.data,
-                            nele_jac,
-                            nele_hess,
-                            0,
-                            objective_cb,
-                            constraints_cb,
-                            gradient_cb,
-                            jacobian_cb,
-                            hessian_cb
-                            )
+        self.__nlp = CreateIpoptProblem(self.__n,
+                                        <Number*>np_lb.data,
+                                        <Number*>np_ub.data,
+                                        self.__m,
+                                        <Number*>np_cl.data,
+                                        <Number*>np_cu.data,
+                                        nele_jac,
+                                        nele_hess,
+                                        0,
+                                        objective_cb,
+                                        constraints_cb,
+                                        gradient_cb,
+                                        jacobian_cb,
+                                        hessian_cb
+                                        )
 
         if self.__nlp == NULL:
-            raise RuntimeError('Failed to create NLP problem. Make sure inputs are ok!')
+            msg = "Failed to create NLP problem. Make sure inputs are okay!"
+            raise RuntimeError(msg)
 
-        #if self.__intermediate:
         SetIntermediateCallback(self.__nlp, intermediate_cb)
 
         if self.__hessian is None:
-            log('Hessian callback not given, using approximation', logging.INFO)
-            self.add_option(b'hessian_approximation', b'limited-memory')
+            msg = b"Hessian callback not given, using approximation"
+            log(msg, logging.INFO)
+            self.add_option(b"hessian_approximation", b"limited-memory")
 
         self.__exception = None
 
@@ -375,8 +437,17 @@ cdef class Problem:
         self.__nlp = NULL
 
     def close(self):
-        """Deallocate memory resources used by the Ipopt package. Called
-        implicitly by the 'problem' class destructor.
+        """Deallocate memory resources used by the Ipopt package.
+
+        Called implicitly by the :class:`Problem` class destructor.
+
+        Parameters
+        ----------
+            None
+
+        Returns
+        -------
+            None
 
         """
 
@@ -397,9 +468,9 @@ cdef class Problem:
         return self.add_option(*args, **kwargs)
 
     def add_option(self, keyword, val):
-        """
-        Add a keyword/value option pair to the problem. See the Ipopt
-        documentaion for details on available options.
+        """Add a keyword/value option pair to the problem.
+
+        See the Ipopt documentaion for details on available options.
 
         Parameters
         ----------
@@ -412,12 +483,13 @@ cdef class Problem:
         Returns
         -------
             None
-        """
-        if six.PY3 and isinstance(keyword, type('')):
-            keyword = bytes(keyword, 'utf-8')
 
-        if six.PY3 and isinstance(val, type('')):
-            val = bytes(val, 'utf-8')
+        """
+        if six.PY3 and isinstance(keyword, type("")):
+            keyword = bytes(keyword, "utf-8")
+
+        if six.PY3 and isinstance(val, type("")):
+            val = bytes(val, "utf-8")
 
         # NOTE : The strings passed in PY2 seem to be of type unicode.
         if six.PY2:
@@ -449,7 +521,10 @@ cdef class Problem:
         """
         return self.set_problem_scaling(*args, **kwargs)
 
-    def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None, g_scaling=None):
+    def set_problem_scaling(self,
+                            obj_scaling=1.0,
+                            x_scaling=None,
+                            g_scaling=None):
         """Optional function for setting scaling parameters for the problem.
 
         To use the scaling parameters set the option ``nlp_scaling_method`` to
@@ -473,14 +548,15 @@ cdef class Problem:
 
         Returns
         -------
-        None
+            None
 
         """
 
         try:
             obj_scaling = float(obj_scaling)
-        except:
-            raise ValueError('obj_scaling should be convertible to float type.')
+        except (TypeError, ValueError):
+            msg = "obj_scaling should be convertible to float type."
+            raise ValueError(msg)
 
         cdef Number *x_scaling_p
         cdef Number *g_scaling_p
@@ -491,38 +567,35 @@ cdef class Problem:
             x_scaling_p = NULL
         else:
             if len(x_scaling) != self.__n:
-                raise ValueError('x_scaling must either be None or have length n.')
+                msg = "x_scaling must either be None or have length n."
+                raise ValueError(msg)
 
             np_x_scaling = np.array(x_scaling, dtype=DTYPEd).flatten()
             x_scaling_p = <Number*>np_x_scaling.data
-
 
         if g_scaling is None:
             g_scaling_p = NULL
         else:
             if len(g_scaling) != self.__m:
-                raise ValueError('g_scaling must either be None or have length m.')
+                msg = "g_scaling must either be None or have length m."
+                raise ValueError(msg)
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
             g_scaling_p = <Number*>np_g_scaling.data
 
-        ret_val = SetIpoptProblemScaling(
-            self.__nlp,
-            obj_scaling,
-            x_scaling_p,
-            g_scaling_p
-            )
+        ret_val = SetIpoptProblemScaling(self.__nlp,
+                                         obj_scaling,
+                                         x_scaling_p,
+                                         g_scaling_p
+                                         )
 
         if not ret_val:
             raise TypeError("Error while setting the scaling of the problem.")
 
-    def solve(
-            self,
-            x,lagrange=[],zl=[],zu=[]
-            ):
-        """
-        Returns the optimal solution and an info dictionary. Solves the posed
-        optimization problem starting at point x.
+    def solve(self, x, lagrange=[], zl=[], zu=[]):
+        """Returns the optimal solution and an info dictionary.
+
+        Solves the posed optimization problem starting at point x.
 
         Parameters
         ----------
@@ -554,16 +627,12 @@ cdef class Problem:
         """
 
         if self.__n != len(x):
-            raise ValueError('Wrong length of x0')
+            raise ValueError("Wrong length of x0.")
 
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_x = np.array(x, dtype=DTYPEd).flatten()
 
         cdef ApplicationReturnStatus stat
         cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self.__m,), dtype=DTYPEd)
-
-        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.zeros((self.__m,), dtype=DTYPEd)
-        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.zeros((self.__n,), dtype=DTYPEd)
-        #cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.zeros((self.__n,), dtype=DTYPEd)
 
         if lagrange == []:
             lagrange = np.zeros((self.__m,), dtype=DTYPEd)
@@ -579,31 +648,29 @@ cdef class Problem:
 
         cdef Number obj_val = 0
 
-        stat = IpoptSolve(
-                    self.__nlp,
-                    <Number*>np_x.data,
-                    <Number*>g.data,
-                    &obj_val,
-                    <Number*>mult_g.data,
-                    <Number*>mult_x_L.data,
-                    <Number*>mult_x_U.data,
-                    <UserDataPtr>self
-                    )
+        stat = IpoptSolve(self.__nlp,
+                          <Number*>np_x.data,
+                          <Number*>g.data,
+                          &obj_val,
+                          <Number*>mult_g.data,
+                          <Number*>mult_x_L.data,
+                          <Number*>mult_x_U.data,
+                          <UserDataPtr>self
+                          )
 
         if self.__exception:
             raise self.__exception[0], self.__exception[1], self.__exception[2]
 
 
-        info = {
-            'x': np_x,
-            'g': g,
-            'obj_val': obj_val,
-            'mult_g': mult_g,
-            'mult_x_L': mult_x_L,
-            'mult_x_U': mult_x_U,
-            'status': stat,
-            'status_msg': STATUS_MESSAGES[stat]
-            }
+        info = {"x": np_x,
+                "g": g,
+                "obj_val": obj_val,
+                "mult_g": mult_g,
+                "mult_x_L": mult_x_L,
+                "mult_x_U": mult_x_U,
+                "status": stat,
+                "status_msg": STATUS_MESSAGES[stat]
+                }
 
         return np_x, info
 
@@ -611,15 +678,14 @@ cdef class Problem:
 #
 # Callback functions
 #
-cdef Bool objective_cb(
-            Index n,
-            Number* x,
-            Bool new_x,
-            Number* obj_value,
-            UserDataPtr user_data
-            ):
+cdef Bool objective_cb(Index n,
+                       Number* x,
+                       Bool new_x,
+                       Number* obj_value,
+                       UserDataPtr user_data
+                       ):
 
-    log('objective_cb', logging.INFO)
+    log(b"objective_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -633,15 +699,14 @@ cdef Bool objective_cb(
     return True
 
 
-cdef Bool gradient_cb(
-            Index n,
-            Number* x,
-            Bool new_x,
-            Number* grad_f,
-            UserDataPtr user_data
-            ):
+cdef Bool gradient_cb(Index n,
+                      Number* x,
+                      Bool new_x,
+                      Number* grad_f,
+                      UserDataPtr user_data
+                      ):
 
-    log('gradient_cb', logging.INFO)
+    log(b"gradient_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -665,16 +730,15 @@ cdef Bool gradient_cb(
     return True
 
 
-cdef Bool constraints_cb(
-            Index n,
-            Number* x,
-            Bool new_x,
-            Index m,
-            Number* g,
-            UserDataPtr user_data
-            ):
+cdef Bool constraints_cb(Index n,
+                         Number* x,
+                         Bool new_x,
+                         Index m,
+                         Number* g,
+                         UserDataPtr user_data
+                         ):
 
-    log('constraints_cb', logging.INFO)
+    log(b"constraints_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -682,7 +746,7 @@ cdef Bool constraints_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
 
     if not self.__constraints:
-        log('constraints callback not defined', logging.DEBUG)
+        log(b"Constraints callback not defined", logging.DEBUG)
         return True
 
     for i in range(n):
@@ -702,19 +766,18 @@ cdef Bool constraints_cb(
     return True
 
 
-cdef Bool jacobian_cb(
-            Index n,
-            Number* x,
-            Bool new_x,
-            Index m,
-            Index nele_jac,
-            Index *iRow,
-            Index *jCol,
-            Number *values,
-            UserDataPtr user_data
-            ):
+cdef Bool jacobian_cb(Index n,
+                      Number* x,
+                      Bool new_x,
+                      Index m,
+                      Index nele_jac,
+                      Index *iRow,
+                      Index *jCol,
+                      Number *values,
+                      UserDataPtr user_data
+                      ):
 
-    log('jacobian_cb', logging.INFO)
+    log(b"jacobian_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -724,15 +787,17 @@ cdef Bool jacobian_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] np_jac_g
 
     if values == NULL:
-        log('Querying for iRow/jCol indices of the jacobian', logging.INFO)
+        log(b"Querying for iRow/jCol indices of the jacobian", logging.INFO)
 
         if not self.__jacobianstructure:
-            log('Jacobian callback not defined. assuming a dense jacobian', logging.INFO)
+            msg = b"Jacobian callback not defined. assuming a dense jacobian"
+            log(msg, logging.INFO)
 
             #
             # Assuming a dense Jacobian
             #
-            s = np.unravel_index(np.arange(self.__m*self.__n), (self.__m, self.__n))
+            s = np.unravel_index(np.arange(self.__m * self.__n),
+                                 (self.__m, self.__n))
             np_iRow = np.array(s[0], dtype=DTYPEi)
             np_jCol = np.array(s[1], dtype=DTYPEi)
         else:
@@ -752,10 +817,10 @@ cdef Bool jacobian_cb(
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
     else:
-        log('Querying for jacobian', logging.INFO)
+        log(b"Querying for jacobian", logging.INFO)
 
         if not self.__jacobian:
-            log('Jacobian callback not defined', logging.DEBUG)
+            log(b"Jacobian callback not defined", logging.DEBUG)
             return True
 
         for i in range(n):
@@ -775,22 +840,21 @@ cdef Bool jacobian_cb(
     return True
 
 
-cdef Bool hessian_cb(
-            Index n,
-            Number* x,
-            Bool new_x,
-            Number obj_factor,
-            Index m,
-            Number *lambd,
-            Bool new_lambda,
-            Index nele_hess,
-            Index *iRow,
-            Index *jCol,
-            Number *values,
-            UserDataPtr user_data
-            ):
+cdef Bool hessian_cb(Index n,
+                     Number* x,
+                     Bool new_x,
+                     Number obj_factor,
+                     Index m,
+                     Number *lambd,
+                     Bool new_lambda,
+                     Index nele_hess,
+                     Index *iRow,
+                     Index *jCol,
+                     Number *values,
+                     UserDataPtr user_data
+                     ):
 
-    log('hessian_cb', logging.INFO)
+    log(b"hessian_cb", logging.INFO)
 
     cdef object self = <object>user_data
     cdef Index i
@@ -801,10 +865,13 @@ cdef Bool hessian_cb(
     cdef np.ndarray[DTYPEd_t, ndim=1] np_h
 
     if values == NULL:
-        log('Querying for iRow/jCol indices of the hessian', logging.INFO)
+        msg = b"Querying for iRow/jCol indices of the Hessian"
+        log(msg, logging.INFO)
 
         if not self.__hessianstructure:
-            log('Hessian callback not defined. assuming a lower triangle Hessian', logging.INFO)
+            msg = (b"Hessian callback not defined. assuming a lower triangle "
+                   b"Hessian")
+            log(msg, logging.INFO)
 
             #
             # Assuming a lower triangle Hessian
@@ -833,7 +900,9 @@ cdef Bool hessian_cb(
             jCol[i] = np_jCol[i]
     else:
         if not self.__hessian:
-            log('hessian callback not defined but called by the ipopt algorithm', logging.ERROR)
+            msg = (b"Hessian callback not defined but called by the Ipopt "
+                   b"algorithm")
+            log(msg, logging.ERROR)
             return False
 
         for i in range(n):
@@ -856,22 +925,21 @@ cdef Bool hessian_cb(
     return True
 
 
-cdef Bool intermediate_cb(
-            Index alg_mod,
-            Index iter_count,
-            Number obj_value,
-            Number inf_pr,
-            Number inf_du,
-            Number mu,
-            Number d_norm,
-            Number regularization_size,
-            Number alpha_du,
-            Number alpha_pr,
-            Index ls_trials,
-            UserDataPtr user_data
-            ):
+cdef Bool intermediate_cb(Index alg_mod,
+                          Index iter_count,
+                          Number obj_value,
+                          Number inf_pr,
+                          Number inf_du,
+                          Number mu,
+                          Number d_norm,
+                          Number regularization_size,
+                          Number alpha_du,
+                          Number alpha_pr,
+                          Index ls_trials,
+                          UserDataPtr user_data
+                          ):
 
-    log('intermediate_cb', logging.INFO)
+    log(b"intermediate_cb", logging.INFO)
 
     cdef object self = <object>user_data
 
@@ -881,19 +949,18 @@ cdef Bool intermediate_cb(
     if not self.__intermediate:
         return True
 
-    ret_val = self.__intermediate(
-        alg_mod,
-        iter_count,
-        obj_value,
-        inf_pr,
-        inf_du,
-        mu,
-        d_norm,
-        regularization_size,
-        alpha_du,
-        alpha_pr,
-        ls_trials
-        )
+    ret_val = self.__intermediate(alg_mod,
+                                  iter_count,
+                                  obj_value,
+                                  inf_pr,
+                                  inf_du,
+                                  mu,
+                                  d_norm,
+                                  regularization_size,
+                                  alpha_du,
+                                  alpha_pr,
+                                  ls_trials
+                                  )
 
     if ret_val is None:
         return True
