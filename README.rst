@@ -43,8 +43,7 @@ History
 
 **This repository was forked from https://bitbucket.org/amitibo/cyipopt and is
 now considered the primary repository.** The fork includes a SciPy-style
-interface, ability to handle exceptions in the callback functions, and docker
-container for easy usage.
+interface and ability to handle exceptions in the callback functions.
 
 Installation
 ============
