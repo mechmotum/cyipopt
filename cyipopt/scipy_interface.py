@@ -210,14 +210,13 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None,
                    tol=None, callback=None, options=None):
     """
     Minimize a function using ipopt. The call signature is exactly like for
-    `scipy.optimize.mimize`. In options, all options are directly passed to
+    ``scipy.optimize.mimize``. In options, all options are directly passed to
     ipopt. Check [http://www.coin-or.org/Ipopt/documentation/node39.html] for
-    details.
-    The options `disp` and `maxiter` are automatically mapped to their
-    ipopt-equivalents `print_level` and `max_iter`.
+    details. The options ``disp`` and ``maxiter`` are automatically mapped to
+    their ipopt-equivalents ``print_level`` and ``max_iter``.
     """
     if not SCIPY_INSTALLED:
-        msg = 'Install SciPy to use the `minimize_ipopt` function.'
+        msg = 'Install SciPy to use the minimize_ipopt function.'
         raise ImportError(msg)
 
     _x0 = np.atleast_1d(x0)

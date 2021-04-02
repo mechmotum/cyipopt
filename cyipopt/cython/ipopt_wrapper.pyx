@@ -144,6 +144,7 @@ cdef class Problem:
     .. math::
 
        g_L \leq g(x) \leq g_U
+
        x_L \leq  x  \leq x_U
 
     Where :math:`x` are the optimization variables (possibly with upper an
@@ -461,8 +462,8 @@ cdef class Problem:
         """Add a keyword/value option pair to the problem.
 
         .. deprecated:: 1.0.0
-          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
-          by :method:`add_option` because the latter complies with PEP8.
+          :meth:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
+          by :meth:`add_option` because the latter complies with PEP8.
 
         """
         return self.add_option(*args, **kwargs)
@@ -514,8 +515,8 @@ cdef class Problem:
         """Optional function for setting scaling parameters for the problem.
 
         .. deprecated:: 1.0.0
-          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
-          replaced by :method:`set_problem_scaling` because the latter complies
+          :meth:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
+          replaced by :meth:`set_problem_scaling` because the latter complies
           with PEP8.
 
         """
