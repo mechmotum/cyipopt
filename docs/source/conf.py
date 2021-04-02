@@ -13,7 +13,7 @@
 
 import sys, os
 
-from ipopt import __version__
+from cyipopt import __version__
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'cyipopt'
-copyright = u'2020, cyipopt developers'
+copyright = u'2021, cyipopt developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -189,7 +189,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'cyipopt.tex', u'cyipopt Documentation',
-   u'Amit Aides', 'manual'),
+   u'cyipopt Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -223,7 +223,7 @@ latex_elements['preamble'] = \
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'cyipopt', u'cyipopt Documentation',
-     [u'Matthias Kümmerer'], 1)
+     [u'cyipopt Developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -237,7 +237,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'cyipopt', u'cyipopt Documentation',
-   u'Matthias Kümmerer', 'cyipopt', 'One line description of project.',
+   u'cyipopt Developers', 'cyipopt', 'One line description of project.',
    'Miscellaneous'),
 ]
 

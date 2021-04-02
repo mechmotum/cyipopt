@@ -5,11 +5,8 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2020 cyipopt developers
+Copyright (C) 2017-2021 cyipopt developers
 
-Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
-(original Author: Amit Aides <amitibo@tx.technion.ac.il>)
-URL: https://github.com/matthias-k/cyipopt
 License: EPL 1.0
 """
 
@@ -23,7 +20,7 @@ License: EPL 1.0
 from __future__ import print_function, unicode_literals
 
 import numpy as np
-import ipopt
+import cyipopt
 
 
 class hs071:
@@ -126,7 +123,7 @@ def main():
     cl = [25.0, 40.0]
     cu = [2.0e19, 40.0]
 
-    nlp = ipopt.Problem(
+    nlp = cyipopt.Problem(
         n=len(x0),
         m=len(cl),
         problem_obj=hs071(),
@@ -140,17 +137,17 @@ def main():
     # Set solver options
     #
     #nlp.addOption('derivative_test', 'second-order')
-    nlp.addOption('mu_strategy', 'adaptive')
-    nlp.addOption('tol', 1e-7)
+    nlp.add_option('mu_strategy', 'adaptive')
+    nlp.add_option('tol', 1e-7)
 
     #
     # Scale the problem (Just for demonstration purposes)
     #
-    nlp.setProblemScaling(
+    nlp.set_problem_scaling(
         obj_scaling=2,
         x_scaling=[1, 1, 1, 1]
         )
-    nlp.addOption('nlp_scaling_method', 'user-scaling')
+    nlp.add_option('nlp_scaling_method', 'user-scaling')
 
     #
     # Solve the problem
