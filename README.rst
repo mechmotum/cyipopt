@@ -32,9 +32,13 @@ Status
           :target: https://pypi.org/project/ipopt
        .. image:: https://pepy.tech/badge/ipopt
           :target: https://pypi.org/project/ipopt
+   * - Read the Docs
+     - .. image:: https://readthedocs.org/projects/cyipopt/badge/?version=latest
+          :target: https://cyipopt.readthedocs.io/en/latest/?badge=latest
+          :alt: Documentation Status
    * - Travis CI
-     - .. image:: https://api.travis-ci.org/matthias-k/cyipopt.svg?branch=master
-          :target: https://travis-ci.org/matthias-k/cyipopt
+     - .. image:: https://api.travis-ci.org/mechmotum/cyipopt.svg?branch=master
+          :target: https://travis-ci.org/mechmotum/cyipopt
    * - Appveyor
      - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
           :target: https://ci.appveyor.com/project/moorepants/cyipopt

@@ -1,0 +1,14 @@
+name: cyipopt-rtd-env
+channels:
+        - conda-forge
+dependencies:
+        - cython
+        - future
+        - ipopt
+        - lapack <3.9.0
+        - numpy
+        - numpydoc
+        - pkg-config
+        - setuptools
+        - six
+        - sphinx

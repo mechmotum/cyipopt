@@ -1,5 +1,6 @@
+=================
 CyIpopt Changelog
-==================
+=================
 
 :Info: Change log for CyIpopt releases.
 :Date: 2020-07-01
@@ -14,7 +15,11 @@ More information can be found on GitHub in the `releases section
 About this Changelog
 --------------------
 
-All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates should be (year-month-day) to conform with [ISO 8601](https://www.iso.org/iso-8601-date-and-time-format.html). 
+All notable changes to this project will be documented in this file. The format
+is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
+project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Dates should be (year-month-day) to conform with [ISO
+8601](https://www.iso.org/iso-8601-date-and-time-format.html).
 
 Formatting a New Version
 ------------------------
@@ -28,8 +33,11 @@ Include sections:
 - Fixed - for any bug fixes.
 - Security - in case of vulnerabilities.
 
-Unreleased
-----------
+Version History
+---------------
+
+[1.0.0.dev0] - XXXX-XX-XX
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Added
 +++++
@@ -46,7 +54,8 @@ Added
 Changed
 +++++++
 
-- Class and method names now use PEP8 standards. Old class and method names now result in a deprecation warning.
+- Class and method names now use PEP8 standards. Old class and method names now
+  result in a deprecation warning.
 - Module directory renamed from ``ipopt.`` to ``cyipopt``.
 - ``doc/`` folder renamed to ``docs/``.
 - Updated ``CHANGELOG.rst``.
@@ -55,47 +64,21 @@ Deprecated
 ++++++++++
 
 - Package being imported by ``import ipopt`` (replaced by ``import cyipopt``).
-- Use of non-PEP8 named classes/function/methods, e.g. ``cyipopt.setLoggingLevel`` (replaced by ``cyipopt.set_logging_level``), ``cyipopt.problem`` (replaced by ``cyipopt.Problem``), ``cyipopt.problem.addOption`` (replaced by ``cyipopt.Problem.add_option``), ``cyipopt.problem.setProblemScaling`` (replaced by ``cyipopt.Problem.set_problem_scaling``) etc.
+- Use of non-PEP8 named classes/function/methods, e.g. ``cyipopt.problem``
+  (replaced by ``cyipopt.Problem``), ``cyipopt.problem.addOption`` (replaced by
+  ``cyipopt.Problem.add_option``), ``cyipopt.problem.setProblemScaling``
+  (replaced by ``cyipopt.Problem.set_problem_scaling``) etc.
 
 Removed
 +++++++
 
-- ``test/`` folder containing examples, which have mostly been moved to ``examples/``
+- ``test/`` folder containing examples, which have mostly been moved to
+  ``examples/``
 - ``docker/``, ``vagrant/`` and ``Makefile`` [`#83`_].
 - Support for Python 2.7.
 
 .. _#83: https://github.com/matthias-k/cyipopt/issues/83
 
-
-Version History
----------------
-
-[1.0.0] - 2020-07-01
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Added
-+++++
-
-- 
-
-Changed
-+++++++
-
-- 
-
-Deprecated
-++++++++++
-
-- 
-
-Removed
-+++++++
-
-- 
-
-
-Older Versions
---------------
 
 [0.3.0] - 2020-12-01
 ~~~~~~~~~~~~~~~~~~~~

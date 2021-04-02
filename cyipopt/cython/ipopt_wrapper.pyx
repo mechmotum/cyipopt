@@ -49,7 +49,7 @@ def set_logging_level(level=None):
     global verbosity
 
     if not level:
-        logger = logging.getLogger()
+        logger = logging.getLogger('cyipopt')
         verbosity = logger.getEffectiveLevel()
     else:
         verbosity = level
@@ -78,7 +78,7 @@ set_logging_level()
 
 cdef inline void log(char* msg, int level):
      if level >= verbosity:
-         logging.log(level, msg)
+         logging.getLogger('cyipopt').log(level, msg)
 
 STATUS_MESSAGES = {
     Solve_Succeeded: (b"Algorithm terminated successfully at a locally "
@@ -137,12 +137,18 @@ cdef class Problem:
     the Ipopt package.
 
     It can be used to solve general nonlinear programming problems of the form:
+
     .. math::
-           \min_ {x \in R^n} f(x)
+
+       \min_ {x \in R^n} f(x)
+
     subject to
+
     .. math::
-           g_L \leq g(x) \leq g_U
-           x_L \leq  x  \leq x_U
+
+       g_L \leq g(x) \leq g_U
+       x_L \leq  x  \leq x_U
+
     Where :math:`x` are the optimization variables (possibly with upper an
     lower bounds), :math:`f(x)` is the objective function and :math:`g(x)` are
     the general nonlinear constraints. The constraints, :math:`g(x)`, have
@@ -238,7 +244,7 @@ cdef class Problem:
                     'ls_trials':
                         The number of backtracking line search steps.
                 more information can be found in the following link:
-                http://www.coin-or.org/Ipopt/documentation/node56.html#sec:output
+                https://coin-or.github.io/Ipopt/OUTPUT.html
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x.
         To assume no lower bounds pass values lower then 10^-19.

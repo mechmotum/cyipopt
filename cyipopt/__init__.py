@@ -2,22 +2,13 @@
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
-| Copyright (C) 2012-2015 Amit Aides
-| Copyright (C) 2015-2017 Matthias Kümmerer
-| Copyright (C) 2017-2020 cyipopt developers
-
-| Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
-| (original Author: Amit Aides <amitibo@tx.technion.ac.il>)
-| URL: https://github.com/matthias-k/cyipopt
-| License: EPL 1.0
-
-Ipopt (Interior Point Optimizer, pronounced ''Eye-Pea-Opt'') is an open source
-software package for large-scale nonlinear optimization. It is designed to find
-(local) solutions of mathematical optimization problems of the form
+**Ipopt_** (Interior Point Optimizer, pronounced ''Eye-Pea-Opt'') is an open
+source software package for large-scale nonlinear optimization. It is designed
+to find (local) solutions of mathematical optimization problems of the form
 
 .. math::
 
-       \min_ {x \in R^n} f(x)
+       \min_{x \in R^n} f(x)
 
 subject to
 
@@ -36,6 +27,17 @@ upper bounds. Note that equality constraints can be specified by setting
 **cyipopt** is a python wrapper around Ipopt. It enables using Ipopt from the
 comfort of the Python programming language. cyipopt is available under the EPL
 (Eclipse Public License) open-source license.
+
+.. _Ipopt: https://coin-or.github.io/Ipopt/
+
+| Copyright (C) 2012-2015 Amit Aides
+| Copyright (C) 2015-2017 Matthias Kümmerer
+| Copyright (C) 2017-2020 cyipopt developers
+
+| Author: Matthias Kümmerer <matthias.kuemmerer@bethgelab.org>
+| (original Author: Amit Aides <amitibo@tx.technion.ac.il>)
+| URL: https://github.com/mechmotum/cyipopt
+| License: EPL 1.0
 
 """
 
