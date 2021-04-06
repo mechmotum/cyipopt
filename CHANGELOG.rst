@@ -10,7 +10,7 @@ GitHub holds releases, too
 --------------------------
 
 More information can be found on GitHub in the `releases section
-<https://github.com/matthias-k/cyipopt/releases>`_.
+<https://github.com/mechmotum/cyipopt/releases>`_.
 
 About this Changelog
 --------------------
@@ -49,7 +49,7 @@ Added
 - Support for Python 3.9.
 - Minimum version requirements for all dependencies.
 
-.. _#14: https://github.com/matthias-k/cyipopt/issues/14
+.. _#14: https://github.com/mechmotum/cyipopt/issues/14
 
 Changed
 +++++++
@@ -77,7 +77,7 @@ Removed
 - ``docker/``, ``vagrant/`` and ``Makefile`` [`#83`_].
 - Support for Python 2.7.
 
-.. _#83: https://github.com/matthias-k/cyipopt/issues/83
+.. _#83: https://github.com/mechmotum/cyipopt/issues/83
 
 
 [0.3.0] - 2020-12-01
@@ -87,8 +87,8 @@ Removed
 - Added support for Conda Forge Windows Ipopt >=3.13 binaries using the
   IPOPTWINDIR="USECONDAFORGEIPOPT" environment variable value [PR `#78`_].
 
-.. _#63: https://github.com/matthias-k/cyipopt/pull/63
-.. _#78: https://github.com/matthias-k/cyipopt/pull/78
+.. _#63: https://github.com/mechmotum/cyipopt/pull/63
+.. _#78: https://github.com/mechmotum/cyipopt/pull/78
 
 [0.2.0] - 2020-06-05
 ~~~~~~~~~~~~~~~~~~~~
@@ -101,12 +101,12 @@ Removed
 - Supporting only Python 2.7 and 3.6-3.8. Python 3.5 support dropped [PR `#58`_].
 - Added custom installation instructions for Ubuntu 18.04.
 
-.. _#49: https://github.com/matthias-k/cyipopt/pull/49
-.. _#50: https://github.com/matthias-k/cyipopt/pull/50
-.. _#51: https://github.com/matthias-k/cyipopt/pull/51
-.. _#54: https://github.com/matthias-k/cyipopt/pull/54
-.. _#57: https://github.com/matthias-k/cyipopt/pull/57
-.. _#58: https://github.com/matthias-k/cyipopt/pull/58
+.. _#49: https://github.com/mechmotum/cyipopt/pull/49
+.. _#50: https://github.com/mechmotum/cyipopt/pull/50
+.. _#51: https://github.com/mechmotum/cyipopt/pull/51
+.. _#54: https://github.com/mechmotum/cyipopt/pull/54
+.. _#57: https://github.com/mechmotum/cyipopt/pull/57
+.. _#58: https://github.com/mechmotum/cyipopt/pull/58
 
 [0.1.9] - 2019-09-24
 ~~~~~~~~~~~~~~~~~~~~
