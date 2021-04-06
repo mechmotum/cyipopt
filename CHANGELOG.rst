@@ -36,8 +36,8 @@ Include sections:
 Version History
 ---------------
 
-[1.0.0.dev0] - XXXX-XX-XX
-~~~~~~~~~~~~~~~~~~~~~~~~~
+[1.0.0] - 2021-04-06
+~~~~~~~~~~~~~~~~~~~~
 
 Added
 +++++
@@ -52,8 +52,8 @@ Added
 - Support for Python 3.9.
 - Minimum version requirements for all dependencies.
 
-.. _#91: https://github.com/matthias-k/cyipopt/issues/91
-.. _#14: https://github.com/matthias-k/cyipopt/issues/14
+.. _#91: https://github.com/mechmotum/cyipopt/issues/91
+.. _#14: https://github.com/mechmotum/cyipopt/issues/14
 
 Changed
 +++++++
@@ -67,7 +67,7 @@ Changed
 - ``doc/`` folder renamed to ``docs/``.
 - Updated ``CHANGELOG.rst``.
 
-.. _#102: https://github.com/matthias-k/cyipopt/issues/102
+.. _#102: https://github.com/mechmotum/cyipopt/issues/102
 
 Deprecated
 ++++++++++
