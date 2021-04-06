@@ -3,8 +3,8 @@ CyIpopt Changelog
 =================
 
 :Info: Change log for CyIpopt releases.
-:Date: 2020-07-01
-:Version: 1.0.0
+:Date: 2021-04-06
+:Version: 1.0.2
 
 GitHub holds releases, too
 --------------------------
@@ -35,6 +35,22 @@ Include sections:
 
 Version History
 ---------------
+
+[1.0.2] - 2021-04-06
+~~~~~~~~~~~~~~~~~~~~
+
+Changed
++++++++
+
+- Corrected the CHANGELOG.
+
+[1.0.1] - 2021-04-06
+~~~~~~~~~~~~~~~~~~~~
+
+Changed
++++++++
+
+- Corrected the PyPi classifier.
 
 [1.0.0] - 2021-04-06
 ~~~~~~~~~~~~~~~~~~~~
