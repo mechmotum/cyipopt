@@ -42,6 +42,9 @@ Version History
 Added
 +++++
 
+- ``conda/cyipopt-dev.yml`` conda environment file for development.
+- ``minimize_ipopt`` approximates the Jacobian of the objective and the
+  constraints using SciPy's ``approx_fprime`` if not provided [`#91`_].
 - Make changes as outlined in Version 1.0 proposal [`#14`_].
 - ``requirements.txt`` file.
 - Dedicated tests using pytest in ``cyipopt/tests/`` directory.
@@ -49,16 +52,22 @@ Added
 - Support for Python 3.9.
 - Minimum version requirements for all dependencies.
 
-.. _#14: https://github.com/mechmotum/cyipopt/issues/14
+.. _#91: https://github.com/matthias-k/cyipopt/issues/91
+.. _#14: https://github.com/matthias-k/cyipopt/issues/14
 
 Changed
 +++++++
 
+- Installation and development documentation moved from ``README.rst`` to
+  ``docs/``.
+- Python logger changed to use the ``cyipopt`` namespace [`#102`_].
 - Class and method names now use PEP8 standards. Old class and method names now
   result in a deprecation warning.
 - Module directory renamed from ``ipopt.`` to ``cyipopt``.
 - ``doc/`` folder renamed to ``docs/``.
 - Updated ``CHANGELOG.rst``.
+
+.. _#102: https://github.com/matthias-k/cyipopt/issues/102
 
 Deprecated
 ++++++++++
@@ -76,16 +85,16 @@ Removed
   ``examples/``
 - ``docker/``, ``vagrant/`` and ``Makefile`` [`#83`_].
 - Support for Python 2.7.
+- Support for Python 3.5.
 
 .. _#83: https://github.com/mechmotum/cyipopt/issues/83
-
 
 [0.3.0] - 2020-12-01
 ~~~~~~~~~~~~~~~~~~~~
 
 - Added support for Ipopt >=3.13 on Windows [PR `#63`_].
 - Added support for Conda Forge Windows Ipopt >=3.13 binaries using the
-  IPOPTWINDIR="USECONDAFORGEIPOPT" environment variable value [PR `#78`_].
+  ``IPOPTWINDIR="USECONDAFORGEIPOPT"`` environment variable value [PR `#78`_].
 
 .. _#63: https://github.com/mechmotum/cyipopt/pull/63
 .. _#78: https://github.com/mechmotum/cyipopt/pull/78
