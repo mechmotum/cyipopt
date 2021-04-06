@@ -64,7 +64,7 @@ def setLoggingLevel(level=None):
     :func:`set_logging_level`.
 
     This function acts as a wrapper to the new :func:`set_logging_level`
-    function. It simply issues a :exception:`FutureWarning` to the user before
+    function. It simply issues a :exc:`FutureWarning` to the user before
     passing all args and kwargs through to :func:`set_logging_level`.
 
     """
@@ -164,6 +164,7 @@ cdef class Problem:
         ``self``, this is useful when subclassing ``Problem``. The object is
         required to have the following attributes and methods (some are
         optional):
+
             - ``objective`` : function pointer
                 Callback function for evaluating objective function. The
                 callback functions accepts one parameter: x (value of the
@@ -219,6 +220,7 @@ cdef class Problem:
                 terminate with the ``User_Requested_Stop status``. The
                 information below corresponeds to the argument list passed to
                 this callback:
+
                     ``alg_mod``:
                         Algorithm phase: 0 is for regular, 1 is restoration.
                     ``iter_count``:
@@ -242,8 +244,10 @@ cdef class Problem:
                         The stepsize for the primal variables.
                     ``ls_trials``:
                         The number of backtracking line search steps.
+
                 more information can be found in the following link:
                 https://coin-or.github.io/Ipopt/OUTPUT.html
+
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x. To assume no
         lower bounds pass values lower then ``10^-19``.
@@ -590,6 +594,7 @@ cdef class Problem:
         x : array, shape(n, )
             Optimal solution.
         info: dictionary
+
             ``x``: ndarray, shape(n, )
                 optimal solution
             ``g``: ndarray, shape(m, )
@@ -962,7 +967,7 @@ class problem(Problem):
     please see :class:`Problem`.
 
     This class acts as a wrapper to the new :class:`Problem` class. It simply
-    issues a :exception:`FutureWarning` to the user before passing all args and
+    issues a :exc:`FutureWarning` to the user before passing all args and
     kwargs through to :class:`Problem`.
 
     Returns
