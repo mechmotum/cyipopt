@@ -37,20 +37,21 @@ VERSION = __version__
 DESCRIPTION = "A Cython wrapper to the IPOPT optimization package"
 with open("README.rst", encoding="utf-8") as f:
     LONG_DESCRIPTION = f.read()
-KEYWORDS = ["optimization",
-            "nonlinear programming",
-            "ipopt",
-            "interior-point",
-            "nlp",
-            "coin-or",
-            ]
-AUTHOR = "Matthias Kümmerer"
-EMAIL = "matthias.kuemmerer@bethgelab.org"
-URL = "https://github.com/matthias-k/cyipopt"
+KEYWORDS = [
+    "coin-or",
+    "interior-point",
+    "ipopt",
+    "nlp",
+    "nonlinear programming",
+    "optimization",
+]
+AUTHOR = "Jason K. Moore"
+EMAIL = "moorepants@gmail.com"
+URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
-    "numpy>=1.15",
     "cython>=0.26",
     "future>=0.15",
+    "numpy>=1.15",
     "setuptools>=39.0",
     "six>=1.11",
 ]
@@ -144,14 +145,15 @@ def handle_ext_modules_win_32_other_ipopt():
     IPOPT_LIBS = ["ipopt.dll", "ipoptamplinterface.dll"]
     IPOPT_LIB_DIRS = [os.path.join(ipoptdir, "lib")]
 
-    IPOPT_DLL = ["ipopt-3.dll",
-                 "ipoptamplinterface-3.dll",
-                 "libifcoremd.dll",
-                 "libmmd.dll",
-                 "msvcp140.dll",
-                 "svml_dispmd.dll",
-                 "vcruntime140.dll",
-                 ]
+    IPOPT_DLL = [
+        "ipopt-3.dll",
+        "ipoptamplinterface-3.dll",
+        "libifcoremd.dll",
+        "libmmd.dll",
+        "msvcp140.dll",
+        "svml_dispmd.dll",
+        "vcruntime140.dll",
+    ]
     IPOPT_DLL_DIRS = [os.path.join(ipoptdir, "bin")]
     EXT_MODULES = [Extension("ipopt_wrapper",
                              ["cyipopt/cython/ipopt_wrapper.pyx"],
