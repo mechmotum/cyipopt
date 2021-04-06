@@ -64,7 +64,7 @@ def setLoggingLevel(level=None):
     :func:`set_logging_level`.
 
     This function acts as a wrapper to the new :func:`set_logging_level`
-    function. It simply issues a :warning:`FutureWarning` to the user before
+    function. It simply issues a :exception:`FutureWarning` to the user before
     passing all args and kwargs through to :func:`set_logging_level`.
 
     """
@@ -144,6 +144,7 @@ cdef class Problem:
     .. math::
 
        g_L \leq g(x) \leq g_U
+
        x_L \leq  x  \leq x_U
 
     Where :math:`x` are the optimization variables (possibly with upper an
@@ -184,9 +185,9 @@ cdef class Problem:
             - ``jacobian`` : function pointer
                 Callback function for evaluating Jacobian of constraint
                 functions. The callback functions accepts one parameter: x
-                (value of the optimization variables at which the jacobian is
+                (value of the optimization variables at which the Jacobian is
                 to be evaluated). The function should return the values of the
-                jacobian as calculated using x. The values should be returned
+                Jacobian as calculated using x. The values should be returned
                 as a 1-dim numpy array (using the same order as you used when
                 specifying the sparsity structure)
             - ``jacobianstructure`` : function pointer, optional (default=None)
@@ -196,9 +197,9 @@ cdef class Problem:
             - ``hessian`` : function pointer, optional (default=None)
                 Callback function for evaluating Hessian of the Lagrangian
                 function. The callback functions accepts three parameters x
-                (value of the optimization variables at which the hessian is to
+                (value of the optimization variables at which the Hessian is to
                 be evaluated), lambda (values for the constraint multipliers at
-                which the hessian is to be evaluated) objective_factor the
+                which the Hessian is to be evaluated) objective_factor the
                 factor in front of the objective term in the Hessian. The
                 function should return the values of the Hessian as calculated
                 using x, lambda and objective_factor. The values should be
@@ -441,14 +442,6 @@ cdef class Problem:
 
         Called implicitly by the :class:`Problem` class destructor.
 
-        Parameters
-        ----------
-            None
-
-        Returns
-        -------
-            None
-
         """
 
         if self.__nlp != NULL:
@@ -461,8 +454,8 @@ cdef class Problem:
         """Add a keyword/value option pair to the problem.
 
         .. deprecated:: 1.0.0
-          :method:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
-          by :method:`add_option` because the latter complies with PEP8.
+           :meth:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
+           by :meth:`add_option` because the latter complies with PEP8.
 
         """
         return self.add_option(*args, **kwargs)
@@ -479,10 +472,6 @@ cdef class Problem:
         val : str, int or float
             Value of the option. The type of val should match the option
             definition as described in the Ipopt documentation.
-
-        Returns
-        -------
-            None
 
         """
         if six.PY3 and isinstance(keyword, type("")):
@@ -514,16 +503,14 @@ cdef class Problem:
         """Optional function for setting scaling parameters for the problem.
 
         .. deprecated:: 1.0.0
-          :method:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
-          replaced by :method:`set_problem_scaling` because the latter complies
-          with PEP8.
+           :meth:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
+           replaced by :meth:`set_problem_scaling` because the latter complies
+           with PEP8.
 
         """
         return self.set_problem_scaling(*args, **kwargs)
 
-    def set_problem_scaling(self,
-                            obj_scaling=1.0,
-                            x_scaling=None,
+    def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None,
                             g_scaling=None):
         """Optional function for setting scaling parameters for the problem.
 
@@ -534,7 +521,7 @@ cdef class Problem:
         ----------
         obj_scaling : float
             Determines, how Ipopt should internally scale the objective
-            function.  For example, if this number is chosen to be 10, then
+            function. For example, if this number is chosen to be 10, then
             Ipopt solves internally an optimization problem that has 10 times
             the value of the original objective. In particular, if this value
             is negative, then Ipopt will maximize the objective function
@@ -545,10 +532,6 @@ cdef class Problem:
         g_scaling : array-like, shape(m, )
             The scaling factors for the constrains. If ``None``, no scaling is
             done.
-
-        Returns
-        -------
-            None
 
         """
 
@@ -972,14 +955,14 @@ class problem(Problem):
     """Class to continue support for old API.
 
     .. deprecated:: 1.0.0
-      :class:`problem` will be removed in CyIpopt 1.1.0, it is replaced
-      by :class:`Problem` because the latter complies with PEP8.
+       :class:`problem` will be removed in CyIpopt 1.1.0, it is replaced by
+       :class:`Problem` because the latter complies with PEP8.
 
     For full documentation of this class including its attributes and methods
     please see :class:`Problem`.
 
     This class acts as a wrapper to the new :class:`Problem` class. It simply
-    issues a :warning:`FutureWarning` to the user before passing all args and
+    issues a :exception:`FutureWarning` to the user before passing all args and
     kwargs through to :class:`Problem`.
 
     Returns

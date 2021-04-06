@@ -11,7 +11,7 @@ Conda_ is a cross platform package manager and provides the easiest mechanism
 to install cyipopt on Linux, Mac, and Windows. Once conda is installed, install
 cyipopt from the Conda Forge channel with::
 
-   conda install -c conda-forge cyipopt
+   $ conda install -c conda-forge cyipopt
 
 The above command will install binary versions of all the necessary
 dependencies as well as cyipopt. Conda Forge supplies a basic build of Ipopt
@@ -48,14 +48,14 @@ On Linux and Mac
 For Linux and Mac, the ``ipopt`` executable should be in your path and
 discoverable by pkg-config, i.e. this command should return a valid result::
 
-   pkg-config --libs --cflags ipopt
+   $ pkg-config --libs --cflags ipopt
 
 You will need to install Ipopt in a system location or set ``LD_LIBRARY_PATH``
 if pkg-config does not find the executable.
 
 Once all the dependencies are installed, execute::
 
-   python setup.py install
+   $ python setup.py install
 
 to build and install the package.
 
@@ -64,17 +64,17 @@ From source on Windows
 
 Install the dependencies with conda (Anaconda or Miniconda)::
 
-   conda.exe install -c conda-forge numpy cython future six setuptools
+   $ conda.exe install -c conda-forge numpy cython future six setuptools
 
 Or alternatively with pip::
 
-   pip install numpy cython future six setuptools
+   $ pip install numpy cython future six setuptools
 
 Additionally, make sure you have a C compiler setup to compile Python C
 extensions, e.g. Visual C++. Build tools for VS2019
 https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019
 have been tested to work for conda Python 3.7 (see
-https://github.com/matthias-k/cyipopt/issues/52).
+https://github.com/mechmotum/cyipopt/issues/52).
 
 Download and extract the cyipopt source code from Github or PyPi.
 
@@ -97,25 +97,25 @@ directories.
 
 If using conda, you can install an IPOPT binary from Conda Forge::
 
-    conda.exe install -c conda-forge ipopt
+   $ conda.exe install -c conda-forge ipopt
 
 The environment variable ``IPOPTWINDIR`` should then be set to ``USECONDAFORGEIPOPT``.
 
 Finally, execute::
 
-   python setup.py install
+   $ python setup.py install
 
 **NOTE:** It is advised to use the Anaconda or Miniconda distributions and *not* the
 official python.org distribution. Even though it has been tested to work with the
 latest builds, it is well-known for causing issues. (see
-https://github.com/matthias-k/cyipopt/issues/52).
+https://github.com/mechmotum/cyipopt/issues/52).
 
-Install on Ubuntu 18.04 Using Dependencies Installed Via APT
-------------------------------------------------------------
+On Ubuntu 18.04 Using APT Dependencies
+--------------------------------------
 
 All of the dependencies can be installed with Ubuntu's package manager::
 
-   sudo apt install build-essential pkg-config python-dev python-six cython python-numpy coinor-libipopt1v5 coinor-libipopt-dev
+   $ sudo apt install build-essential pkg-config python-dev python-six cython python-numpy coinor-libipopt1v5 coinor-libipopt-dev
 
 The NumPy and IPOPT libs and headers are installed in standard locations, so
 you should not need to set ``LD_LIBRARY_PATH`` or ``PKG_CONFIG_PATH``.
@@ -188,8 +188,8 @@ or out of the virtual environments in the build step. Note that six, cython,
 and numpy could alternatively be installed using Python specific package
 managers, e.g. ``pip install six cython numpy``.
 
-Installation on Ubuntu 18.04 With Custom Compiled IPOPT
--------------------------------------------------------
+On Ubuntu 18.04 with Custom Compiled IPOPT
+------------------------------------------
 
 Install system wide dependencies::
 
@@ -198,11 +198,11 @@ Install system wide dependencies::
 
 Install ``pip`` so all Python packages can be installed via ``pip``::
 
-    $ sudo apt install python-pip
+   $ sudo apt install python-pip
 
 Then use ``pip`` to install the following packages::
 
-    $ pip install --user numpy cython six future
+   $ pip install --user numpy cython six future
 
 Compile Ipopt
 ~~~~~~~~~~~~~
@@ -223,7 +223,7 @@ Extract the Ipopt source code::
 
 Create a temporary environment variable pointing to the Ipopt directory::
 
-   export IPOPTDIR=~/Ipopt-3.12.11
+   $ export IPOPTDIR=~/Ipopt-3.12.11
 
 To use linear solvers other than the default mumps, e.g. ``ma27, ma57, ma86``
 solvers, the ``HSL`` package are needed. ``HSL`` can be downloaded from its
@@ -234,19 +234,19 @@ Extract ``HSL`` source code after you get it. Rename the extracted folder to
 
 Build Ipopt::
 
-    $ mkdir $IPOPTDIR/build
-    $ cd $IPOPTDIR/build
-    $ ../configure
-    $ make
-    $ make test
+   $ mkdir $IPOPTDIR/build
+   $ cd $IPOPTDIR/build
+   $ ../configure
+   $ make
+   $ make test
 
 Add ``make install`` if you want a system wide install.
 
 Set environment variables::
 
-    $ export IPOPT_PATH="~/Ipopt-3.12.11/build"
-    $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IPOPT_PATH/lib/pkgconfig
-    $ export PATH=$PATH:$IPOPT_PATH/bin
+   $ export IPOPT_PATH="~/Ipopt-3.12.11/build"
+   $ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$IPOPT_PATH/lib/pkgconfig
+   $ export PATH=$PATH:$IPOPT_PATH/bin
 
 Get help from this web-page if you get errors in setting environments:
 
@@ -268,21 +268,21 @@ If there is no error, then you have compiled ``cyipopt`` successfully
 
 Check that everything linked correctly with ``ldd`` ::
 
-    $ ldd build/lib.linux-x86_64-2.7/cyipopt.so
-    linux-vdso.so.1 (0x00007ffe895e1000)
-    libipopt.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libipopt.so.1 (0x00007f74efc2a000)
-    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f74ef839000)
-    libcoinmumps.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinmumps.so.1 (0x00007f74ef4ae000)
-    libcoinhsl.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinhsl.so.1 (0x00007f74ef169000)
-    liblapack.so.3 => /usr/lib/x86_64-linux-gnu/liblapack.so.3 (0x00007f74ee8cb000)
-    libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007f74ee65e000)
-    libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f74ee45a000)
-    libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f74ee0d1000)
-    libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f74edd33000)
-    /lib64/ld-linux-x86-64.so.2 (0x00007f74f02c0000)
-    libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f74edb1b000)
-    libcoinmetis.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinmetis.so.1 (0x00007f74ed8ca000)
-    libgfortran.so.4 => /usr/lib/x86_64-linux-gnu/libgfortran.so.4 (0x00007f74ed4eb000)
+   $ ldd build/lib.linux-x86_64-2.7/cyipopt.so
+   linux-vdso.so.1 (0x00007ffe895e1000)
+   libipopt.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libipopt.so.1 (0x00007f74efc2a000)
+   libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f74ef839000)
+   libcoinmumps.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinmumps.so.1 (0x00007f74ef4ae000)
+   libcoinhsl.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinhsl.so.1 (0x00007f74ef169000)
+   liblapack.so.3 => /usr/lib/x86_64-linux-gnu/liblapack.so.3 (0x00007f74ee8cb000)
+   libblas.so.3 => /usr/lib/x86_64-linux-gnu/libblas.so.3 (0x00007f74ee65e000)
+   libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f74ee45a000)
+   libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007f74ee0d1000)
+   libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f74edd33000)
+   /lib64/ld-linux-x86-64.so.2 (0x00007f74f02c0000)
+   libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007f74edb1b000)
+   libcoinmetis.so.1 => /home/<username>/Ipopt-3.12.11/build/lib/libcoinmetis.so.1 (0x00007f74ed8ca000)
+   libgfortran.so.4 => /usr/lib/x86_64-linux-gnu/libgfortran.so.4 (0x00007f74ed4eb000)
 
 Install ``cyipopt`` (prepend ``sudo`` if you want a system wide install)::
 
@@ -303,7 +303,7 @@ your ``~/.bashrc`` ::
 Now you should be able to run a ``cyipopt`` example::
 
     $ cd test
-    $ python -c "import ipopt"
+    $ python -c "import cyipopt"
     $ python examplehs071.py
 
 If it could be run successfully, the optimization will start with the following

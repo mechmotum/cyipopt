@@ -1,19 +1,40 @@
+.. highlight:: sh
+
 ===========
 Development
 ===========
 
+Development Install
+===================
+
+Clone the repository::
+
+   $ git clone git@github.com:mechmotum/cyipopt.git
+   $ cd cyipopt
+
+Create a Conda environment with the dependencies::
+
+   $ conda env create -f conda/cyipopt-dev.yml
+
+Activate the environment::
+
+   $ conda activate cyipopt-dev
+
+Install a development version [1]_::
+
+   (cyipopt-dev)$ python setup.py develop
+
+.. [1] Changes to any of the Cython files require calling ``python setup.py
+   develop`` to see effects of the changes.
+
 Building the documentation
 ==========================
 
-First, install sphinx, e.g.::
+After installing the development version of cyipopt, navigate to a directory
+that contains the source code and execute the ``Makefile``::
 
-   conda install sphinx
-
-Then, after installing cyipopt, navigate to a directory that contains the
-source code and execute::
-
-   $ cd docs
-   $ make html
+   (cyipopt-dev)$ cd docs
+   (cyipopt-dev)$ make html
 
 Once the build process finishes, direct your web browser to
 ``build/html/index.html``.
@@ -21,17 +42,7 @@ Once the build process finishes, direct your web browser to
 Testing
 =======
 
-You can test the installation by running each of the examples in the ``examples/`` directory.
+You can test the installation by running each of the examples in the
+``examples/`` directory and running the test suite. The tests can be run with::
 
-If you're a developer, to properly run the packages' test suite you will need to make sure you have ``pytest`` installed. This can be done with::
-
-    $ pip install pytest
-
-if you are using a Python ``venv``, or with::
-
-    $ conda install pytest
-
-if you have a ``conda`` virtual environment set up. The tests can then run by calling::
-
-    $ pytest
-
+    (cyipopt-dev)$ pytest

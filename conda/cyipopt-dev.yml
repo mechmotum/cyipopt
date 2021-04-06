@@ -1,0 +1,16 @@
+name: cyipopt-dev
+channels:
+  - conda-forge
+dependencies:
+  - cython
+  - future
+  - ipopt
+  - libblas * *netlib
+  - numpy
+  - pkg-config
+  - pytest
+  - python >=3.6
+  - scipy
+  - setuptools
+  - six
+  - sphinx
