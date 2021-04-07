@@ -10,5 +10,4 @@ dependencies:
         - numpydoc
         - pkg-config
         - setuptools
-        - six
         - sphinx

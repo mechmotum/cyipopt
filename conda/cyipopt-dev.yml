@@ -12,5 +12,4 @@ dependencies:
   - python >=3.6
   - scipy
   - setuptools
-  - six
   - sphinx
