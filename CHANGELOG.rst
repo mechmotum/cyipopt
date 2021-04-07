@@ -36,6 +36,15 @@ Include sections:
 Version History
 ---------------
 
+[1.0.3] - 2021-04-07
+~~~~~~~~~~~~~~~~~~~~
+
+Changed
++++++++
+
+- Changed PyPi distribution name back to ``ipopt``, as ``cyipopt`` is currently
+  unavailable.
+
 [1.0.2] - 2021-04-06
 ~~~~~~~~~~~~~~~~~~~~
 
