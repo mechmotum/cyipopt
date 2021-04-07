@@ -3,7 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - cython
-  - future
   - ipopt
   - libblas * *netlib
   - numpy
@@ -12,5 +11,4 @@ dependencies:
   - python >=3.6
   - scipy
   - setuptools
-  - six
   - sphinx

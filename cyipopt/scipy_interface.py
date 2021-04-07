@@ -10,10 +10,8 @@ Copyright (C) 2017-2021 cyipopt developers
 License: EPL 1.0
 """
 
-from __future__ import absolute_import, unicode_literals
 import sys
 
-from builtins import bytes  # from the future package
 import numpy as np
 try:
     import scipy

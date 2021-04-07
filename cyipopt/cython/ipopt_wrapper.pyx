@@ -15,7 +15,6 @@ import warnings
 
 import numpy as np
 cimport numpy as np
-import six
 
 from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 from ipopt cimport *
@@ -280,7 +279,7 @@ cdef class Problem:
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
                  cu=None):
 
-        if not isinstance(n, six.integer_types) or not n > 0:
+        if not isinstance(n, int) or not n > 0:
             raise TypeError("n must be a positive integer")
 
         if problem_obj is None:
@@ -304,7 +303,7 @@ cdef class Problem:
         #
         # Handle the constraints
         #
-        if not isinstance(m, six.integer_types) or not m >= 0:
+        if not isinstance(m, int) or not m >= 0:
             raise TypeError("m must be zero or a positive integer")
 
         if m < 1:
@@ -400,8 +399,7 @@ cdef class Problem:
                                              repr(nele_jac),
                                              repr(nele_hess)
                                              )
-        if six.PY3:
-            creation_msg = creation_msg.encode("utf8")
+        creation_msg = creation_msg.encode("utf8")
 
         log(creation_msg, logging.DEBUG)
 
@@ -478,19 +476,13 @@ cdef class Problem:
             definition as described in the Ipopt documentation.
 
         """
-        if six.PY3 and isinstance(keyword, type("")):
+        if isinstance(keyword, type("")):
             keyword = bytes(keyword, "utf-8")
 
-        if six.PY3 and isinstance(val, type("")):
+        if isinstance(val, type("")):
             val = bytes(val, "utf-8")
 
-        # NOTE : The strings passed in PY2 seem to be of type unicode.
-        if six.PY2:
-            keyword = str(keyword)
-            if isinstance(val, type(u'')):
-                val = str(val)
-
-        if isinstance(val, six.binary_type):
+        if isinstance(val, bytes):
             ret_val = AddIpoptStrOption(self.__nlp, keyword, val)
         elif type(val) == float:
             ret_val = AddIpoptNumOption(self.__nlp, keyword, val)

@@ -9,8 +9,6 @@ Copyright (C) 2017-2021 cyipopt developers
 License: EPL 1.0
 """
 
-from __future__ import absolute_import
-
 from ipopt_wrapper import *
 from .ipopt_wrapper import *
 from .scipy_interface import *

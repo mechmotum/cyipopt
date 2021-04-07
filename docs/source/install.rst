@@ -33,8 +33,6 @@ dependencies:
   * setuptools
   * cython
   * numpy
-  * six
-  * future
   * scipy [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
@@ -64,11 +62,11 @@ From source on Windows
 
 Install the dependencies with conda (Anaconda or Miniconda)::
 
-   $ conda.exe install -c conda-forge numpy cython future six setuptools
+   $ conda.exe install -c conda-forge numpy cython setuptools
 
 Or alternatively with pip::
 
-   $ pip install numpy cython future six setuptools
+   $ pip install numpy cython setuptools
 
 Additionally, make sure you have a C compiler setup to compile Python C
 extensions, e.g. Visual C++. Build tools for VS2019
@@ -115,7 +113,7 @@ On Ubuntu 18.04 Using APT Dependencies
 
 All of the dependencies can be installed with Ubuntu's package manager::
 
-   $ sudo apt install build-essential pkg-config python-dev python-six cython python-numpy coinor-libipopt1v5 coinor-libipopt-dev
+   $ sudo apt install build-essential pkg-config python-dev cython python-numpy coinor-libipopt1v5 coinor-libipopt-dev
 
 The NumPy and IPOPT libs and headers are installed in standard locations, so
 you should not need to set ``LD_LIBRARY_PATH`` or ``PKG_CONFIG_PATH``.
@@ -184,9 +182,9 @@ prepend ``sudo`` to the above command, but it is safest to install into your
 user space, i.e. what ``pip install --user`` does, or setup a virtual
 environment with tools like venv or conda. If you use virtual environments you
 will need to be careful about selecting headers and libraries for packages in
-or out of the virtual environments in the build step. Note that six, cython,
+or out of the virtual environments in the build step. Note that cython,
 and numpy could alternatively be installed using Python specific package
-managers, e.g. ``pip install six cython numpy``.
+managers, e.g. ``pip install cython numpy``.
 
 On Ubuntu 18.04 with Custom Compiled IPOPT
 ------------------------------------------
@@ -202,7 +200,7 @@ Install ``pip`` so all Python packages can be installed via ``pip``::
 
 Then use ``pip`` to install the following packages::
 
-   $ pip install --user numpy cython six future
+   $ pip install --user numpy cython
 
 Compile Ipopt
 ~~~~~~~~~~~~~

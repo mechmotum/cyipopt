@@ -17,8 +17,6 @@ License: EPL 1.0
 #
 # Based on matlab code by Peter Carbonetto.
 
-from __future__ import print_function, unicode_literals
-
 import numpy as np
 import cyipopt
 
