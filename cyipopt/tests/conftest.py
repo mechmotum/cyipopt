@@ -4,7 +4,6 @@ This file includes a default instantiation of the hs071 test problem used
 elsewhere within this package for demonstration purposes.
 """
 
-import builtins
 import sys
 
 import numpy as np

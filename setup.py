@@ -50,7 +50,6 @@ EMAIL = "moorepants@gmail.com"
 URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
     "cython>=0.26",
-    "future>=0.15",
     "numpy>=1.15",
     "setuptools>=39.0",
 ]

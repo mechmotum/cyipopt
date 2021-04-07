@@ -1,5 +1,4 @@
 cython>=0.26
-future>=0.15
 ipopt>=3.12
 numpy>=1.15
 pkg-config>=0.29.2

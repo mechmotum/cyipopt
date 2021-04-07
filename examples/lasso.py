@@ -25,7 +25,6 @@ Usage::
 #
 # Adapted from matlab code by Peter Carbonetto.
 #
-from __future__ import division
 import numpy as np
 import cyipopt
 

@@ -33,7 +33,6 @@ dependencies:
   * setuptools
   * cython
   * numpy
-  * future
   * scipy [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
@@ -63,11 +62,11 @@ From source on Windows
 
 Install the dependencies with conda (Anaconda or Miniconda)::
 
-   $ conda.exe install -c conda-forge numpy cython future setuptools
+   $ conda.exe install -c conda-forge numpy cython setuptools
 
 Or alternatively with pip::
 
-   $ pip install numpy cython future setuptools
+   $ pip install numpy cython setuptools
 
 Additionally, make sure you have a C compiler setup to compile Python C
 extensions, e.g. Visual C++. Build tools for VS2019
@@ -201,7 +200,7 @@ Install ``pip`` so all Python packages can be installed via ``pip``::
 
 Then use ``pip`` to install the following packages::
 
-   $ pip install --user numpy cython future
+   $ pip install --user numpy cython
 
 Compile Ipopt
 ~~~~~~~~~~~~~
