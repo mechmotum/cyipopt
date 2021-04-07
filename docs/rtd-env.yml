@@ -4,7 +4,6 @@ channels:
 dependencies:
   - cython
   - ipopt
-  - libapack
   - libblas * *netlib
   - numpy
   - pkg-config
