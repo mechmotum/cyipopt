@@ -26,15 +26,25 @@ the same behaviour as ``scipy.optimize.minimize``, for example::
    success: True
          x: array([1., 1., 1., 1., 1.])
 
-Problem Interface
-=================
+Algorithmic Differentation
+--------------------------
 
-In this example we will use cyipopt to solve an example problem, number 71 from
-the Hock-Schittkowsky test suite [1]_,
+Computing derivatives by hand can be quite error-prone. In case you don't
+provide the (exact) objective gradient or the jacobian of the constraint
+function, the scipy interface will approximate the missing derivatives by
+finite differences similar to ``scipy.optimize.minimize``. However, finite
+differences are prone to truncation errors due to floating point arithmetic and
+computationally expensive especially for evaluating jacobians. A more efficient
+and accurate way to evaluate derivatives is algorithmic differentation (AD).
+
+
+In this example we use AD by means of the `JAX`_ library to compute derivatives
+and we use cyipopt's scipy interface to solve an example problem, namely number
+71 from the Hock-Schittkowsky test suite [1]_,
 
 .. math::
 
-    \min_{x \in R^4}\ &x_1 x_4 (x_1 + x_2 + x_3 ) + x_3 \\
+    \min_{x \in \mathbb{R}^4}\ &x_1 x_4 (x_1 + x_2 + x_3 ) + x_3 \\
     s.t.\ &x_1 x_2 x_3 x_4 \geq 25 \\
           &x_1^2 + x_2^2 + x_3^2 + x_4^2 = 40 \\
           &1 \leq x_1, x_2, x_3, x_4 \leq 5, \\
@@ -51,6 +61,59 @@ and the optimal solution,
 
    x_* = (1.0,\ 4.743,\ 3.821,\ 1.379)
 
+We start by importing all required libraries::
+
+   import jax.numpy as np
+   from jax import jit, grad, jacfwd
+   from cyipopt import minimize_ipopt
+
+
+Then we define the objective and constraint functions::
+
+   def objective(x):
+       return x[0]*x[3]*np.sum(x[:3]) + x[2]
+
+   def eq_constraints(x):
+       return np.sum(x**2) - 40
+
+   def ineq_constrains(x):
+       return np.prod(x) - 25
+
+Next, we build the derivatives and just-in-time (jit) compile the functions
+(more details regarding ``jit``, ``grad`` and ``jacfwd`` can be found in the
+`JAX autodiff cookbook`_)::
+
+   # jit the functions
+   obj_jit = jit(objective)
+   con_eq_jit = jit(eq_constraints)
+   con_ineq_jit = jit(ineq_constrains)
+
+   # build the derivatives and jit them
+   obj_grad = jit(grad(obj_jit))  # gradient
+   con_eq_jac = jit(jacfwd(con_eq_jit))  # jacobian
+   con_ineq_jac = jit(jacfwd(con_ineq_jit))  # jacobian
+
+Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
+
+   # constraints
+   cons = [{'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac},
+       {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac}]
+
+   # starting point
+   x0 = np.array([1, 5, 5, 1])
+
+   # variable bounds: 1 <= x[i] <= 5
+   bnds = [(1, 5) for _ in range(x0.size)]
+
+   # executing the solver
+   res = minimize_ipopt(obj_jit, jac=obj_grad, x0=x0, bounds=bnds,
+                     constraints=cons, options={'disp': 5})
+
+Problem Interface
+=================
+
+In this example we will use cyipopt problem class interface to solve the
+aforementioned test problem.
 
 Getting started
 ---------------
@@ -227,3 +290,5 @@ subdirectory of the distribution.
 
 .. [1] W. Hock and K. Schittkowski. Test examples for nonlinear programming
    codes. Lecture Notes in Economics and Mathematical Systems, 187, 1981.
+.. _JAX: https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
+.. _JAX autodiff cookbook: https://jax.readthedocs.io/en/latest/notebooks/autodiff_cookbook.html
