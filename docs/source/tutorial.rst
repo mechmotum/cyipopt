@@ -27,21 +27,20 @@ the same behaviour as ``scipy.optimize.minimize``, for example::
          x: array([1., 1., 1., 1., 1.])
 
 Algorithmic Differentation
---------------------
+--------------------------
 
-Computing derivatives by hand can be quite error-prone. 
-In case you don't provide the (exact) objective gradient or the jacobian 
-of the constraint function, the scipy interface will approximate the missing 
-derivatives by finite differences similar to ``scipy.optimize.minimize``.
-However, finite differences are prone to truncation errors due to floating 
-point arithmetic and computationally expensive especially for evaluating
-jacobians. A more efficient and accurate way to evaluate derivatives is
-algorithmic differentation (AD).
+Computing derivatives by hand can be quite error-prone. In case you don't
+provide the (exact) objective gradient or the jacobian of the constraint
+function, the scipy interface will approximate the missing derivatives by
+finite differences similar to ``scipy.optimize.minimize``. However, finite
+differences are prone to truncation errors due to floating point arithmetic and
+computationally expensive especially for evaluating jacobians. A more efficient
+and accurate way to evaluate derivatives is algorithmic differentation (AD).
 
 
-In this example we use AD by means of the `JAX`_ library to compute derivatives 
-and we use cyipopt's scipy interface to solve an example problem, namely
-number 71 from the Hock-Schittkowsky test suite [1]_,
+In this example we use AD by means of the `JAX`_ library to compute derivatives
+and we use cyipopt's scipy interface to solve an example problem, namely number
+71 from the Hock-Schittkowsky test suite [1]_,
 
 .. math::
 
@@ -73,16 +72,16 @@ Then we define the objective and constraint functions::
 
    def objective(x):
        return x[0]*x[3]*np.sum(x[:3]) + x[2]
-   
+
    def eq_constraints(x):
        return np.sum(x**2) - 40
-   
+
    def ineq_constrains(x):
        return np.prod(x) - 25
 
-Next, we build the derivatives and just-in-time (jit) compile the 
-functions (more details regarding ``jit``, ``grad`` and ``jacfwd`` can be 
-found in the `JAX autodiff cookbook`_)::
+Next, we build the derivatives and just-in-time (jit) compile the functions
+(more details regarding ``jit``, ``grad`` and ``jacfwd`` can be found in the
+`JAX autodiff cookbook`_)::
 
    # jit the functions
    obj_jit = jit(objective)
@@ -99,13 +98,13 @@ Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
    # constraints
    cons = [{'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac},
        {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac}]
-   
+
    # starting point
    x0 = np.array([1, 5, 5, 1])
-   
+
    # variable bounds: 1 <= x[i] <= 5
    bnds = [(1, 5) for _ in range(x0.size)]
-   
+
    # executing the solver
    res = minimize_ipopt(obj_jit, jac=obj_grad, x0=x0, bounds=bnds,
                      constraints=cons, options={'disp': 5})
@@ -113,7 +112,7 @@ Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
 Problem Interface
 =================
 
-In this example we will use cyipopt problem class interface to solve the 
+In this example we will use cyipopt problem class interface to solve the
 aforementioned test problem.
 
 Getting started
