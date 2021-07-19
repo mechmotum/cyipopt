@@ -42,6 +42,7 @@ Version History
 Removed
 +++++++
 
+- Example added showing how to use JAX for calculating derivatives.
 - The six and future dependencies are removed.
 
 [1.0.3] - 2021-04-07
