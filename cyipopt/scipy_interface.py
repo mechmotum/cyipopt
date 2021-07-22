@@ -61,16 +61,20 @@ class IpoptProblemWrapper(object):
         Epsilon used in finite differences.
 
     """
-    def __init__(self, fun, args=(), kwargs=None, jac=None, hess=None,
-                 hessp=None, constraints=(), eps=1e-8):
+    def __init__(self, fun, n, args=(), kwargs=None, jac=None, hess=None,
+                 hessp=None, constraints=(), con_dims=(), eps=1e-8):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
+        self.n = n
         self.fun_with_jac = None
+        self.obj_hess = None
         self.last_x = None
-        if hess is not None or hessp is not None:
-            msg = 'Using hessian matrixes is not yet implemented!'
+        if hessp is not None:
+            msg = 'Using hessian matrix times an arbitrary vector is not yet implemented!'
             raise NotImplementedError(msg)
+        if hess is not None:
+            self.obj_hess = hess
         if jac is None:
             jac = lambda x0, *args, **kwargs: approx_fprime(x0, fun, eps,
                                                             *args, **kwargs)
@@ -84,6 +88,8 @@ class IpoptProblemWrapper(object):
         self.kwargs = kwargs or {}
         self._constraint_funs = []
         self._constraint_jacs = []
+        self._constraint_hessians = []
+        self._constraint_dims = list(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
         if isinstance(constraints, dict):
@@ -92,11 +98,17 @@ class IpoptProblemWrapper(object):
             con_fun = con['fun']
             con_jac = con.get('jac', None)
             con_args = con.get('args', [])
+            con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', [])
             if con_jac is None:
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(x0, con_fun, eps, *args, **kwargs)
+            if con_hessian is None and len(self._constraint_hessians) > 0:
+                msg = "hessian has to be provided for all constraints"
+                raise NotImplementedError(msg)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
+            if con_hessian is not None:
+                self._constraint_hessians.append(con_hessian)
             self._constraint_args.append(con_args)
             self._constraint_kwargs.append(con_kwargs)
         # Set up evaluation counts
@@ -136,6 +148,19 @@ class IpoptProblemWrapper(object):
         for fun, args in zip(self._constraint_jacs, self._constraint_args):
             con_values.append(fun(x, *args))
         return np.vstack(con_values)
+
+    def hessianstructure(self):
+        return np.nonzero(np.tril(np.zeros((self.n, self.n))))
+    
+    def hessian(self, x, lagrange, obj_factor):
+        obj_h = obj_factor * self.obj_hess(x)  # type: ignore
+        con_hessians = []
+        # split the lagrangian multipliers for each constraint hessian
+        lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
+        for hessian, args, lagr in zip(self._constraint_hessians, self._constraint_args, lagrs):
+            con_hessians.append(hessian(x, lagr, *args))
+        return obj_h + np.sum(np.array(con_hessians), axis=0)
+
 
     def intermediate(
             self,
@@ -219,12 +244,13 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None,
         raise ImportError(msg)
 
     _x0 = np.atleast_1d(x0)
-    problem = IpoptProblemWrapper(fun, args=args, kwargs=kwargs, jac=jac,
-                                  hess=hess, hessp=hessp,
-                                  constraints=constraints)
-    lb, ub = get_bounds(bounds)
 
-    cl, cu = get_constraint_bounds(constraints, x0)
+    lb, ub = get_bounds(bounds)
+    cl, cu, con_dims = get_constraint_bounds_and_dimensions(constraints, x0)
+
+    problem = IpoptProblemWrapper(fun, len(_x0), args=args, kwargs=kwargs, jac=jac,
+                                  hess=hess, hessp=hessp,
+                                  constraints=constraints, con_dims=con_dims)
 
     if options is None:
         options = {}
