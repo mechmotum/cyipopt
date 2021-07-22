@@ -70,3 +70,22 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
     expected_res = np.array([1.001867, 0.99434067, 1.05070075, 1.17906312,
                              1.38103001])
     np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_minimize_ipopt_jac_constraints_if_scipy():
+    """ `minimize_ipopt` works with objective gradient and Hessian 
+         and constarint jacobians and Hessians"""
+    from scipy.optimize import rosen, rosen_der, rosen_hess
+    x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+    constr = {"fun": lambda x: rosen(x) - 1.0, "type": "ineq", 
+              'jac': rosen_der, 'hess': lambda x, v: rosen_hess(x) * v[0]}
+    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess, constraints=constr)
+    print(res.fun)
+    assert isinstance(res, dict)
+    assert np.isclose(res.get("fun"), 1.0828541)
+    assert res.get("status") == 0
+    assert res.get("success") is True
+    expected_res = np.array([1.09022019, 1.14568613, 1.30965199, 1.71962948, 2.90683532])
+    np.testing.assert_allclose(res.get("x"), expected_res)
