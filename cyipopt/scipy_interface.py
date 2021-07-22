@@ -164,15 +164,15 @@ def get_bounds(bounds):
         return lb, ub
 
 
-def get_constraint_bounds(constraints, x0, INF=1e19):
-    if isinstance(constraints, dict):
-        constraints = (constraints, )
+def get_constraint_bounds_and_dimensions(constraints, x0, INF=1e19):
     cl = []
     cu = []
+    con_dims = []
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
         m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
+        con_dims.append(m)
         cl.extend(np.zeros(m))
         if con['type'] == 'eq':
             cu.extend(np.zeros(m))
@@ -182,8 +182,9 @@ def get_constraint_bounds(constraints, x0, INF=1e19):
             raise ValueError(con['type'])
     cl = np.array(cl)
     cu = np.array(cu)
+    con_dims = np.array(con_dims)
 
-    return cl, cu
+    return cl, cu, con_dims
 
 
 def replace_option(options, oldname, newname):
