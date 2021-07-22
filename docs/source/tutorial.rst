@@ -89,15 +89,21 @@ Next, we build the derivatives and just-in-time (jit) compile the functions
    con_ineq_jit = jit(ineq_constrains)
 
    # build the derivatives and jit them
-   obj_grad = jit(grad(obj_jit))  # gradient
+   obj_grad = jit(grad(obj_jit))  # objective gradient
+   obj_hess = jit(jacrev(jacfwd(obj_jit))) # objective hessian
    con_eq_jac = jit(jacfwd(con_eq_jit))  # jacobian
    con_ineq_jac = jit(jacfwd(con_ineq_jit))  # jacobian
+   con_eq_hess = jacrev(jacfwd(con_eq_jit)) # hessian
+   con_eq_hessvp = jit(lambda x, v: con_eq_hess(x) * v[0]) # hessian vector-product
+   con_ineq_hess = jacrev(jacfwd(con_ineq_jit))  # hessian
+   con_ineq_hessvp = jit(lambda x, v: con_ineq_hess(x) * v[0]) # hessian vector-product
+
 
 Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
 
    # constraints
-   cons = [{'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac},
-       {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac}]
+   cons = [{'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac, 'hess': con_eq_hess},
+       {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac, 'hess': con_ineq_hess}]
 
    # starting point
    x0 = np.array([1, 5, 5, 1])
@@ -106,7 +112,7 @@ Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
    bnds = [(1, 5) for _ in range(x0.size)]
 
    # executing the solver
-   res = minimize_ipopt(obj_jit, jac=obj_grad, x0=x0, bounds=bnds,
+   res = minimize_ipopt(obj_jit, jac=obj_grad, hess=obj_hess, x0=x0, bounds=bnds,
                      constraints=cons, options={'disp': 5})
 
 Problem Interface
