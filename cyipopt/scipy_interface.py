@@ -102,8 +102,8 @@ class IpoptProblemWrapper(object):
             con_kwargs = con.get('kwargs', [])
             if con_jac is None:
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(x0, con_fun, eps, *args, **kwargs)
-            if con_hessian is None and len(self._constraint_hessians) > 0:
-                msg = "hessian has to be provided for all constraints"
+            if (self.obj_hess is not None and con_hessian is None) or (self.obj_hess is None and con_hessian is not None):
+                msg = "hessian has to be provided for the objective and all constraints"
                 raise NotImplementedError(msg)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
@@ -150,7 +150,7 @@ class IpoptProblemWrapper(object):
         return np.vstack(con_values)
 
     def hessianstructure(self):
-        return np.nonzero(np.tril(np.zeros((self.n, self.n))))
+        return np.nonzero(np.tril(np.ones((self.n, self.n))))
     
     def hessian(self, x, lagrange, obj_factor):
         obj_h = obj_factor * self.obj_hess(x)  # type: ignore
@@ -159,7 +159,8 @@ class IpoptProblemWrapper(object):
         lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
         for hessian, args, lagr in zip(self._constraint_hessians, self._constraint_args, lagrs):
             con_hessians.append(hessian(x, lagr, *args))
-        return obj_h + np.sum(np.array(con_hessians), axis=0)
+        H = obj_h + np.sum(np.array(con_hessians), axis=0)
+        return H[self.hessianstructure()]
 
 
     def intermediate(
