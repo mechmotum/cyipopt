@@ -166,13 +166,13 @@ class IpoptProblemWrapper(object):
 
     def jacobian(self, x):
         con_values = []
-        for i, (fun, args) in enumerate(
-                zip(self._constraint_funs, self._constraint_args)):
+        for i, (fun, jac, args) in enumerate(
+                zip(self._constraint_funs, self._constraint_jacs, self._constraint_args)):
             if self._constraint_funs_with_jacs[i]:
                 con_values.append(
                     self.evaluate_con_fun_with_jac(i, fun, x, *args)[1])
             else:
-                con_values.append(fun(x, *args))
+                con_values.append(jac(x, *args))
         return np.vstack(con_values)
 
     def evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
@@ -218,7 +218,10 @@ def get_constraint_bounds_and_dimensions(constraints, x0, INF=1e19):
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
-        m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
+        if con.get('jac', False) is True:
+            m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))[0]))
+        else:    
+            m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
         con_dims.append(m)
         cl.extend(np.zeros(m))
         if con['type'] == 'eq':
