@@ -61,8 +61,17 @@ class IpoptProblemWrapper(object):
         Epsilon used in finite differences.
 
     """
-    def __init__(self, fun, n, args=(), kwargs=None, jac=None, hess=None,
-                 hessp=None, constraints=(), con_dims=(), eps=1e-8):
+    def __init__(self,
+                 fun,
+                 n,
+                 args=(),
+                 kwargs=None,
+                 jac=None,
+                 hess=None,
+                 hessp=None,
+                 constraints=(),
+                 con_dims=(),
+                 eps=1e-8):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
@@ -76,8 +85,8 @@ class IpoptProblemWrapper(object):
         if hess is not None:
             self.obj_hess = hess
         if jac is None:
-            jac = lambda x0, *args, **kwargs: approx_fprime(x0, fun, eps,
-                                                            *args, **kwargs)
+            jac = lambda x0, *args, **kwargs: approx_fprime(
+                x0, fun, eps, *args, **kwargs)
         elif jac is True:
             self.fun_with_jac = fun
         elif not callable(jac):
@@ -88,25 +97,32 @@ class IpoptProblemWrapper(object):
         self.kwargs = kwargs or {}
         self._constraint_funs = []
         self._constraint_jacs = []
+        self._constraint_funs_with_jacs = []
         self._constraint_hessians = []
         self._constraint_dims = list(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
+        self.last_con_values = [(None, None) for _ in range(len(constraints))]
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
             con_fun = con['fun']
             con_jac = con.get('jac', None)
+            con_fun_with_jac = True if con_jac is True else False
             con_args = con.get('args', [])
             con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', [])
             if con_jac is None:
-                con_jac = lambda x0, *args, **kwargs: approx_fprime(x0, con_fun, eps, *args, **kwargs)
-            if (self.obj_hess is not None and con_hessian is None) or (self.obj_hess is None and con_hessian is not None):
+                con_jac = lambda x0, *args, **kwargs: approx_fprime(
+                    x0, con_fun, eps, *args, **kwargs)
+            if (self.obj_hess is not None
+                    and con_hessian is None) or (self.obj_hess is None
+                                                 and con_hessian is not None):
                 msg = "hessian has to be provided for the objective and all constraints"
                 raise NotImplementedError(msg)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
+            self._constraint_funs_with_jacs.append(con_fun_with_jac)
             if con_hessian is not None:
                 self._constraint_hessians.append(con_hessian)
             self._constraint_args.append(con_args)
@@ -139,44 +155,49 @@ class IpoptProblemWrapper(object):
 
     def constraints(self, x):
         con_values = []
-        for fun, args in zip(self._constraint_funs, self._constraint_args):
-            con_values.append(fun(x, *args))
+        for i, (fun, args) in enumerate(
+                zip(self._constraint_funs, self._constraint_args)):
+            if self._constraint_funs_with_jacs[i]:
+                con_values.append(
+                    self.evaluate_con_fun_with_jac(i, fun, x, *args)[0])
+            else:
+                con_values.append(fun(x, *args))
         return np.hstack(con_values)
 
     def jacobian(self, x):
         con_values = []
-        for fun, args in zip(self._constraint_jacs, self._constraint_args):
-            con_values.append(fun(x, *args))
+        for i, (fun, args) in enumerate(
+                zip(self._constraint_funs, self._constraint_args)):
+            if self._constraint_funs_with_jacs[i]:
+                con_values.append(
+                    self.evaluate_con_fun_with_jac(i, fun, x, *args)[1])
+            else:
+                con_values.append(fun(x, *args))
         return np.vstack(con_values)
+
+    def evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
+        if self.last_x is None or not np.all(self.last_x == x):
+            self.last_x = x
+            self.last_con_values[i] = con_fun(x, *args)
+        return self.last_con_values[i]
 
     def hessianstructure(self):
         return np.nonzero(np.tril(np.ones((self.n, self.n))))
-    
+
     def hessian(self, x, lagrange, obj_factor):
         obj_h = obj_factor * self.obj_hess(x)  # type: ignore
         con_hessians = []
         # split the lagrangian multipliers for each constraint hessian
         lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
-        for hessian, args, lagr in zip(self._constraint_hessians, self._constraint_args, lagrs):
+        for hessian, args, lagr in zip(self._constraint_hessians,
+                                       self._constraint_args, lagrs):
             con_hessians.append(hessian(x, lagr, *args))
         H = obj_h + np.sum(np.array(con_hessians), axis=0)
         return H[self.hessianstructure()]
 
-
-    def intermediate(
-            self,
-            alg_mod,
-            iter_count,
-            obj_value,
-            inf_pr,
-            inf_du,
-            mu,
-            d_norm,
-            regularization_size,
-            alpha_du,
-            alpha_pr,
-            ls_trials
-            ):
+    def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
+                     d_norm, regularization_size, alpha_du, alpha_pr,
+                     ls_trials):
 
         self.nit = iter_count
 
@@ -203,7 +224,7 @@ def get_constraint_bounds_and_dimensions(constraints, x0, INF=1e19):
         if con['type'] == 'eq':
             cu.extend(np.zeros(m))
         elif con['type'] == 'ineq':
-            cu.extend(INF*np.ones(m))
+            cu.extend(INF * np.ones(m))
         else:
             raise ValueError(con['type'])
     cl = np.array(cl)
@@ -230,9 +251,19 @@ def convert_to_bytes(options):
                 pass
 
 
-def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None,
-                   hess=None, hessp=None, bounds=None, constraints=(),
-                   tol=None, callback=None, options=None):
+def minimize_ipopt(fun,
+                   x0,
+                   args=(),
+                   kwargs=None,
+                   method=None,
+                   jac=None,
+                   hess=None,
+                   hessp=None,
+                   bounds=None,
+                   constraints=(),
+                   tol=None,
+                   callback=None,
+                   options=None):
     """
     Minimize a function using ipopt. The call signature is exactly like for
     ``scipy.optimize.mimize``. In options, all options are directly passed to
@@ -249,9 +280,15 @@ def minimize_ipopt(fun, x0, args=(), kwargs=None, method=None, jac=None,
     lb, ub = get_bounds(bounds)
     cl, cu, con_dims = get_constraint_bounds_and_dimensions(constraints, x0)
 
-    problem = IpoptProblemWrapper(fun, len(_x0), args=args, kwargs=kwargs, jac=jac,
-                                  hess=hess, hessp=hessp,
-                                  constraints=constraints, con_dims=con_dims)
+    problem = IpoptProblemWrapper(fun,
+                                  len(_x0),
+                                  args=args,
+                                  kwargs=kwargs,
+                                  jac=jac,
+                                  hess=hess,
+                                  hessp=hessp,
+                                  constraints=constraints,
+                                  con_dims=con_dims)
 
     if options is None:
         options = {}
