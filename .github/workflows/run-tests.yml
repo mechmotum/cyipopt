@@ -34,6 +34,7 @@ jobs:
         conda update -q conda
     - name: Create conda environment
       run: |
+        conda init bash
         conda create -q -n test-env python=${{ matrix.python-version }}
         conda activate test-env
         conda install -y -q lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
@@ -41,6 +42,7 @@ jobs:
         conda list
     - name: Run tests
       run: |
+        conda init bash
         conda activate test-env
         python setup.py install
         python -c "import cyipopt"
@@ -50,6 +52,7 @@ jobs:
         pytest
     - name: Build documentation
       run: |
+        conda init bash
         conda activate test-env
         conda install -y -q --file docs/requirements.txt
         cd docs && make clean && make html && cd ..
