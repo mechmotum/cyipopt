@@ -5,7 +5,7 @@ import warnings
 from .scipy_interface import IpoptProblemWrapper as CyipoptIpoptProblemWrapper
 from .scipy_interface import convert_to_bytes as cyipopt_convert_to_bytes
 from .scipy_interface import get_bounds as cyipopt_get_bounds
-from .scipy_interface import get_constraint_bounds_and_dimensions as cyipopt_get_constraint_bounds
+from .scipy_interface import get_constraint_bounds as cyipopt_get_constraint_bounds
 from .scipy_interface import minimize_ipopt as cyipopt_minimize_ipopt
 
 
