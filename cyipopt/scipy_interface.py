@@ -106,7 +106,7 @@ class IpoptProblemWrapper(object):
         self._constraint_dims = np.asarray(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
-        self.last_con_values = [(None, None) for _ in range(len(constraints))]
+        self._last_con_values = [(None, None) for _ in range(len(constraints))]
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
@@ -182,8 +182,8 @@ class IpoptProblemWrapper(object):
     def _evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
         if self.last_x is None or not np.all(self.last_x == x):
             self.last_x = x
-            self.last_con_values[i] = con_fun(x, *args)
-        return self.last_con_values[i]
+            self._last_con_values[i] = con_fun(x, *args)
+        return self._last_con_values[i]
 
     def hessianstructure(self):
         return np.nonzero(np.tril(np.ones((self.n, self.n))))  # type: ignore
