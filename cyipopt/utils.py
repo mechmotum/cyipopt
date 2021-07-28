@@ -7,8 +7,6 @@ Currently contains functions to aid with deprecation within CyIpopt.
 import warnings
 from functools import wraps
 
-from ipopt_wrapper import Problem
-
 
 def deprecated_warning(new_name):
     """Decorator that issues a FutureWarning for deprecated functionality.
@@ -91,3 +89,4 @@ def generate_deprecation_warning_msg(what,
            f"deprecated in CyIpopt. Please replace all uses and use "
            f"'{new_name}' going forward.")
     return msg
+
