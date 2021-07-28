@@ -1,0 +1,47 @@
+name: cyipopt testing
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+        ipopt-version: [3.12, 3.13]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install conda, test, & build docs
+      run: |
+        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+        chmod +x miniconda.sh
+        ./miniconda.sh -b -p $HOME/miniconda
+        source "$HOME/miniconda/etc/profile.d/conda.sh"
+        conda init bash
+        conda config --set always_yes yes --set changeps1 no
+        conda config --add channels conda-forge
+        conda update -q conda
+        conda create -q -n test-env python=${{ matrix.python-version }}
+        conda activate test-env
+        conda install -y -q lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+        conda info -a
+        conda list
+        python setup.py install
+        python -c "import cyipopt"
+        conda install -y -q pytest>=3.3.2
+        pytest
+        conda install -y -q scipy>=0.19.1
+        pytest
+        conda install -y -q --file docs/requirements.txt
+        cd docs && make clean && make html && cd ..
