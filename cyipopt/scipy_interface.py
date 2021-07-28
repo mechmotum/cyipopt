@@ -59,19 +59,23 @@ class IpoptProblemWrapper(object):
         for more information.
     eps : float, optional
         Epsilon used in finite differences.
-
+    n   : int, optional
+        Total number of variables.
+    con_dims : array_like, optional
+        Dimensions p_1, ..., p_m of the m constraint functions 
+        g_1, ..., g_m : R^n -> R^(p_i).
     """
     def __init__(self,
                  fun,
-                 n,
                  args=(),
                  kwargs=None,
                  jac=None,
                  hess=None,
                  hessp=None,
                  constraints=(),
-                 con_dims=(),
-                 eps=1e-8):
+                 eps=1e-8,
+                 n=None,
+                 con_dims=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
@@ -99,7 +103,7 @@ class IpoptProblemWrapper(object):
         self._constraint_jacs = []
         self._constraint_funs_with_jacs = []
         self._constraint_hessians = []
-        self._constraint_dims = list(con_dims)
+        self._constraint_dims = np.asarray(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
         self.last_con_values = [(None, None) for _ in range(len(constraints))]
@@ -159,7 +163,7 @@ class IpoptProblemWrapper(object):
                 zip(self._constraint_funs, self._constraint_args)):
             if self._constraint_funs_with_jacs[i]:
                 con_values.append(
-                    self.evaluate_con_fun_with_jac(i, fun, x, *args)[0])
+                    self.__evaluate_con_fun_with_jac(i, fun, x, *args)[0])
             else:
                 con_values.append(fun(x, *args))
         return np.hstack(con_values)
@@ -170,19 +174,19 @@ class IpoptProblemWrapper(object):
                 zip(self._constraint_funs, self._constraint_jacs, self._constraint_args)):
             if self._constraint_funs_with_jacs[i]:
                 con_values.append(
-                    self.evaluate_con_fun_with_jac(i, fun, x, *args)[1])
+                    self.__evaluate_con_fun_with_jac(i, fun, x, *args)[1])
             else:
                 con_values.append(jac(x, *args))
         return np.vstack(con_values)
 
-    def evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
+    def __evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
         if self.last_x is None or not np.all(self.last_x == x):
             self.last_x = x
             self.last_con_values[i] = con_fun(x, *args)
         return self.last_con_values[i]
 
     def hessianstructure(self):
-        return np.nonzero(np.tril(np.ones((self.n, self.n))))
+        return np.nonzero(np.tril(np.ones((self.n, self.n)))) # type: ignore
 
     def hessian(self, x, lagrange, obj_factor):
         obj_h = obj_factor * self.obj_hess(x)  # type: ignore
@@ -243,8 +247,6 @@ def get_constraint_bounds(constraints, x0, INF=1e19):
 
     return cl, cu
 
-    return cl, cu, con_dims
-
 
 def replace_option(options, oldname, newname):
     if oldname in options:
@@ -294,13 +296,14 @@ def minimize_ipopt(fun,
     con_dims = get_constraint_dimensions(constraints, x0)
 
     problem = IpoptProblemWrapper(fun,
-                                  len(_x0),
                                   args=args,
                                   kwargs=kwargs,
                                   jac=jac,
                                   hess=hess,
                                   hessp=hessp,
                                   constraints=constraints,
+                                  eps=1e-8,
+                                  n=len(_x0),
                                   con_dims=con_dims)
 
     if options is None:
