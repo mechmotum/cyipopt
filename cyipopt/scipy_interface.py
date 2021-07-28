@@ -163,7 +163,7 @@ class IpoptProblemWrapper(object):
                 zip(self._constraint_funs, self._constraint_args)):
             if self._constraint_funs_with_jacs[i]:
                 con_values.append(
-                    self.__evaluate_con_fun_with_jac(i, fun, x, *args)[0])
+                    self._evaluate_con_fun_with_jac(i, fun, x, *args)[0])
             else:
                 con_values.append(fun(x, *args))
         return np.hstack(con_values)
@@ -174,19 +174,19 @@ class IpoptProblemWrapper(object):
                 zip(self._constraint_funs, self._constraint_jacs, self._constraint_args)):
             if self._constraint_funs_with_jacs[i]:
                 con_values.append(
-                    self.__evaluate_con_fun_with_jac(i, fun, x, *args)[1])
+                    self._evaluate_con_fun_with_jac(i, fun, x, *args)[1])
             else:
                 con_values.append(jac(x, *args))
         return np.vstack(con_values)
 
-    def __evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
+    def _evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
         if self.last_x is None or not np.all(self.last_x == x):
             self.last_x = x
             self.last_con_values[i] = con_fun(x, *args)
         return self.last_con_values[i]
 
     def hessianstructure(self):
-        return np.nonzero(np.tril(np.ones((self.n, self.n)))) # type: ignore
+        return np.nonzero(np.tril(np.ones((self.n, self.n))))  # type: ignore
 
     def hessian(self, x, lagrange, obj_factor):
         obj_h = obj_factor * self.obj_hess(x)  # type: ignore
