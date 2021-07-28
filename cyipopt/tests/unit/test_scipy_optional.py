@@ -76,7 +76,7 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy():
     """ `minimize_ipopt` works with objective gradient and Hessian 
-         and constarint jacobians and Hessians"""
+         and constraint jacobians and Hessians"""
     from scipy.optimize import rosen, rosen_der, rosen_hess
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     constr = {"fun": lambda x: rosen(x) - 1.0, "type": "ineq",
@@ -97,7 +97,7 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy():
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_constraint_jac_true_if_scipy():
     """ `minimize_ipopt` works with objective gradient and Hessian 
-         and constarint jacobians and Hessians"""
+         and constraint jacobians and Hessians"""
     from scipy.optimize import rosen, rosen_der
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
     constr = {
