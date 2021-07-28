@@ -234,7 +234,10 @@ def get_constraint_bounds(constraints, x0, INF=1e19):
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
-        m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
+        if con.get('jac', False) is True:
+            m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))[0]))
+        else:
+            m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
         cl.extend(np.zeros(m))
         if con['type'] == 'eq':
             cu.extend(np.zeros(m))
