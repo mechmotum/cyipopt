@@ -112,7 +112,6 @@ class IpoptProblemWrapper(object):
         for con in constraints:
             con_fun = con['fun']
             con_jac = con.get('jac', None)
-            con_fun_with_jac = True if con_jac is True else False
             con_args = con.get('args', [])
             con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', [])
