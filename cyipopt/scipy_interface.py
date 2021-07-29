@@ -23,6 +23,7 @@ else:
     from scipy.optimize import approx_fprime
     try:
         from scipy.optimize import OptimizeResult
+        from scipy.optimize.optimize import MemoizeJac
     except ImportError:
         # in scipy 0.14 Result was renamed to OptimzeResult
         from scipy.optimize import Result
@@ -106,7 +107,6 @@ class IpoptProblemWrapper(object):
         self._constraint_dims = np.asarray(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
-        self._last_con_values = [(None, None) for _ in range(len(constraints))]
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
@@ -119,6 +119,11 @@ class IpoptProblemWrapper(object):
             if con_jac is None:
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(
                     x0, con_fun, eps, *args, **kwargs)
+            elif con_jac is True:
+                con_fun = MemoizeJac(con_fun)
+                con_jac = con_fun.derivative
+            elif not callable(con_jac):
+                raise NotImplementedError('jac has to be bool or a function')
             if (self.obj_hess is not None
                     and con_hessian is None) or (self.obj_hess is None
                                                  and con_hessian is not None):
@@ -126,7 +131,6 @@ class IpoptProblemWrapper(object):
                 raise NotImplementedError(msg)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
-            self._constraint_funs_with_jacs.append(con_fun_with_jac)
             if con_hessian is not None:
                 self._constraint_hessians.append(con_hessian)
             self._constraint_args.append(con_args)
@@ -159,31 +163,15 @@ class IpoptProblemWrapper(object):
 
     def constraints(self, x):
         con_values = []
-        for i, (fun, args) in enumerate(
-                zip(self._constraint_funs, self._constraint_args)):
-            if self._constraint_funs_with_jacs[i]:
-                con_values.append(
-                    self._evaluate_con_fun_with_jac(i, fun, x, *args)[0])
-            else:
-                con_values.append(fun(x, *args))
+        for fun, args in zip(self._constraint_funs, self._constraint_args):
+            con_values.append(fun(x, *args))
         return np.hstack(con_values)
 
     def jacobian(self, x):
         con_values = []
-        for i, (fun, jac, args) in enumerate(
-                zip(self._constraint_funs, self._constraint_jacs, self._constraint_args)):
-            if self._constraint_funs_with_jacs[i]:
-                con_values.append(
-                    self._evaluate_con_fun_with_jac(i, fun, x, *args)[1])
-            else:
-                con_values.append(jac(x, *args))
+        for jac, args in zip(self._constraint_jacs, self._constraint_args):
+            con_values.append(jac(x, *args))
         return np.vstack(con_values)
-
-    def _evaluate_con_fun_with_jac(self, i, con_fun, x, *args):
-        if self.last_x is None or not np.all(self.last_x == x):
-            self.last_x = x
-            self._last_con_values[i] = con_fun(x, *args)
-        return self._last_con_values[i]
 
     def hessianstructure(self):
         return np.nonzero(np.tril(np.ones((self.n, self.n))))  # type: ignore
