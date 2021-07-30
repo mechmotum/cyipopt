@@ -75,12 +75,10 @@ class IpoptProblemWrapper(object):
                  hessp=None,
                  constraints=(),
                  eps=1e-8,
-                 n=None,
                  con_dims=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
-        self.n = n
         self.fun_with_jac = None
         self.obj_hess = None
         self.last_x = None
@@ -102,7 +100,6 @@ class IpoptProblemWrapper(object):
         self.kwargs = kwargs or {}
         self._constraint_funs = []
         self._constraint_jacs = []
-        self._constraint_funs_with_jacs = []
         self._constraint_hessians = []
         self._constraint_dims = np.asarray(con_dims)
         self._constraint_args = []
@@ -114,7 +111,7 @@ class IpoptProblemWrapper(object):
             con_jac = con.get('jac', None)
             con_args = con.get('args', [])
             con_hessian = con.get('hess', None)
-            con_kwargs = con.get('kwargs', [])
+            con_kwargs = con.get('kwargs', {})
             if con_jac is None:
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(
                     x0, con_fun, eps, *args, **kwargs)
@@ -130,8 +127,7 @@ class IpoptProblemWrapper(object):
                 raise NotImplementedError(msg)
             self._constraint_funs.append(con_fun)
             self._constraint_jacs.append(con_jac)
-            if con_hessian is not None:
-                self._constraint_hessians.append(con_hessian)
+            self._constraint_hessians.append(con_hessian)
             self._constraint_args.append(con_args)
             self._constraint_kwargs.append(con_kwargs)
         # Set up evaluation counts
@@ -172,19 +168,14 @@ class IpoptProblemWrapper(object):
             con_values.append(jac(x, *args))
         return np.vstack(con_values)
 
-    def hessianstructure(self):
-        return np.nonzero(np.tril(np.ones((self.n, self.n))))  # type: ignore
-
     def hessian(self, x, lagrange, obj_factor):
-        obj_h = obj_factor * self.obj_hess(x)  # type: ignore
-        con_hessians = []
+        H = obj_factor * self.obj_hess(x)  # type: ignore
         # split the lagrangian multipliers for each constraint hessian
         lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
         for hessian, args, lagr in zip(self._constraint_hessians,
                                        self._constraint_args, lagrs):
-            con_hessians.append(hessian(x, lagr, *args))
-        H = obj_h + np.sum(np.array(con_hessians), axis=0)
-        return H[self.hessianstructure()]
+            H += hessian(x, lagr, *args)
+        return H[np.tril_indices(x.size)]
 
     def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
                      d_norm, regularization_size, alpha_du, alpha_pr,
@@ -293,7 +284,6 @@ def minimize_ipopt(fun,
                                   hessp=hessp,
                                   constraints=constraints,
                                   eps=1e-8,
-                                  n=len(_x0),
                                   con_dims=con_dims)
 
     if options is None:
