@@ -122,6 +122,8 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
     np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-5)
 
 
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_hs071():
     """ `minimize_ipopt` works with objective gradient and Hessian
         and constraint jacobians and Hessians. The objective and
