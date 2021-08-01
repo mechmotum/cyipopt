@@ -74,31 +74,6 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_jac_and_hessians_constraints_monotone_strategy_if_scipy():
-    """`minimize_ipopt` works with objective gradient and Hessian 
-       and constraint jacobians and Hessians."""
-    # Note: the default Ipopt 'mu_strategy' is 'monotone' instead of 'adaptive'.
-    from scipy.optimize import rosen, rosen_der, rosen_hess
-    x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-    constr = {
-        "fun": lambda x: rosen(x) - 1.0,
-        "type": "ineq",
-        "jac": rosen_der,
-        "hess": lambda x, v: rosen_hess(x) * v[0]
-    }
-    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess,
-                                 constraints=constr,
-                                 options={'mu_strategy': 'monotone'})
-    assert isinstance(res, dict)
-    assert np.isclose(res.get("fun"), 1.0)
-    assert res.get("status") == 0
-    assert res.get("success") is True
-    expected_res = np.array([1.087746, 1.143973, 1.306229, 1.710728, 2.880089])
-    np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-6)
-
-
-@pytest.mark.skipif("scipy" not in sys.modules,
-                    reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 ):
     """`minimize_ipopt` works with objective gradient and Hessian 
