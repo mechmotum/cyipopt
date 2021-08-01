@@ -100,18 +100,18 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_hs071():
-    """ `minimize_ipopt` works with objective gradient and Hessian
-        and constraint jacobians and Hessians. The objective and
-        the constraints functions return a tuple containing the
-        function value and the evaluated gradient or jacobian.
+    """ `minimize_ipopt` works with objective gradient and Hessian and 
+         constraint jacobians and Hessians.
+
+        The objective and the constraints functions return a tuple containing 
+        the function value and the evaluated gradient or jacobian. Solves
+        Hock & Schittkowski's test problem 71:
+
+        min x0*x3*(x0+x1+x2)+x2
+        s.t. x0**2 + x1**2 + x2**2 + x3**2 - 40  = 0
+                         x0 * x1 * x2 * x3 - 25 >= 0
+                               1 <= x0,x1,x2,x3 <= 5
     """
-    # Hock & Schittkowski test problem 71
-    #
-    # min x0*x3*(x0+x1+x2)+x2
-    #
-    # s.t. x0**2 + x1**2 + x2**2 + x3**2 - 40 = 0
-    #      x0 * x1 * x2 * x3 - 25 >= 0
-    #      1 <= x0,x1,x2,x3 <= 5
 
     def obj_and_grad(x):
         obj = x[0] * x[3] * np.sum(x[:3]) + x[2]
