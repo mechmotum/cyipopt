@@ -74,43 +74,121 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy():
+def test_minimize_ipopt_jac_and_hessians_constraints_monotone_strategy_if_scipy():
     """`minimize_ipopt` works with objective gradient and Hessian 
        and constraint jacobians and Hessians."""
+    # Note: the default Ipopt 'mu_strategy' is 'monotone' instead of 'adaptive'.
     from scipy.optimize import rosen, rosen_der, rosen_hess
     x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
-    constr = {"fun": lambda x: rosen(x) - 1.0, "type": "ineq",
-              "jac": rosen_der, "hess": lambda x, v: rosen_hess(x) * v[0]}
+    constr = {
+        "fun": lambda x: rosen(x) - 1.0,
+        "type": "ineq",
+        "jac": rosen_der,
+        "hess": lambda x, v: rosen_hess(x) * v[0]
+    }
     res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess,
-                                 constraints=constr)
+                                 constraints=constr,
+                                 options={'mu_strategy': 'monotone'})
     assert isinstance(res, dict)
-    assert np.isclose(res.get("fun"), 1.0828541)
+    assert np.isclose(res.get("fun"), 1.0)
     assert res.get("status") == 0
     assert res.get("success") is True
-    expected_res = np.array([1.09022019, 1.14568613, 1.30965199, 1.71962948,
-                             2.90683532])
-    np.testing.assert_allclose(res.get("x"), expected_res)
+    expected_res = np.array([1.087746, 1.143973, 1.306229, 1.710728, 2.880089])
+    np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-6)
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_constraint_jac_true_if_scipy():
-    """ `minimize_ipopt` works with objective gradient and Hessian 
-         and constraint jacobians and Hessians"""
-    from scipy.optimize import rosen, rosen_der
-    x0 = [1.3, 0.7, 0.8, 1.9, 1.2]
+def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
+):
+    """`minimize_ipopt` works with objective gradient and Hessian 
+       and constraint jacobians and Hessians."""
+    from scipy.optimize import rosen, rosen_der, rosen_hess
+    x0 = [0.0, 0.0]
     constr = {
-        "fun": lambda x: (rosen(x) - 2.0, rosen_der(x)),
         "type": "ineq",
-        "jac": True,
+        "fun": lambda x: -x[0]**2 - x[1]**2 + 2,
+        "jac": lambda x: np.array([-2 * x[0], -2 * x[1]]),
+        "hess": lambda x, v: -2 * np.eye(2) * v[0]
     }
-    res = cyipopt.minimize_ipopt(rosen, x0,
-                                 jac=rosen_der,
+    bounds = [(-1.5, 1.5), (-1.5, 1.5)]
+    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess,
                                  constraints=constr)
     assert isinstance(res, dict)
-    assert np.isclose(res.get("fun"), 2.0)
+    assert np.isclose(res.get("fun"), 0.0)
     assert res.get("status") == 0
     assert res.get("success") is True
-    expected_res = np.array(
-        [1.0040163, 0.9791639, 1.04011872, 1.18788545, 1.38059278])
+    expected_res = np.array([1.0, 1.0])
+    np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-5)
+
+
+def test_minimize_ipopt_hs071():
+    """ `minimize_ipopt` works with objective gradient and Hessian
+        and constraint jacobians and Hessians. The objective and
+        the constraints functions return a tuple containing the
+        function value and the evaluated gradient or jacobian.
+    """
+    # Hock & Schittkowski test problem 71
+    #
+    # min x0*x3*(x0+x1+x2)+x2
+    #
+    # s.t. x0**2 + x1**2 + x2**2 + x3**2 - 40 = 0
+    #      x0 * x1 * x2 * x3 - 25 >= 0
+    #      1 <= x0,x1,x2,x3 <= 5
+
+    def obj_and_grad(x):
+        obj = x[0] * x[3] * np.sum(x[:3]) + x[2]
+        grad = np.array([
+            x[0] * x[3] + x[3] * np.sum(x[0:3]), x[0] * x[3],
+            x[0] * x[3] + 1.0, x[0] * np.sum(x[0:3])
+        ])
+        return obj, grad
+
+    def obj_hess(x):
+        return np.array([[2 * x[3], 0.0, 0, 0], [x[3], 0, 0, 0],
+                         [x[3], 0, 0, 0],
+                         [2 * x[0] + x[1] + x[2], x[0], x[0], 0]])
+
+    def con_eq_and_jac(x):
+        value = np.sum(x**2) - 40
+        jac = np.array([2 * x])
+        return value, jac
+
+    def con_eq_hess(x, v):
+        return v[0] * 2.0 * np.eye(4)
+
+    def con_ineq_and_jac(x):
+        value = np.prod(x) - 25
+        jac = np.array([np.prod(x) / x])
+        return value, jac
+
+    def con_ineq_hess(x, v):
+        return v[0] * np.array([[0, 0, 0, 0], [x[2] * x[3], 0, 0, 0],
+                                [x[1] * x[3], x[0] * x[3], 0, 0],
+                                [x[1] * x[2], x[0] * x[2], x[0] * x[1], 0]])
+
+    con1 = {
+        "type": "eq",
+        "fun": con_eq_and_jac,
+        "jac": True,
+        "hess": con_eq_hess
+    }
+    con2 = {
+        "type": "ineq",
+        "fun": con_ineq_and_jac,
+        "jac": True,
+        "hess": con_ineq_hess
+    }
+    constrs = (con1, con2)
+
+    x0 = np.array([1.0, 5.0, 5.0, 1.0])
+    bnds = [(1, 5) for _ in range(x0.size)]
+
+    res = cyipopt.minimize_ipopt(obj_and_grad, jac=True, hess=obj_hess, x0=x0,
+                                 bounds=bnds, constraints=constrs)
+    assert isinstance(res, dict)
+    assert np.isclose(res.get("fun"), 17.01401727277449)
+    assert res.get("status") == 0
+    assert res.get("success") is True
+    expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
     np.testing.assert_allclose(res.get("x"), expected_res)
