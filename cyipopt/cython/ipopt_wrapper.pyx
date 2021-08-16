@@ -363,7 +363,7 @@ cdef class Problem:
             raise ValueError(msg)
 
         cdef Index nele_jac = self.__m * self.__n
-        cdef Index nele_hess = <Index>(<long>self.__n * (<long>self.__n - 1) / 2)
+        cdef Index nele_hess = <Index>(<long>self.__n * (<long>self.__n + 1) / 2)
 
         if self.__jacobianstructure:
             ret_val = self.__jacobianstructure()
