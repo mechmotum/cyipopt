@@ -60,8 +60,6 @@ class IpoptProblemWrapper(object):
         for more information.
     eps : float, optional
         Epsilon used in finite differences.
-    n   : int, optional
-        Total number of variables.
     con_dims : array_like, optional
         Dimensions p_1, ..., p_m of the m constraint functions 
         g_1, ..., g_m : R^n -> R^(p_i).
