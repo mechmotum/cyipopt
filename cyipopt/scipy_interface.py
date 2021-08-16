@@ -133,6 +133,10 @@ class IpoptProblemWrapper(object):
         self.njev = 0
         self.nit = 0
 
+    def evaluate_fun_with_grad(self, x):
+        """ For backwards compatibility. """
+        return (self.objective(x), self.gradient(x, **self.kwargs))
+
     def objective(self, x):
         self.nfev += 1
         return self.fun(x, *self.args, **self.kwargs)
