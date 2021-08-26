@@ -60,8 +60,6 @@ class IpoptProblemWrapper(object):
         for more information.
     eps : float, optional
         Epsilon used in finite differences.
-    n   : int, optional
-        Total number of variables.
     con_dims : array_like, optional
         Dimensions p_1, ..., p_m of the m constraint functions 
         g_1, ..., g_m : R^n -> R^(p_i).
@@ -79,7 +77,6 @@ class IpoptProblemWrapper(object):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
-        self.fun_with_jac = None
         self.obj_hess = None
         self.last_x = None
         if hessp is not None:
@@ -91,7 +88,8 @@ class IpoptProblemWrapper(object):
             jac = lambda x0, *args, **kwargs: approx_fprime(
                 x0, fun, eps, *args, **kwargs)
         elif jac is True:
-            self.fun_with_jac = fun
+            fun = MemoizeJac(fun)
+            jac = fun.derivative
         elif not callable(jac):
             raise NotImplementedError('jac has to be bool or a function')
         self.fun = fun
@@ -136,23 +134,14 @@ class IpoptProblemWrapper(object):
         self.nit = 0
 
     def evaluate_fun_with_grad(self, x):
-        if self.last_x is None or not np.all(self.last_x == x):
-            self.last_x = x
-            self.nfev += 1
-            self.last_value = self.fun(x, *self.args, **self.kwargs)
-        return self.last_value
+        """ For backwards compatibility. """
+        return (self.objective(x), self.gradient(x, **self.kwargs))
 
     def objective(self, x):
-        if self.fun_with_jac:
-            return self.evaluate_fun_with_grad(x)[0]
-
         self.nfev += 1
         return self.fun(x, *self.args, **self.kwargs)
 
     def gradient(self, x, **kwargs):
-        if self.fun_with_jac:
-            return self.evaluate_fun_with_grad(x)[1]
-
         self.njev += 1
         return self.jac(x, *self.args, **self.kwargs)  # .T
 
