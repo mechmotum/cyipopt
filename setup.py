@@ -193,11 +193,11 @@ if __name__ == "__main__":
     EXT_MODULES, DATA_FILES, include_package_data = ext_module_data
     # NOTE : The `name` kwarg here is the distribution name, i.e. the name that
     # PyPi uses for a collection of packages. Historically this has been
-    # `ipopt`, so `pip install ipopt` will now install the `cyipopt` and
-    # `ipopt` packages into the `site-packages` directory. Both `import
-    # cyipopt` and `import ipopt` will work, with the later giving a
-    # deprecation warning.
-    setup(name=DEPRECATED_PACKAGE_NAME,
+    # `ipopt`, but as of 1.1.0 is `cyipopt`. `pip install cyipopt` will install
+    # the `cyipopt` and `ipopt` packages into the `site-packages` directory.
+    # Both `import cyipopt` and `import ipopt` will work, with the later giving
+    # a deprecation warning.
+    setup(name=PACKAGE_NAME,
           version=VERSION,
           author=AUTHOR,
           author_email=EMAIL,

@@ -3,8 +3,8 @@ CyIpopt Changelog
 =================
 
 :Info: Change log for CyIpopt releases.
-:Date: 2021-04-06
-:Version: 1.0.2
+:Date: XXXX-XX-XX
+:Version: 1.2.0.dev0
 
 GitHub holds releases, too
 --------------------------
@@ -36,13 +36,29 @@ Include sections:
 Version History
 ---------------
 
-[1.1.0.dev0] - XXXX-XX-XX
+[1.2.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[1.1.0] - 2021-09-07
+~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+- Added support for objective and constraint Hessians and ``jac=True`` option
+  for constraints in the scipy interface.
+- Example added showing how to use JAX for calculating derivatives.
+
+Changed
++++++++
+
+- Releases have been moved to the PyPi cyipopt distribution namespace:
+  https://pypi.org/project/cyipopt/. Users should now install with ``pip
+  install cyipopt``. Be sure to uninstall the ``ipopt`` distribution first.
 
 Removed
 +++++++
 
-- Example added showing how to use JAX for calculating derivatives.
 - The six and future dependencies are removed.
 
 [1.0.3] - 2021-04-07
