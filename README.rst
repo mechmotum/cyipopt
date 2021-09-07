@@ -23,10 +23,10 @@ Status
        .. image:: https://anaconda.org/conda-forge/cyipopt/badges/downloads.svg
           :target: https://anaconda.org/conda-forge/cyipopt
    * - PyPI
-     - .. image:: https://badge.fury.io/py/ipopt.svg
-          :target: https://pypi.org/project/ipopt
-       .. image:: https://pepy.tech/badge/ipopt
-          :target: https://pypi.org/project/ipopt
+     - .. image:: https://badge.fury.io/py/cyipopt.svg
+          :target: https://pypi.org/project/cyipopt
+       .. image:: https://pepy.tech/badge/cyipopt
+          :target: https://pypi.org/project/cyipopt
    * - Read the Docs
      - .. image:: https://readthedocs.org/projects/cyipopt/badge/?version=latest
           :target: https://cyipopt.readthedocs.io/en/latest/?badge=latest
