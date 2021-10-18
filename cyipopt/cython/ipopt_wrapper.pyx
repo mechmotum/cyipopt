@@ -102,6 +102,7 @@ STATUS_MESSAGES = {
     Error_In_Step_Computation: (b"An unrecoverable error occurred while Ipopt "
                                 b"tried to compute the search direction."),
     Maximum_CpuTime_Exceeded: b"Maximum CPU time exceeded.",
+    Maximum_WallClockTime_Exceeded: b"Maximum wallclock time exceeded.",
     Not_Enough_Degrees_Of_Freedom: b"Problem has too few degrees of freedom.",
     Invalid_Problem_Definition: b"Invalid problem definition.",
     Invalid_Option: b"Invalid option encountered.",
@@ -649,7 +650,7 @@ cdef class Problem:
                 "mult_x_L": mult_x_L,
                 "mult_x_U": mult_x_U,
                 "status": stat,
-                "status_msg": STATUS_MESSAGES[stat]
+                "status_msg": STATUS_MESSAGES.get(stat, b"Unknown status")
                 }
 
         return np_x, info
