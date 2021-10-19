@@ -2,7 +2,7 @@ def test_maximum_cpu_time_exceeded(
     hs071_initial_guess_fixture, hs071_problem_instance_fixture
 ):
     """Test whether cyipopt properly can handle the
-    "Maximum_CpuTime_Exceeded" status from IPOPT."""
+    "Maximum_WallTime_Exceeded" status from IPOPT."""
     # Initialize a reference problem.
     x0 = hs071_initial_guess_fixture
     nlp = hs071_problem_instance_fixture

@@ -38,7 +38,7 @@ cdef extern from "IpStdCInterface.h":
         Restoration_Failed=-2
         Error_In_Step_Computation=-3
         Maximum_CpuTime_Exceeded=-4
-        Maximum_WallClockTime_Exceeded=-5
+        Maximum_WallTime_Exceeded=-5
         Not_Enough_Degrees_Of_Freedom=-10
         Invalid_Problem_Definition=-11
         Invalid_Option=-12
