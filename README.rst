@@ -46,11 +46,8 @@ and is now considered the primary repository.** The fork includes a SciPy-style
 interface and ability to handle exceptions in the callback functions.
 
 As of version 1.1.0 (2021-09-07), the distribution is released under the name
-"cyipopt_" on PyPi. Before version 1.1.0, it was released under the name
-"ipopt_".
-
-.. _cyipopt: https://pypi.org/project/cyipopt/
-.. _ipopt: https://pypi.org/project/ipopt/
+"cyipopt" on PyPi (https://pypi.org/project/cyipopt). Before version 1.1.0, it
+was released under the name "ipopt" (https://pypi.org/project/ipopt).
 
 Installation
 ============
