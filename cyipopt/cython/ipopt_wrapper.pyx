@@ -649,7 +649,7 @@ cdef class Problem:
                 "mult_x_L": mult_x_L,
                 "mult_x_U": mult_x_U,
                 "status": stat,
-                "status_msg": STATUS_MESSAGES[stat]
+                "status_msg": STATUS_MESSAGES.get(stat, b"Unknown status")
                 }
 
         return np_x, info
