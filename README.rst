@@ -41,9 +41,16 @@ Status
 History
 =======
 
-**This repository was forked from https://bitbucket.org/amitibo/cyipopt and is
-now considered the primary repository.** The fork includes a SciPy-style
+**This repository was forked in 2016 from https://bitbucket.org/amitibo/cyipopt
+and is now considered the primary repository.** The fork includes a SciPy-style
 interface and ability to handle exceptions in the callback functions.
+
+As of version 1.1.0 (2021-09-07), the distribution is released under the name
+"cyipopt_" on PyPi. Before version 1.1.0, it was released under the name
+"ipopt_".
+
+.. _cyipopt: https://pypi.org/project/cyipopt/
+.. _ipopt: https://pypi.org/project/ipopt/
 
 Installation
 ============
