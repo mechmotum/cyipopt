@@ -1,5 +1,3 @@
-#! /usr/bin/env python3
-
 import jax.numpy as np
 import jax
 from jax import jit, grad, jacfwd, jacrev
