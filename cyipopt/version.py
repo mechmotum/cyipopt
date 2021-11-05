@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
