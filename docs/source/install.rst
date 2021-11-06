@@ -358,7 +358,7 @@ ipopt is linked against like so::
 
 Now navigate into the extracted HSL directory and configure HSL::
 
-   (hsl-test) $ cd /path/to/hsl/download/coinhsl-2014.01.10/
+   (hsl-test) $ cd /path/to/coinhsl-2014.01.10/
    (hsl-test) $ ./configure \
       --prefix=/home/<username>/miniconda/envs/hsl-test/ \
       --with-blas="-L/home/<username>/miniconda/envs/hsl-test/lib/ -lblas" \
@@ -376,7 +376,7 @@ compilers to build HSL. After configuring, build and install with::
 You should now find a shared HSL library in your environment. Check to make
 sure it is properly linked (especially blas)::
 
-   (hsl-test) $ ldd /home/<username>/miniconda/envs/hsl-test/lib/libcoinhsl.so
+   (hsl-test) $ ldd ~/miniconda/envs/hsl-test/lib/libcoinhsl.so
       linux-vdso.so.1 (0x00007ffe2085a000)
       libopenblas.so.0 => /home/<username>/miniconda/envs/hsl-test/lib/libopenblas.so.0 (0x00007f72a1766000)
       libgfortran.so.5 => /home/<username>/miniconda/envs/hsl-test/lib/libgfortran.so.5 (0x00007f72a15bd000)
