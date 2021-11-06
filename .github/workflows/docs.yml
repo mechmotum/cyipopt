@@ -29,4 +29,4 @@ jobs:
       - name: Install CyIpopt
         run: python setup.py install
       - name: Test building documentation
-          cd docs && make clean && make html && cd ..
+        run: cd docs && make clean && make html && cd ..
