@@ -23,7 +23,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - name: Checkout Pycollo
+      - name: Checkout CyIpopt
         uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
         with:
