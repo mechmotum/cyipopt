@@ -28,5 +28,5 @@ jobs:
         run: conda install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 --file docs/requirements.txt
       - name: Install CyIpopt
         run: python setup.py install
-      - name Test building documentation
+      - name: Test building documentation
           cd docs && make clean && make html && cd ..
