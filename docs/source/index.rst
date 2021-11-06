@@ -19,7 +19,7 @@ subject to
 
        x_L \leq  x  \leq x_U
 
-Where :math:`x` are the optimization variables (possibly with upper an lower
+Where :math:`x` are the optimization variables (possibly with upper and lower
 bounds), :math:`f(x)` is the objective function and :math:`g(x)` are the
 general nonlinear constraints. The constraints, :math:`g(x)`, have lower and
 upper bounds. Note that equality constraints can be specified by setting

@@ -33,7 +33,7 @@ import cyipopt
 
 
 class IpoptProblemWrapper(object):
-    """Class used to map an scipy minimize definition to a cyipopt problem.
+    """Class used to map a scipy minimize definition to a cyipopt problem.
 
     Parameters
     ==========
