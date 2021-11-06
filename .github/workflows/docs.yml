@@ -1,0 +1,23 @@
+name: docs
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build and Generate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+            python-version: '3.x'
+      - name: Build docs
+        run: |
+          pip install --upgrade -r docs/requirements.txt
+          pip install --upgrade .[all]
+          cd docs
+          make clean
+          cd ..
+          sphinx-build -nWT -b dummy docs/source docs/build

@@ -43,7 +43,3 @@ jobs:
           pytest
           conda install -y -q scipy>=0.19.1
           pytest
-      - name: Test building documentation
-        run: |
-          conda install -y -q --file docs/requirements.txt
-          cd docs && make clean && make html && cd ..
