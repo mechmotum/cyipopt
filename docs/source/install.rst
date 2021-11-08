@@ -394,4 +394,6 @@ Now, in your cyipopt script set the following two options::
 
 The various HSL solvers can be set with ``linear_solver`` and the ``hsllib``
 name must be specified because the default name ipopt looks for is
-``libhsl.so``.
+``libhsl.so``. Identify the shared library installed on your system and make
+sure the name provided for the ``hsllib`` option matches. For example, on macOS
+you may need ``problem.add_option('hsllib', 'libcoinhsl.dylib')``.
