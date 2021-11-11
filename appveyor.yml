@@ -75,7 +75,6 @@ install:
         7z x Ipopt-3.13.3-win64-msvs2019-md.zip
         ls
       }
-
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart the
   # parent CMD process).
