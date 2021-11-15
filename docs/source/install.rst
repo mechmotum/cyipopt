@@ -315,3 +315,85 @@ descriptions::
 
     This is Ipopt version 3.12.11, running with linear solver ma27.
     ...
+
+Conda Forge binaries with HSL
+-----------------------------
+
+It is possible to use the HSL linear solvers with cyipopt installed via Conda
+Forge. To do so, first download the HSL source code tarball. The following
+explanation uses ``coinhsl-2014.01.10.tar.gz`` with conda installed on Ubuntu
+20.04.
+
+Create a conda environment with at least gfortran and cyipopt::
+
+   $ conda create -n hsl-test -c conda-forge gfortran cyipopt
+   $ conda activate hsl-test
+
+You should now have an environment that includes ipopt. You can checked what
+ipopt is linked against like so::
+
+   (hsl-test) $ ldd ~/miniconda/envs/hsl-test/lib/libipopt.so
+      linux-vdso.so.1 (0x00007ffcaf45b000)
+      librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f8965748000)
+      liblapack.so.3 => /home/<username>/miniconda/envs/hsl-test/lib/./liblapack.so.3 (0x00007f89635fe000)
+      libdmumps_seq-5.2.1.so => /home/<username>/miniconda/envs/hsl-test/lib/./libdmumps_seq-5.2.1.so (0x00007f89633d8000)
+      libmumps_common_seq-5.2.1.so => /home/<username>/miniconda/envs/hsl-test/lib/./libmumps_common_seq-5.2.1.so (0x00007f8963377000)
+      libpord_seq-5.2.1.so => /home/<username>/miniconda/envs/hsl-test/lib/./libpord_seq-5.2.1.so (0x00007f896335e000)
+      libmpiseq_seq-5.2.1.so => /home/<username>/miniconda/envs/hsl-test/lib/./libmpiseq_seq-5.2.1.so (0x00007f8963352000)
+      libesmumps-6.so => /home/<username>/miniconda/envs/hsl-test/lib/./libesmumps-6.so (0x00007f8963349000)
+      libscotch-6.so => /home/<username>/miniconda/envs/hsl-test/lib/./libscotch-6.so (0x00007f89632b1000)
+      libscotcherr-6.so => /home/<username>/miniconda/envs/hsl-test/lib/./libscotcherr-6.so (0x00007f89632ac000)
+      libmetis.so => /home/<username>/miniconda/envs/hsl-test/lib/./libmetis.so (0x00007f8963237000)
+      libgfortran.so.5 => /home/<username>/miniconda/envs/hsl-test/lib/./libgfortran.so.5 (0x00007f896308e000)
+      libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f8963088000)
+      libstdc++.so.6 => /home/<username>/miniconda/envs/hsl-test/lib/./libstdc++.so.6 (0x00007f8962edb000)
+      libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f8962d8c000)
+      libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f8962b9a000)
+      /lib64/ld-linux-x86-64.so.2 (0x00007f8965a02000)
+      libgcc_s.so.1 => /home/<username>/miniconda/envs/hsl-test/lib/./libgcc_s.so.1 (0x00007f8962b85000)
+      libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f8962b62000)
+      libgomp.so.1 => /home/<username>/miniconda/envs/hsl-test/lib/././libgomp.so.1 (0x00007f8962b2a000)
+      libz.so.1 => /home/<username>/miniconda/envs/hsl-test/lib/././libz.so.1 (0x00007f8962b10000)
+      libquadmath.so.0 => /home/<username>/miniconda/envs/hsl-test/lib/././libquadmath.so.0 (0x00007f8962ad6000)
+
+Now navigate into the extracted HSL directory and configure HSL::
+
+   (hsl-test) $ cd /path/to/coinhsl-2014.01.10/
+   (hsl-test) $ ./configure \
+      --prefix=/home/<username>/miniconda/envs/hsl-test/ \
+      --with-blas="-L/home/<username>/miniconda/envs/hsl-test/lib/ -lblas" \
+      LIBS="-llapack" \
+      FC=/home/<username>/miniconda/envs/hsl-test/bin/gfortran \
+      CC=/home/<username>/miniconda/envs/hsl-test/bin/gcc \
+
+This tells HSL to install into your environment, link against the environment's
+blas and lapack libraries and to use the environment's gfortran and gcc
+compilers to build HSL. After configuring, build and install with::
+
+   (hsl-test) $ make
+   (hsl-test) $ make install
+
+You should now find a shared HSL library in your environment. Check to make
+sure it is properly linked (especially blas)::
+
+   (hsl-test) $ ldd ~/miniconda/envs/hsl-test/lib/libcoinhsl.so
+      linux-vdso.so.1 (0x00007ffe2085a000)
+      libopenblas.so.0 => /home/<username>/miniconda/envs/hsl-test/lib/libopenblas.so.0 (0x00007f72a1766000)
+      libgfortran.so.5 => /home/<username>/miniconda/envs/hsl-test/lib/libgfortran.so.5 (0x00007f72a15bd000)
+      libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f72a143f000)
+      libgcc_s.so.1 => /home/<username>/miniconda/envs/hsl-test/lib/libgcc_s.so.1 (0x00007f72a142a000)
+      libquadmath.so.0 => /home/<username>/miniconda/envs/hsl-test/lib/libquadmath.so.0 (0x00007f72a13f0000)
+      libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f72a11fe000)
+      libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f72a11d9000)
+      /lib64/ld-linux-x86-64.so.2 (0x00007f72a39d4000)
+
+Now, in your cyipopt script set the following two options::
+
+   problem.add_option('linear_solver', 'ma57')
+   problem.add_option('hsllib', 'libcoinhsl.so')
+
+The various HSL solvers can be set with ``linear_solver`` and the ``hsllib``
+name must be specified because the default name ipopt looks for is
+``libhsl.so``. Identify the shared library installed on your system and make
+sure the name provided for the ``hsllib`` option matches. For example, on macOS
+you may need ``problem.add_option('hsllib', 'libcoinhsl.dylib')``.
