@@ -63,6 +63,14 @@ and the optimal solution,
 
 We start by importing all required libraries::
 
+   from jax.config import config
+
+   # Enable 64 bit floating point precision
+   config.update("jax_enable_x64", True)
+
+   # We use the CPU instead of GPU und mute all warnings if no GPU/TPU is found.
+   config.update('jax_platform_name', 'cpu')
+
    import jax.numpy as np
    from jax import jit, grad, jacfwd
    from cyipopt import minimize_ipopt
@@ -102,11 +110,13 @@ Next, we build the derivatives and just-in-time (jit) compile the functions
 Finally, we can call ``minimize_ipopt`` similar to ``scipy.optimize.minimize``::
 
    # constraints
-   cons = [{'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac, 'hess': con_eq_hess},
-       {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac, 'hess': con_ineq_hess}]
+   cons = [
+       {'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac, 'hess': con_eq_hessvp},
+       {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac, 'hess': con_ineq_hessvp}
+    ]
 
    # starting point
-   x0 = np.array([1, 5, 5, 1])
+   x0 = np.array([1.0, 5.0, 5.0, 1.0])
 
    # variable bounds: 1 <= x[i] <= 5
    bnds = [(1, 5) for _ in range(x0.size)]
