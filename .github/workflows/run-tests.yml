@@ -37,7 +37,7 @@ jobs:
         conda install -y -q lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
         conda info -a
         conda list
-        python setup.py install
+        python -m pip install .
         python -c "import cyipopt"
         conda install -y -q pytest>=3.3.2
         pytest
