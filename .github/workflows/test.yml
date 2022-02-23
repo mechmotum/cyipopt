@@ -10,8 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.9]
-        ipopt-version: [3.14]
+        python-version: ['3.9']
+        ipopt-version: ['3.14']
     defaults:
       run:
         shell: bash -l {0}
@@ -24,7 +24,7 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          conda-build-version: 3.21.4
+          conda-build-version: '3.21.4'
       - name: Install basic dependencies
         run: conda install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
       - name: Install CyIpopt
