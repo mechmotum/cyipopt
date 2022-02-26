@@ -1,7 +1,15 @@
-import jax.numpy as np
-import jax
-from jax import jit, grad, jacfwd, jacrev
+from jax.config import config
+
+# Enable 64 bit floating point precision
+config.update("jax_enable_x64", True)
+
+# We use the CPU instead of GPU und mute all warnings if no GPU/TPU is found.
+config.update('jax_platform_name', 'cpu')
+
 from cyipopt import minimize_ipopt
+from jax import jit, grad, jacrev, jacfwd
+import jax.numpy as np
+
 
 # Test the scipy interface on the Hock & Schittkowski test problem 71:
 #
@@ -13,9 +21,6 @@ from cyipopt import minimize_ipopt
 #
 # We evaluate all derivatives (except the Hessian) by algorithmic differentation
 # by means of the JAX library.
-
-# We use the CPU instead of GPU und mute all warnings if no GPU/TPU is found.
-jax.config.update('jax_platform_name', 'cpu')
 
 
 def objective(x):
@@ -46,13 +51,14 @@ con_ineq_hess = jacrev(jacfwd(con_ineq_jit))  # hessian
 con_ineq_hessvp = jit(lambda x, v: con_ineq_hess(x) * v[0])  # hessian vector-product
 
 # constraints
+# Note that 'hess' is the hessian-vector-product
 cons = [
     {'type': 'eq', 'fun': con_eq_jit, 'jac': con_eq_jac, 'hess': con_eq_hessvp},
     {'type': 'ineq', 'fun': con_ineq_jit, 'jac': con_ineq_jac, 'hess': con_ineq_hessvp},
 ]
 
 # initial guess
-x0 = np.array([1, 5, 5, 1])
+x0 = np.array([1.0, 5.0, 5.0, 1.0])
 
 # variable bounds: 1 <= x[i] <= 5
 bnds = [(1, 5) for _ in range(x0.size)]
