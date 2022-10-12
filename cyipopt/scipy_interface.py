@@ -22,15 +22,15 @@ else:
     from scipy.optimize import approx_fprime
     try:
         from scipy.optimize import OptimizeResult
-        try:
-            from scipy.optimize import MemoizeJac
-        except ImportError:
-            # This is namespace is being depreacted in SciPy
-            from scipy.optimize.optimize import MemoizeJac
     except ImportError:
-        # in scipy 0.14 Result was renamed to OptimzeResult
+        # in scipy 0.14 Result was renamed to OptimizeResult
         from scipy.optimize import Result
         OptimizeResult = Result
+    try:
+        from scipy.optimize import MemoizeJac
+    except ImportError:
+        # The optimize.optimize namespace is being deprecated
+        from scipy.optimize.optimize import MemoizeJac
 
 import cyipopt
 
