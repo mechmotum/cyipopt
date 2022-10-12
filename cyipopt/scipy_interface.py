@@ -22,7 +22,11 @@ else:
     from scipy.optimize import approx_fprime
     try:
         from scipy.optimize import OptimizeResult
-        from scipy.optimize.optimize import MemoizeJac
+        try:
+            from scipy.optimize import MemoizeJac
+        except ImportError:
+            # This is namespace is being depreacted in SciPy
+            from scipy.optimize.optimize import MemoizeJac
     except ImportError:
         # in scipy 0.14 Result was renamed to OptimzeResult
         from scipy.optimize import Result
@@ -60,7 +64,7 @@ class IpoptProblemWrapper(object):
     eps : float, optional
         Epsilon used in finite differences.
     con_dims : array_like, optional
-        Dimensions p_1, ..., p_m of the m constraint functions 
+        Dimensions p_1, ..., p_m of the m constraint functions
         g_1, ..., g_m : R^n -> R^(p_i).
     """
     def __init__(self,
