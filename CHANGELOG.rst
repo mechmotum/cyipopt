@@ -4,7 +4,7 @@ CyIpopt Changelog
 
 :Info: Change log for CyIpopt releases.
 :Date: XXXX-XX-XX
-:Version: 1.2.0.dev0
+:Version: 1.3.0.dev0
 
 GitHub holds releases, too
 --------------------------
@@ -36,8 +36,31 @@ Include sections:
 Version History
 ---------------
 
-[1.2.0.dev0] - XXXX-XX-XX
+[1.3.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[1.2.0] - 2022-11-28
+~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+- Added instructions for using the HSL binaries with the Conda Forge binaries.
+- Support for Python 3.10 and 3.11.
+
+Fixed
++++++
+
+- Improved the type information in the JAX example.
+- SciPy MemoizeJac deprecation warning handled.
+- Handled KeyErrors upon unknown IPOPT return statuses.
+- Removed unnecessary shebangs.
+- Improved the Github Actions CI.
+
+Removed
++++++++
+
+- Dropped support for Python 3.6.
 
 [1.1.0] - 2021-09-07
 ~~~~~~~~~~~~~~~~~~~~
