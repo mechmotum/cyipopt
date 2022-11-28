@@ -36,8 +36,39 @@ Include sections:
 Version History
 ---------------
 
-[1.2.0.dev0] - XXXX-XX-XX
+[1.3.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+Changed
++++++++
+
+Removed
++++++++
+
+[1.2.0] - 2022-XX-XX
+~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+- Added instructions for using the HSL binaries with the Conda Forge binaries.
+
+Changed
++++++++
+
+- Improved the type information in the JAX example.
+- SciPy MemoizeJac deprecation warning handled.
+- Handled KeyErrors upon unknown IPOPT return statuses.
+- Removed unnecessary shebangs.
+- Improved the Github Actions CI.
+
+Removed
++++++++
+
+- Dropped support for Python 3.6.
 
 [1.1.0] - 2021-09-07
 ~~~~~~~~~~~~~~~~~~~~
