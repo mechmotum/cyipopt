@@ -3,8 +3,8 @@ CyIpopt Changelog
 =================
 
 :Info: Change log for CyIpopt releases.
-:Date: 2022-11-28
-:Version: 1.2.0
+:Date: XXXX-XX-XX
+:Version: 1.3.0.dev0
 
 GitHub holds releases, too
 --------------------------
