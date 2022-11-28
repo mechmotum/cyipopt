@@ -39,25 +39,17 @@ Version History
 [1.3.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Added
-+++++
-
-Changed
-+++++++
-
-Removed
-+++++++
-
-[1.2.0] - 2022-XX-XX
+[1.2.0] - 2022-11-28
 ~~~~~~~~~~~~~~~~~~~~
 
 Added
 +++++
 
 - Added instructions for using the HSL binaries with the Conda Forge binaries.
+- Support for Python 3.10 and 3.11.
 
-Changed
-+++++++
+Fixed
++++++
 
 - Improved the type information in the JAX example.
 - SciPy MemoizeJac deprecation warning handled.
