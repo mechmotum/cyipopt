@@ -30,10 +30,6 @@ dependencies:
   * pkg-config [only for Linux and Mac]
   * Ipopt [>= 3.13 on Windows]
   * Python 3.6+
-  * setuptools
-  * cython
-  * numpy
-  * scipy [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
