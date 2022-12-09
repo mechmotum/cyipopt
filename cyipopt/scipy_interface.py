@@ -85,8 +85,6 @@ class IpoptProblemWrapper(object):
         if jac is None:
             jac = lambda x0, *args, **kwargs: approx_fprime(
                 x0, fun, eps, *args, **kwargs)
-        elif jac is True:
-            jac = fun.derivative
         elif not callable(jac):
             raise NotImplementedError('jac has to be bool or a function')
         self.fun = fun
@@ -110,10 +108,8 @@ class IpoptProblemWrapper(object):
             if con_jac is None:
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(
                     x0, con_fun, eps, *args, **kwargs)
-            elif con_jac is True:
-                con_jac = con_fun.derivative
             elif not callable(con_jac):
-                raise NotImplementedError('jac has to be bool or a function')
+                raise NotImplementedError('jac has to be a function')
             if (self.obj_hess is not None
                     and con_hessian is None) or (self.obj_hess is None
                                                  and con_hessian is not None):
