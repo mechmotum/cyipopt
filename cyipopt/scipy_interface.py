@@ -26,11 +26,6 @@ else:
         # in scipy 0.14 Result was renamed to OptimizeResult
         from scipy.optimize import Result
         OptimizeResult = Result
-    try:
-        from scipy.optimize import MemoizeJac
-    except ImportError:
-        # The optimize.optimize namespace is being deprecated
-        from scipy.optimize.optimize import MemoizeJac
 
 import cyipopt
 
@@ -91,7 +86,6 @@ class IpoptProblemWrapper(object):
             jac = lambda x0, *args, **kwargs: approx_fprime(
                 x0, fun, eps, *args, **kwargs)
         elif jac is True:
-            fun = MemoizeJac(fun)
             jac = fun.derivative
         elif not callable(jac):
             raise NotImplementedError('jac has to be bool or a function')
@@ -117,7 +111,6 @@ class IpoptProblemWrapper(object):
                 con_jac = lambda x0, *args, **kwargs: approx_fprime(
                     x0, con_fun, eps, *args, **kwargs)
             elif con_jac is True:
-                con_fun = MemoizeJac(con_fun)
                 con_jac = con_fun.derivative
             elif not callable(con_jac):
                 raise NotImplementedError('jac has to be bool or a function')
