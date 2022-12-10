@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches: master
+  pull_request:
+    branches: master
+
+# cancels prior builds for this workflow when new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: Install dependencies
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11']
+        ipopt-version: ['3.14']
+    env:
+      PYTHON_VERSION: ${{ matrix.python-version }}
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Set Additional Envs
+        shell: bash
+        run: |
+          echo "PYTHON_SUBVERSION=$(echo $PYTHON_VERSION | cut -c 3-)" >> $GITHUB_ENV
+      - name: Checkout CyIpopt
+        uses: actions/checkout@v2
+        env:
+          CIBW_BUILD: "cp3${{env.PYTHON_SUBVERSION}}-*"
+          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
+          CIBW_ARCHS_MACOS: x86_64 universal2
+        uses: joerick/cibuildwheel@v2.11.2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          activate-environment: test-environment
+          python-version: ${{ matrix.python-version }}
+          channels: conda-forge
+          conda-build-version: '3.21.4'
+      - name: Install basic dependencies
+        run: 
+          - conda install -q -y cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+          - conda list
+      - name: Build wheel
+        run:
+          - python setup.py bdist_wheel --dist-dir=wheelhouse
+          - unzip -l wheelhouse/*.whl
