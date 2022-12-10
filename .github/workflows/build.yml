@@ -48,3 +48,6 @@ jobs:
         run: |
           python setup.py bdist_wheel --dist-dir=wheelhouse
           unzip -l wheelhouse/*.whl
+          conda remove ipopt numpy
+          python -m pip install wheelhouse/*.whl
+          python examples/h2071.py
