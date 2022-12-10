@@ -33,6 +33,7 @@ jobs:
           echo "PYTHON_SUBVERSION=$(echo $PYTHON_VERSION | cut -c 3-)" >> $GITHUB_ENV
       - name: Checkout CyIpopt
         uses: actions/checkout@v2
+      - name: Setup cibuildwheel
         env:
           CIBW_BUILD: "cp3${{env.PYTHON_SUBVERSION}}-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
@@ -46,7 +47,7 @@ jobs:
           channels: conda-forge
           conda-build-version: '3.21.4'
       - name: Install basic dependencies
-        run: 
+        run:
           - conda install -q -y cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
           - conda list
       - name: Build wheel
