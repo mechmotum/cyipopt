@@ -50,4 +50,4 @@ jobs:
           unzip -l wheelhouse/*.whl
           conda remove ipopt numpy
           python -m pip install wheelhouse/*.whl
-          python examples/h2071.py
+          python examples/hs071.py
