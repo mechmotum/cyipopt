@@ -3,6 +3,7 @@ include AUTHORS
 include LICENSE
 include CHANGELOG.rst
 include README.rst
+exclude pyproject.toml
 recursive-include cyipopt *.py *.pyx *.pxd
 recursive-include ipopt *.py
 recursive-include tests *.py
