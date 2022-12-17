@@ -200,6 +200,7 @@ def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
     expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
     np.testing.assert_allclose(res.get("x"), expected_res)
 
+
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_hs071():

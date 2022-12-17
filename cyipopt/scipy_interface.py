@@ -249,6 +249,7 @@ def get_sparse_jacobian_structure(constraints, x0):
     J = scipy.sparse.vstack(jacobians)
     return con_jac_is_sparse, J.row, J.col
 
+
 def get_constraint_dimensions(constraints, x0):
     con_dims = []
     if isinstance(constraints, dict):
