@@ -20,6 +20,7 @@ else:
     SCIPY_INSTALLED = True
     del scipy
     from scipy.optimize import approx_fprime
+    import scipy.sparse
     try:
         from scipy.optimize import OptimizeResult
     except ImportError:
@@ -31,6 +32,11 @@ else:
     except ImportError:
         # The optimize.optimize namespace is being deprecated
         from scipy.optimize.optimize import MemoizeJac
+    try:
+        from scipy.sparse import coo_array
+    except ImportError:
+        # coo_array was introduced with scipy 1.8
+        from scipy.sparse import coo_matrix as coo_array
 
 import cyipopt
 
@@ -60,13 +66,19 @@ class IpoptProblemWrapper(object):
         Explicitly defined Hessians are not yet supported for this class.
     constraints : {Constraint, dict} or List of {Constraint, dict}, optional
         See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-        for more information.
+        for more information. Note that the jacobian of each constraint
+        corresponds to the `'jac'` key and must be a callable function 
+        with signature ``jac(x) -> {ndarray, coo_array}``. If the constraint's
+        value of `'jac'` is a boolean and True, the constraint function `fun`
+        is expected to return a tuple `(con_val, con_jac)` consisting of the 
+        evaluated constraint `con_val` and the evaluated jacobian `con_jac`.
     eps : float, optional
         Epsilon used in finite differences.
     con_dims : array_like, optional
         Dimensions p_1, ..., p_m of the m constraint functions
         g_1, ..., g_m : R^n -> R^(p_i).
     """
+
     def __init__(self,
                  fun,
                  args=(),
@@ -76,7 +88,10 @@ class IpoptProblemWrapper(object):
                  hessp=None,
                  constraints=(),
                  eps=1e-8,
-                 con_dims=()):
+                 con_dims=(),
+                 sparse_jacs=(),
+                 jac_nnz_row=(),
+                 jac_nnz_col=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
@@ -105,6 +120,8 @@ class IpoptProblemWrapper(object):
         self._constraint_dims = np.asarray(con_dims)
         self._constraint_args = []
         self._constraint_kwargs = []
+        self._constraint_jac_is_sparse = sparse_jacs
+        self._constraint_jacobian_structure = (jac_nnz_row, jac_nnz_col)
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
@@ -154,11 +171,25 @@ class IpoptProblemWrapper(object):
             con_values.append(fun(x, *args))
         return np.hstack(con_values)
 
+    def jacobianstructure(self):
+        return self._constraint_jacobian_structure
+
     def jacobian(self, x):
-        con_values = []
-        for jac, args in zip(self._constraint_jacs, self._constraint_args):
-            con_values.append(jac(x, *args))
-        return np.vstack(con_values)
+        # convert all dense constraint jacobians to sparse ones
+        jac_values = []
+        for i, (jac, args) in enumerate(zip(self._constraint_jacs, self._constraint_args)):
+            if self._constraint_jac_is_sparse[i]:
+                jac_val = jac(x, *args)
+            else:
+                # convert dense constraint jacobian to sparse one
+                # problem: jac(x, *args) could yield zeros,
+                # so we assume all entries are nonzero
+                dense_jac_val = np.atleast_2d(jac(x, *args))
+                jac_val = scipy.sparse.coo_array(np.ones_like(dense_jac_val))
+                jac_val.data = dense_jac_val.flatten()
+            jac_values.append(jac_val)
+        J = scipy.sparse.vstack(jac_values)
+        return J.data
 
     def hessian(self, x, lagrange, obj_factor):
         H = obj_factor * self.obj_hess(x)  # type: ignore
@@ -185,12 +216,45 @@ def get_bounds(bounds):
         return lb, ub
 
 
+def get_sparse_jacobian_structure(constraints, x0):
+    con_jac_is_sparse = []
+    jacobians = []
+    x0 = np.asarray(x0)
+    if isinstance(constraints, dict):
+        constraints = (constraints, )
+    if len(constraints) == 0:
+        return [], [], []
+    for con in constraints:
+        con_jac = con.get('jac', False)
+        if con_jac:
+            if isinstance(con_jac, bool):
+                _, jac_val = con['fun'](x0, *con.get('args', []))
+            else:
+                jac_val = con_jac(x0, *con.get('args', []))
+            # check if dense or sparse
+            if isinstance(jac_val, coo_array):
+                jacobians.append(jac_val)
+                con_jac_is_sparse.append(True)
+            else:
+                # Creating the coo_array from jac_val would yield to
+                # wrong dimensions if some values in jac_val are zero,
+                # so we assume all values in jac_val are nonzero
+                jacobians.append(coo_array(np.ones_like(np.atleast_2d(jac_val))))
+                con_jac_is_sparse.append(False)
+        else:
+            # we approximate this jacobian later (=dense)
+            con_val = np.atleast_1d(con['fun'](x0, *con.get('args', [])))
+            jacobians.append(coo_array(np.ones((con_val.size, x0.size))))
+            con_jac_is_sparse.append(False)
+    J = scipy.sparse.vstack(jacobians)
+    return con_jac_is_sparse, J.row, J.col
+
 def get_constraint_dimensions(constraints, x0):
     con_dims = []
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
-        if con.get('jac', False) is True:
+        if con.get('jac', False) == True:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))[0]))
         else:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
@@ -265,8 +329,10 @@ def minimize_ipopt(fun,
     _x0 = np.atleast_1d(x0)
 
     lb, ub = get_bounds(bounds)
-    cl, cu = get_constraint_bounds(constraints, x0)
-    con_dims = get_constraint_dimensions(constraints, x0)
+    cl, cu = get_constraint_bounds(constraints, _x0)
+    con_dims = get_constraint_dimensions(constraints, _x0)
+    sparse_jacs, jac_nnz_row, jac_nnz_col = get_sparse_jacobian_structure(
+        constraints, _x0)
 
     problem = IpoptProblemWrapper(fun,
                                   args=args,
@@ -276,7 +342,10 @@ def minimize_ipopt(fun,
                                   hessp=hessp,
                                   constraints=constraints,
                                   eps=1e-8,
-                                  con_dims=con_dims)
+                                  con_dims=con_dims,
+                                  sparse_jacs=sparse_jacs,
+                                  jac_nnz_row=jac_nnz_row,
+                                  jac_nnz_col=jac_nnz_col)
 
     if options is None:
         options = {}
