@@ -255,7 +255,7 @@ def get_constraint_dimensions(constraints, x0):
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
-        if con.get('jac', False) == True:
+        if con.get('jac', False):
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))[0]))
         else:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
