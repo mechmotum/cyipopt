@@ -216,7 +216,7 @@ def get_bounds(bounds):
         return lb, ub
 
 
-def get_sparse_jacobian_structure(constraints, x0):
+def _get_sparse_jacobian_structure(constraints, x0):
     con_jac_is_sparse = []
     jacobians = []
     x0 = np.asarray(x0)
@@ -332,7 +332,7 @@ def minimize_ipopt(fun,
     lb, ub = get_bounds(bounds)
     cl, cu = get_constraint_bounds(constraints, _x0)
     con_dims = get_constraint_dimensions(constraints, _x0)
-    sparse_jacs, jac_nnz_row, jac_nnz_col = get_sparse_jacobian_structure(
+    sparse_jacs, jac_nnz_row, jac_nnz_col = _get_sparse_jacobian_structure(
         constraints, _x0)
 
     problem = IpoptProblemWrapper(fun,
