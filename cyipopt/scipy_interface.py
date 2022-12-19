@@ -185,8 +185,9 @@ class IpoptProblemWrapper(object):
                 # problem: jac(x, *args) could yield zeros,
                 # so we assume all entries are nonzero
                 dense_jac_val = np.atleast_2d(jac(x, *args))
-                jac_val = scipy.sparse.coo_array(np.ones_like(dense_jac_val))
-                jac_val.data = dense_jac_val.flatten()
+                jac_val = coo_array(dense_jac_val.shape)
+                jac_val.row, jac_val.col = _calculate_coo_indices(*dense_jac_val.shape)
+                jac_val.data = dense_jac_val.ravel()
             jac_values.append(jac_val)
         J = scipy.sparse.vstack(jac_values)
         return J.data
@@ -214,6 +215,18 @@ def get_bounds(bounds):
         lb = [b[0] for b in bounds]
         ub = [b[1] for b in bounds]
         return lb, ub
+
+
+def _calculate_coo_indices(M, N):
+    """8x faster than np.unravel_index(np.arange(M*N), (M, N))"""
+    rows = np.zeros(M*N, dtype=np.int32)
+    cols = np.zeros(M*N, dtype=np.int32)
+    tmp = np.arange(N)
+    
+    for i in range(M):
+        cols[i*N : (i+1)*N] = tmp
+        rows[i*N : (i+1)*N] = i
+    return rows, cols 
 
 
 def _get_sparse_jacobian_structure(constraints, x0):
