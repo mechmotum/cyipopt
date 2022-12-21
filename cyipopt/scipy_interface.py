@@ -175,22 +175,18 @@ class IpoptProblemWrapper(object):
         return self._constraint_jacobian_structure
 
     def jacobian(self, x):
-        # convert all dense constraint jacobians to sparse ones
+        # Convert all dense constraint jacobians to sparse ones.
+        # The structure ( = row and column indices) is already known at this point,
+        # so we only need to stack the evaluated jacobians
         jac_values = []
         for i, (jac, args) in enumerate(zip(self._constraint_jacs, self._constraint_args)):
             if self._constraint_jac_is_sparse[i]:
                 jac_val = jac(x, *args)
+                jac_values.append(jac_val.data)
             else:
-                # convert dense constraint jacobian to sparse one
-                # problem: jac(x, *args) could yield zeros,
-                # so we assume all entries are nonzero
                 dense_jac_val = np.atleast_2d(jac(x, *args))
-                jac_val = coo_array(dense_jac_val.shape)
-                jac_val.row, jac_val.col = _calculate_coo_indices(*dense_jac_val.shape)
-                jac_val.data = dense_jac_val.ravel()
-            jac_values.append(jac_val)
-        J = scipy.sparse.vstack(jac_values)
-        return J.data
+                jac_values.append(dense_jac_val.ravel())
+        return np.hstack(jac_values)
 
     def hessian(self, x, lagrange, obj_factor):
         H = obj_factor * self.obj_hess(x)  # type: ignore
@@ -215,18 +211,6 @@ def get_bounds(bounds):
         lb = [b[0] for b in bounds]
         ub = [b[1] for b in bounds]
         return lb, ub
-
-
-def _calculate_coo_indices(M, N):
-    """8x faster than np.unravel_index(np.arange(M*N), (M, N))"""
-    rows = np.zeros(M*N, dtype=np.int32)
-    cols = np.zeros(M*N, dtype=np.int32)
-    tmp = np.arange(N)
-    
-    for i in range(M):
-        cols[i*N : (i+1)*N] = tmp
-        rows[i*N : (i+1)*N] = i
-    return rows, cols 
 
 
 def _get_sparse_jacobian_structure(constraints, x0):
@@ -268,7 +252,7 @@ def get_constraint_dimensions(constraints, x0):
     if isinstance(constraints, dict):
         constraints = (constraints, )
     for con in constraints:
-        if con.get('jac', False):
+        if con.get('jac', False) is True:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))[0]))
         else:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
