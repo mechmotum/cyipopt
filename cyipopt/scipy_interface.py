@@ -77,6 +77,15 @@ class IpoptProblemWrapper(object):
     con_dims : array_like, optional
         Dimensions p_1, ..., p_m of the m constraint functions
         g_1, ..., g_m : R^n -> R^(p_i).
+    sparse_jacs: array_like, optional
+        If sparse_jacs[i] = True, the i-th constraint's jacobian is sparse. 
+        Otherwise, the i-th constraint jacobian is assumed to be dense.
+    jac_nnz_row: array_like, optional
+        The row indices of the nonzero elements in the stacked
+        constraint jacobian matrix
+    jac_nnz_col: array_like, optional
+        The column indices of the nonzero elements in the stacked
+        constraint jacobian matrix
     """
 
     def __init__(self,
