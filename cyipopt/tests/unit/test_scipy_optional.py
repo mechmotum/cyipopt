@@ -98,6 +98,110 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid of Scipy available")
+def test_minimize_ipopt_sparse_jac_if_scipy():
+    """ `minimize_ipopt` works with objective gradient, and sparse
+        constraint jacobian. Solves
+        Hock & Schittkowski's test problem 71:
+
+        min x0*x3*(x0+x1+x2)+x2
+        s.t. x0**2 + x1**2 + x2**2 + x3**2 - 40  = 0
+                         x0 * x1 * x2 * x3 - 25 >= 0
+                               1 <= x0,x1,x2,x3 <= 5
+    """
+    from scipy.sparse import coo_array
+
+    def obj(x):
+        return x[0] * x[3] * np.sum(x[:3]) + x[2]
+
+    def grad(x):
+        return np.array([
+            x[0] * x[3] + x[3] * np.sum(x[0:3]), x[0] * x[3],
+            x[0] * x[3] + 1.0, x[0] * np.sum(x[0:3])
+        ])
+
+    # Note:
+    # coo_array(dense_jac_val(x)) only works if dense_jac_val(x0)
+    # doesn't contain any zeros for the initial guess x0
+
+    con_eq = {
+        "type": "eq",
+        "fun": lambda x: np.sum(x**2) - 40,
+        "jac": lambda x: coo_array(2 * x)
+    }
+    con_ineq = {
+        "type": "ineq",
+        "fun": lambda x: np.prod(x) - 25,
+        "jac": lambda x: coo_array(np.prod(x) / x),
+    }
+    constrs = (con_eq, con_ineq)
+
+    x0 = np.array([1.0, 5.0, 5.0, 1.0])
+    bnds = [(1, 5) for _ in range(x0.size)]
+
+    res = cyipopt.minimize_ipopt(obj, jac=grad, x0=x0,
+                                 bounds=bnds, constraints=constrs)
+    assert isinstance(res, dict)
+    assert np.isclose(res.get("fun"), 17.01401727277449)
+    assert res.get("status") == 0
+    assert res.get("success") is True
+    expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
+    np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid of Scipy available")
+def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
+    """ `minimize_ipopt` works with objective gradient, and sparse
+        constraint jacobian. Solves
+        Hock & Schittkowski's test problem 71:
+
+        min x0*x3*(x0+x1+x2)+x2
+        s.t. x0**2 + x1**2 + x2**2 + x3**2 - 40  = 0
+                         x0 * x1 * x2 * x3 - 25 >= 0
+                               1 <= x0,x1,x2,x3 <= 5
+    """
+    from scipy.sparse import coo_array
+
+    def obj(x):
+        return x[0] * x[3] * np.sum(x[:3]) + x[2]
+
+    def grad(x):
+        return np.array([
+            x[0] * x[3] + x[3] * np.sum(x[0:3]), x[0] * x[3],
+            x[0] * x[3] + 1.0, x[0] * np.sum(x[0:3])
+        ])
+
+    # Note:
+    # coo_array(dense_jac_val(x)) only works if dense_jac_val(x0)
+    # doesn't contain any zeros for the initial guess x0
+
+    con_eq_dense = {
+        "type": "eq",
+        "fun": lambda x: np.sum(x**2) - 40,
+        "jac": lambda x: 2 * x
+    }
+    con_ineq_sparse = {
+        "type": "ineq",
+        "fun": lambda x: np.prod(x) - 25,
+        "jac": lambda x: coo_array(np.prod(x) / x),
+    }
+    constrs = (con_eq_dense, con_ineq_sparse)
+
+    x0 = np.array([1.0, 5.0, 5.0, 1.0])
+    bnds = [(1, 5) for _ in range(x0.size)]
+
+    res = cyipopt.minimize_ipopt(obj, jac=grad, x0=x0,
+                                 bounds=bnds, constraints=constrs)
+    assert isinstance(res, dict)
+    assert np.isclose(res.get("fun"), 17.01401727277449)
+    assert res.get("status") == 0
+    assert res.get("success") is True
+    expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
+    np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_hs071():
     """ `minimize_ipopt` works with objective gradient and Hessian and 

@@ -26,6 +26,99 @@ the same behaviour as ``scipy.optimize.minimize``, for example::
    success: True
          x: array([1., 1., 1., 1., 1.])
 
+
+In order to demonstrate the usage of sparse jacobians, let's assume we want to 
+minimize the well-known rosenbrock function
+
+.. math::
+    f(x) = \sum_{i=1}^{4} 100 (x_{i+1} - x_i^2)^2 + (1-x_i)^2
+
+subject to some constraints, i.e. we want to solve the constraint
+optimization problem
+
+.. math::
+    \min_{x \in \mathbb{R}^5} f(x) \quad \text{s.t.} \quad 
+         10 - x_2^2 - x_3 \geq 0, \quad
+         100 - x_5^2       \geq 0.
+
+We won't implement the rosenbrock function and its derivatives here, since
+all three can be imported from ``scipy.optimize``. The constraint function 
+:math:`c` and the jacobian :math:`J_c` are given by 
+
+.. math::
+    c(x) &= \begin{pmatrix} c_1(x) \\ c_2(x) \end{pmatrix} = \begin{pmatrix} 10 - x_1^2 + x^3 \\ 100 - x_5^2 \end{pmatrix} \geq 0 \\
+    J_c(x) &= \begin{pmatrix} 0 & -2x_2 & - 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & -2x_5 \end{pmatrix}
+
+and we can implement the constraint and the sparse jacobian 
+by means of an ``scipy.sparse.coo_array`` like this::
+
+    from scipy.sparse import coo_array
+
+    def con(x):
+        return np.array([ 10 -x[1]**2 - x[2], 100.0 - x[4]**2 ])
+
+    def con_jac(x):
+        # Dense Jacobian:
+        # J = (0  -2*x[1]   -1   0     0     )
+        #	  (0   0         0   0   -2*x[4] )
+        # Sparse Jacobian (COO)
+        rows = np.array([0, 0, 1])
+        cols = np.array(([1, 2, 4]))
+        data = np.array([-2*x[1], -1, -2*x[4]])
+        return coo_array((data, (rows, cols)))
+
+In addition, we would like to pass the hessian of the objective and the constraints.
+Note that Ipopt expects the hessian :math:`\nabla^2_x L` of the lagrangian function
+
+.. math::
+    L(x, \lambda) = f(x) + \lambda^\top c(x) = f(x) + \sum_{j=1}^{2} \lambda_j c_j(x), 
+
+which is given by
+
+.. math::
+    \nabla^2_x L(x, \lambda) = \nabla^2 f(x) + \sum_{j=1}^2 \lambda_j \nabla^2 c_j(x). 
+
+Hence, we need to pass the hessian-vector-product of the constraint hessians
+:math:`\nabla^2 c_1(x)` and :math:`\nabla^2 c_2(x)` and the lagrangian multipliers 
+:math:`\lambda` (also known as dual variables). In code: ::
+
+    def con_hess(x, _lambda):
+        H1 = np.array([
+            [0,  0, 0, 0, 0],
+            [0, -2, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ]
+        ])
+        
+        H2 = np.array([
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0, -2]
+        ])
+        return _lambda[0] * H1 + _lambda[1] * H2
+
+Ipopt only uses the lower triangle of the hessian-vector-product 
+under the hood, due to the symmetry of the hessians. Similar to sparse jacobians, 
+it also supports sparse hessians, but this isn't supported by the scipy interface yet. 
+However, you can use cyipopt's problem interface in case you need to pass sparse hessians.
+
+Finally, after defining the constraint and the initial guess, we can solve the 
+problem::
+    
+    from scipy.optimize import rosen, rosen_der, rosen_hess
+
+    constr = {'type': 'ineq', 'fun': con, 'jac': con_jac, 'hess': con_hess}
+
+    # initial guess
+    x0 = np.array([1.1, 1.1, 1.1, 1.1, 1.1])
+
+    # solve the problem
+    res = minimize_ipopt(rosen, jac=rosen_der, hess=rosen_hess, x0=x0, constraints=constr)
+
+
 Algorithmic Differentation
 --------------------------
 
