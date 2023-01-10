@@ -198,7 +198,7 @@ class IpoptProblemWrapper(object):
         return np.hstack(jac_values)
 
     def hessian(self, x, lagrange, obj_factor):
-        H = obj_factor * self.obj_hess(x)  # type: ignore
+        H = obj_factor * self.obj_hess(x, *self.args, **self.kwargs)  # type: ignore
         # split the lagrangian multipliers for each constraint hessian
         lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
         for hessian, args, lagr in zip(self._constraint_hessians,
