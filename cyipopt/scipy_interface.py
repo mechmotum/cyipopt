@@ -103,7 +103,7 @@ class IpoptProblemWrapper(object):
                  jac_nnz_col=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
-            raise ImportError()
+            raise ImportError(msg)
         self.obj_hess = None
         self.last_x = None
         if hessp is not None:
@@ -118,7 +118,9 @@ class IpoptProblemWrapper(object):
             fun = MemoizeJac(fun)
             jac = fun.derivative
         elif not callable(jac):
-            raise NotImplementedError('jac has to be bool or a function')
+            raise NotImplementedError(
+                'jac has to be bool or a function (got {!r})'.format(type(jac))
+            )
         self.fun = fun
         self.jac = jac
         self.args = args
@@ -146,7 +148,9 @@ class IpoptProblemWrapper(object):
                 con_fun = MemoizeJac(con_fun)
                 con_jac = con_fun.derivative
             elif not callable(con_jac):
-                raise NotImplementedError('jac has to be bool or a function')
+                raise NotImplementedError(
+                    'jac of constraints has to be bool or a function (got {!r})'.format(type(con_jac))
+                )
             if (self.obj_hess is not None
                     and con_hessian is None) or (self.obj_hess is None
                                                  and con_hessian is not None):
@@ -270,6 +274,7 @@ def get_constraint_dimensions(constraints, x0):
 
 
 def get_constraint_bounds(constraints, x0, INF=1e19):
+    TYPE_EQ, TYPE_INEQ = 'eq', 'ineq'
     cl = []
     cu = []
     if isinstance(constraints, dict):
@@ -280,12 +285,15 @@ def get_constraint_bounds(constraints, x0, INF=1e19):
         else:
             m = len(np.atleast_1d(con['fun'](x0, *con.get('args', []))))
         cl.extend(np.zeros(m))
-        if con['type'] == 'eq':
+        if con['type'] == TYPE_EQ:
             cu.extend(np.zeros(m))
-        elif con['type'] == 'ineq':
+        elif con['type'] == TYPE_INEQ:
             cu.extend(INF * np.ones(m))
         else:
-            raise ValueError(con['type'])
+            msg = "Invalid constraint type: {!r}. Valid types are {}."
+            raise ValueError(
+                msg.format(con['type'], (TYPE_EQ, TYPE_INEQ))
+            )
     cl = np.array(cl)
     cu = np.array(cu)
 
