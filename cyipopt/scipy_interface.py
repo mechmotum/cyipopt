@@ -119,7 +119,7 @@ class IpoptProblemWrapper(object):
             jac = fun.derivative
         elif not callable(jac):
             raise NotImplementedError(
-                'jac has to be bool or a function (got {!r})'.format(type(jac))
+                f'jac has to be bool or a function (got {type(jac)!r})'
             )
         self.fun = fun
         self.jac = jac
@@ -148,9 +148,8 @@ class IpoptProblemWrapper(object):
                 con_fun = MemoizeJac(con_fun)
                 con_jac = con_fun.derivative
             elif not callable(con_jac):
-                raise NotImplementedError(
-                    'jac of constraints has to be bool or a function (got {!r})'.format(type(con_jac))
-                )
+                msg = f'jac of constraints has to be bool or a function (got {type(con_jac)!r})'
+                raise NotImplementedError(msg)
             if (self.obj_hess is not None
                     and con_hessian is None) or (self.obj_hess is None
                                                  and con_hessian is not None):
@@ -274,7 +273,8 @@ def get_constraint_dimensions(constraints, x0):
 
 
 def get_constraint_bounds(constraints, x0, INF=1e19):
-    TYPE_EQ, TYPE_INEQ = 'eq', 'ineq'
+    TYPE_EQ = 'eq'
+    TYPE_INEQ = 'ineq'
     cl = []
     cu = []
     if isinstance(constraints, dict):
@@ -290,10 +290,9 @@ def get_constraint_bounds(constraints, x0, INF=1e19):
         elif con['type'] == TYPE_INEQ:
             cu.extend(INF * np.ones(m))
         else:
-            msg = "Invalid constraint type: {!r}. Valid types are {}."
-            raise ValueError(
-                msg.format(con['type'], (TYPE_EQ, TYPE_INEQ))
-            )
+            valid_types = TYPE_EQ, TYPE_INEQ
+            msg = f"Invalid constraint type: {con['type']!r}. Valid types are {valid_types}."
+            raise ValueError(msg)
     cl = np.array(cl)
     cu = np.array(cu)
 
@@ -392,8 +391,8 @@ def minimize_ipopt(fun,
         try:
             nlp.add_option(option, value)
         except TypeError as e:
-            msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
-            raise TypeError(msg.format(option, value, e))
+            msg = f'Invalid option for IPOPT: {option}: {value} (Original message: {e!r})'
+            raise TypeError(msg)
 
     x, info = nlp.solve(_x0)
 
