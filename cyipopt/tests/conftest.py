@@ -111,7 +111,7 @@ def hs071_intermediate_fixture():
 
 
 @pytest.fixture()
-def hs071_defintion_instance_fixture(hs071_objective_fixture,
+def hs071_definition_instance_fixture(hs071_objective_fixture,
                                      hs071_gradient_fixture,
                                      hs071_constraints_fixture,
                                      hs071_jacobian_fixture,
@@ -175,7 +175,7 @@ def hs071_constraint_upper_bounds_fixture():
 
 
 @pytest.fixture()
-def hs071_problem_instance_fixture(hs071_defintion_instance_fixture,
+def hs071_problem_instance_fixture(hs071_definition_instance_fixture,
                                    hs071_initial_guess_fixture,
                                    hs071_variable_lower_bounds_fixture,
                                    hs071_variable_upper_bounds_fixture,
@@ -183,7 +183,7 @@ def hs071_problem_instance_fixture(hs071_defintion_instance_fixture,
                                    hs071_constraint_upper_bounds_fixture,
                                    ):
     """Return a default cyipopt.Problem instance of the hs071 test problem."""
-    problem_definition = hs071_defintion_instance_fixture
+    problem_definition = hs071_definition_instance_fixture
     x0 = hs071_initial_guess_fixture
     lb = hs071_variable_lower_bounds_fixture
     ub = hs071_variable_upper_bounds_fixture
