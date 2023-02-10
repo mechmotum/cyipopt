@@ -167,3 +167,29 @@ cdef extern from "IpStdCInterface.h":
                     Number* mult_x_U,
                     UserDataPtr user_data
                     )
+
+    Bool GetIpoptCurrentIterate(
+                    IpoptProblem ipopt_problem,
+                    Bool scaled,
+                    Index n,
+                    Number* x,
+                    Number* z_L,
+                    Number* z_U,
+                    Index m,
+                    Number* g,
+                    Number* lambd
+                    )
+
+    Bool GetIpoptCurrentViolations(
+                    IpoptProblem ipopt_problem,
+                    Bool scaled,
+                    Index n,
+                    Number* x_L_violation,
+                    Number* x_U_violation,
+                    Number* compl_x_L,
+                    Number* compl_x_U,
+                    Number* grad_lag_x,
+                    Index m,
+                    Number* nlp_constraint_violation,
+                    Number* compl_g
+                    )

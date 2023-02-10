@@ -654,17 +654,93 @@ cdef class Problem:
 
         return np_x, info
 
-    def get_current_iterate(self):
-        # Access the NLP (IpoptProblem), which is necessary to get the iterate.
-        self.__nlp
-
-        #
+    def get_current_iterate(self, scaled=False):
         # Allocate arrays to hold the current iterate
-        #
-        cdef np.ndarray[DTYPEd_t, ndim=1] x_curr = np.zeros((self.__n,), dtype=DTYPEd)
-        cdef np.ndarray[DTYPEd_t, ndim=1] y_curr = np.zeros((self.__m,), dtype=DTYPEd)
-        print("      getting current iterate")
-        # TODO: Call GetIpoptCurrentIterate
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_x
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_mult_x_L
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_mult_x_U
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_g
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_mult_g
+        np_x = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_mult_x_L = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_mult_x_U = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_g = np.zeros((self.__m,), dtype=DTYPEd).flatten()
+        np_mult_g = np.zeros((self.__m,), dtype=DTYPEd).flatten()
+
+        # Cast to C data types
+        x = <Number*>np_x.data
+        mult_x_L = <Number*>np_mult_x_L.data
+        mult_x_U = <Number*>np_mult_x_U.data
+        g = <Number*>np_g.data
+        mult_g = <Number*>np_mult_g.data
+
+        ret = GetIpoptCurrentIterate(
+            self.__nlp,
+            scaled,
+            self.__n,
+            x,
+            mult_x_L,
+            mult_x_U,
+            self.__m,
+            g,
+            mult_g,
+        )
+
+        # Return values to user
+        # - Is another data type (e.g. dict, namedtuple) more appropriate than
+        #   simply a tuple?
+        # - Should `ret` be returned here?
+        return (np_x, np_mult_x_L, np_mult_x_U, np_g, np_mult_g)
+
+    def get_current_violations(self, scaled=False):
+        # Allocate arrays to hold current violations
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_x_L_viol
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_x_U_viol
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_compl_x_L
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_compl_x_U
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_grad_lag_x
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_g_viol
+        cdef np.ndarray[DTYPEd_t, ndim=1] np_compl_g
+        np_x_L_viol = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_x_U_viol = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_compl_x_L = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_compl_x_U = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_grad_lag_x = np.zeros((self.__n,), dtype=DTYPEd).flatten()
+        np_g_viol = np.zeros((self.__m,), dtype=DTYPEd).flatten()
+        np_compl_g = np.zeros((self.__m,), dtype=DTYPEd).flatten()
+
+        # Cast to C data types
+        x_L_viol = <Number*>np_x_L_viol.data
+        x_U_viol = <Number*>np_x_U_viol.data
+        compl_x_L = <Number*>np_compl_x_L.data
+        compl_x_U = <Number*>np_compl_x_U.data
+        grad_lag_x = <Number*>np_grad_lag_x.data
+        g_viol = <Number*>np_g_viol.data
+        compl_g = <Number*>np_compl_g.data
+
+        ret = GetIpoptCurrentViolations(
+            self.__nlp,
+            scaled,
+            self.__n,
+            x_L_viol,
+            x_U_viol,
+            compl_x_L,
+            compl_x_U,
+            grad_lag_x,
+            self.__m,
+            g_viol,
+            compl_g,
+        )
+
+        return (
+            np_x_L_viol,
+            np_x_U_viol,
+            np_compl_x_L,
+            np_compl_x_U,
+            np_grad_lag_x,
+            np_g_viol,
+            np_compl_g,
+        )
 
 
 #
