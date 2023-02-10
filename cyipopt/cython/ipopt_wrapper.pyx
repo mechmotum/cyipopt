@@ -654,6 +654,18 @@ cdef class Problem:
 
         return np_x, info
 
+    def get_current_iterate(self):
+        # Access the NLP (IpoptProblem), which is necessary to get the iterate.
+        self.__nlp
+
+        #
+        # Allocate arrays to hold the current iterate
+        #
+        cdef np.ndarray[DTYPEd_t, ndim=1] x_curr = np.zeros((self.__n,), dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1] y_curr = np.zeros((self.__m,), dtype=DTYPEd)
+        print("      getting current iterate")
+        # TODO: Call GetIpoptCurrentIterate
+
 
 #
 # Callback functions
