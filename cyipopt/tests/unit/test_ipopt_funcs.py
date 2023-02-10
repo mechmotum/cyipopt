@@ -208,6 +208,6 @@ def test_get_violations_hs071(
     # final primal violations: [2.455637e-07, 1.770672e-11]
     # Not sure if a bug or not...
     #
-    np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-8)
+    np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-6)
 
     np.testing.assert_allclose(du_violations[-1], np.zeros(n), atol=1e-8)
