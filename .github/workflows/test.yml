@@ -31,15 +31,16 @@ jobs:
           channels: conda-forge
           miniforge-variant: Mambaforge
       - name: Install basic dependencies
-        run: mamba install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+        run: mamba install -y -v lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
           python -m pip install .
+          mamba list
       - name: Test with pytest
         run: |
           python -c "import cyipopt"
-          mamba install -y -q pytest>=3.3.2
+          mamba install -y -v cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2
           pytest
-          mamba install -y -q scipy>=0.19.1
+          mamba install -y -v cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2 scipy>=0.19.1
           pytest
