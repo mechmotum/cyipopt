@@ -76,7 +76,7 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 ):
-    """`minimize_ipopt` works with objective gradient and Hessian 
+    """`minimize_ipopt` works with objective gradient and Hessian
        and constraint jacobians and Hessians."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
     x0 = [0.0, 0.0]
@@ -109,7 +109,10 @@ def test_minimize_ipopt_sparse_jac_if_scipy():
                          x0 * x1 * x2 * x3 - 25 >= 0
                                1 <= x0,x1,x2,x3 <= 5
     """
-    from scipy.sparse import coo_array
+    try:
+        from scipy.sparse import coo_array
+    except ImportError:
+        from scipy.sparse import coo_matrix as coo_array
 
     def obj(x):
         return x[0] * x[3] * np.sum(x[:3]) + x[2]
@@ -161,7 +164,10 @@ def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
                          x0 * x1 * x2 * x3 - 25 >= 0
                                1 <= x0,x1,x2,x3 <= 5
     """
-    from scipy.sparse import coo_array
+    try:
+        from scipy.sparse import coo_array
+    except ImportError:
+        from scipy.sparse import coo_matrix as coo_array
 
     def obj(x):
         return x[0] * x[3] * np.sum(x[:3]) + x[2]
@@ -204,10 +210,10 @@ def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_hs071():
-    """ `minimize_ipopt` works with objective gradient and Hessian and 
+    """ `minimize_ipopt` works with objective gradient and Hessian and
          constraint jacobians and Hessians.
 
-        The objective and the constraints functions return a tuple containing 
+        The objective and the constraints functions return a tuple containing
         the function value and the evaluated gradient or jacobian. Solves
         Hock & Schittkowski's test problem 71:
 
