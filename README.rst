@@ -60,7 +60,7 @@ License
 cyipopt is open-source code released under the EPL_ license, see the
 ``LICENSE`` file.
 
-.. _EPL: http://www.eclipse.org/legal/epl-v10.html
+.. _EPL: https://www.eclipse.org/legal/epl-2.0/
 
 Contributing
 ============
