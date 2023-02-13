@@ -3,6 +3,8 @@ import pytest
 
 import cyipopt
 
+IPVERSION = cyipopt.IPOPT_VERSION
+
 @pytest.mark.skipif(True, reason="This segfaults. Ideally, it fails gracefully")
 def test_get_iterate_uninit(hs071_problem_instance_fixture):
     """Test that we can call get_current_iterate on an uninitialized problem
@@ -45,6 +47,32 @@ def test_get_violations_postsolve(
     np.testing.assert_allclose(x, expected_x)
 
 
+@pytest.mark.skipif(
+    IPVERSION[0] == 3 and IPVERSION[1] >= 14,
+    reason="GetIpoptCurrentIterate was introduced in Ipopt v3.14.0",
+)
+def test_get_iterate_fail_pre_3_14_0(hs071_problem_instance_fixture):
+    nlp = hs071_problem_instance_fixture
+    with pytest.Raises(RuntimeError):
+        # TODO: Test error message
+        x, zL, zU, g, lam = nlp.get_current_iterate()
+
+
+@pytest.mark.skipif(
+    IPVERSION[0] == 3 and IPVERSION[1] >= 14,
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+)
+def test_get_violations_fail_pre_3_14_0(hs071_problem_instance_fixture):
+    nlp = hs071_problem_instance_fixture
+    with pytest.Raises(RuntimeError):
+        # TODO: Test error message
+        violations = nlp.get_current_violations()
+
+
+@pytest.mark.skipif(
+    IPVERSION[0] < 3 or (IPVERSION[0] == 3 and IPVERSION[1] < 14),
+    reason="GetIpoptCurrentIterate was introduced in Ipopt v3.14.0",
+)
 def test_get_iterate_hs071(
     hs071_initial_guess_fixture,
     hs071_definition_instance_fixture,
@@ -134,6 +162,10 @@ def test_get_iterate_hs071(
     np.testing.assert_allclose(x_iterates[-1], x)
 
 
+@pytest.mark.skipif(
+    IPVERSION[0] < 3 or (IPVERSION[0] == 3 and IPVERSION[1] < 14),
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+)
 def test_get_violations_hs071(
     hs071_initial_guess_fixture,
     hs071_definition_instance_fixture,

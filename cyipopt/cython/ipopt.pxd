@@ -9,6 +9,15 @@ Copyright (C) 2017-2021 cyipopt developers
 License: EPL 1.0
 """
 
+cdef extern from "IpoptConfig.h":
+
+    int IPOPT_VERSION_MAJOR
+    
+    int IPOPT_VERSION_MINOR
+
+    int IPOPT_VERSION_RELEASE
+
+
 cdef extern from "IpStdCInterface.h":
 
     ctypedef double Number

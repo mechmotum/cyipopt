@@ -19,7 +19,11 @@ cimport numpy as np
 from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 from ipopt cimport *
 
-__all__ = ["set_logging_level", "setLoggingLevel", "Problem", "problem"]
+__all__ = [
+    "set_logging_level", "setLoggingLevel", "Problem", "problem", "IPOPT_VERSION"
+]
+
+IPOPT_VERSION = (IPOPT_VERSION_MAJOR, IPOPT_VERSION_MINOR, IPOPT_VERSION_RELEASE)
 
 DTYPEi = np.int32
 ctypedef np.int32_t DTYPEi_t
@@ -655,6 +659,13 @@ cdef class Problem:
         return np_x, info
 
     def get_current_iterate(self, scaled=False):
+        major, minor, release = IPOPT_VERSION
+        if major < 3 or (major == 3 and minor < 14):
+            raise RuntimeError(
+                "get_current_iterate only supports Ipopt version >=3.14.0"
+                " CyIpopt is compiled with version %s.%s.%s"
+                % (major, minor, release)
+            )
         # Allocate arrays to hold the current iterate
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x
         cdef np.ndarray[DTYPEd_t, ndim=1] np_mult_x_L
@@ -697,6 +708,13 @@ cdef class Problem:
         return (np_x, np_mult_x_L, np_mult_x_U, np_g, np_mult_g)
 
     def get_current_violations(self, scaled=False):
+        major, minor, release = IPOPT_VERSION
+        if major < 3 or (major == 3 and minor < 14):
+            raise RuntimeError(
+                "get_current_violations only supports Ipopt version >=3.14.0"
+                " CyIpopt is compiled with version %s.%s.%s"
+                % (major, minor, release)
+            )
         # Allocate arrays to hold current violations
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_L_viol
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_U_viol
