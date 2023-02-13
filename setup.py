@@ -52,10 +52,10 @@ INSTALL_REQUIRES = [
     "numpy>=1.15",
     "setuptools>=39.0",
 ]
-LICENSE = "EPL-1.0"
+LICENSE = "EPL-2.0"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)",
+    "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.7",
