@@ -26,7 +26,7 @@ def test_get_iterate_postsolve(
     nlp = hs071_problem_instance_fixture
     x, info = nlp.solve(x0)
 
-    x, zL, zU, g, lam = nlp.get_current_iterate()
+    x_iter, zL, zU, g, lam = nlp.get_current_iterate()
     expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
     np.testing.assert_allclose(x, expected_x)
 
@@ -34,7 +34,7 @@ def test_get_iterate_postsolve(
 @pytest.mark.skipif(True, reason="Segfaults")
 def test_get_violations_uninit(hs071_problem_instance_fixture):
     nlp = hs071_problem_instance_fixture
-    x, zL, zU, g, lam = nlp.get_current_violations()
+    violations = nlp.get_current_violations()
 
 
 @pytest.mark.skipif(True, reason="Segfaults")
@@ -46,7 +46,7 @@ def test_get_violations_postsolve(
     nlp = hs071_problem_instance_fixture
     x, info = nlp.solve(x0)
 
-    x, zL, zU, g, lam = nlp.get_current_violations()
+    violations = nlp.get_current_violations()
     expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
     np.testing.assert_allclose(x, expected_x)
 
