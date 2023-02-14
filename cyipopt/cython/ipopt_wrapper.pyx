@@ -723,7 +723,13 @@ cdef class Problem:
             )
 
         # Return values to user
-        return (np_x, np_mult_x_L, np_mult_x_U, np_g, np_mult_g)
+        return {
+            "x": np_x,
+            "mult_x_L": np_mult_x_L,
+            "mult_x_U": np_mult_x_U,
+            "g": np_g,
+            "mult_g": np_mult_g,
+        }
 
     def get_current_violations(self, scaled=False):
         major, minor, release = IPOPT_VERSION
@@ -785,15 +791,15 @@ cdef class Problem:
                 " intermediate callback."
             )
 
-        return (
-            np_x_L_viol,
-            np_x_U_viol,
-            np_compl_x_L,
-            np_compl_x_U,
-            np_grad_lag_x,
-            np_g_viol,
-            np_compl_g,
-        )
+        return {
+            "x_L_violation": np_x_L_viol,
+            "x_U_violation": np_x_U_viol,
+            "compl_x_L": np_compl_x_L,
+            "compl_x_U": np_compl_x_U,
+            "grad_lag_x": np_grad_lag_x,
+            "nlp_constraint_violation": np_g_viol,
+            "compl_g": np_compl_g,
+        }
 
 
 #
