@@ -704,10 +704,6 @@ cdef class Problem:
         g = <Number*>np_g.data
         mult_g = <Number*>np_mult_g.data
 
-        # NOTE: GetIpoptCurrentIterate can *only* be called during an
-        # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
-        # TODO: Either catch error or avoid calling if we are not in an
-        # intermediate callback
         successful = CyGetCurrentIterate(
             self.__nlp,
             scaled,
@@ -769,10 +765,6 @@ cdef class Problem:
         g_viol = <Number*>np_g_viol.data
         compl_g = <Number*>np_compl_g.data
 
-        # NOTE: GetIpoptCurrentViolations can *only* be called during an
-        # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
-        # TODO: Either catch error or avoid calling if we are not in an
-        # intermediate callback
         successful = CyGetCurrentViolations(
             self.__nlp,
             scaled,
