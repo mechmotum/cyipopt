@@ -689,7 +689,7 @@ cdef class Problem:
         # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
         # TODO: Either catch error or avoid calling if we are not in an
         # intermediate callback
-        ret = GetIpoptCurrentIterate(
+        ret = CyGetCurrentIterate(
             self.__nlp,
             scaled,
             self.__n,
@@ -744,7 +744,7 @@ cdef class Problem:
         # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
         # TODO: Either catch error or avoid calling if we are not in an
         # intermediate callback
-        ret = GetIpoptCurrentViolations(
+        ret = CyGetCurrentViolations(
             self.__nlp,
             scaled,
             self.__n,
