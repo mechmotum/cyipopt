@@ -226,6 +226,11 @@ def test_get_violations_hs071(
     problem_definition.nlp = nlp
 
     nlp.add_option("tol", 1e-8)
+    # Note that Ipopt appears to check tolerance in the scaled, bound-relaxed
+    # NLP. To ensure our intermediate infeasibilities, which are in the user's
+    # original NLP, are less than the above tolerance at the final iteration,
+    # we must turn off bound relaxation.
+    nlp.add_option("bound_relax_factor", 0.0)
     x, info = nlp.solve(x0)
 
     # Assert correct solution
@@ -238,12 +243,5 @@ def test_get_violations_hs071(
     assert len(pr_violations) == (1 + problem_definition.iter_count)
     assert len(du_violations) == (1 + problem_definition.iter_count)
 
-    #
-    # With atol=1e-8, this check fails. This differs from what I see in the
-    # Ipopt log, where inf_pr is 1.77e-11 at the final iteration. I see
-    # final primal violations: [2.455637e-07, 1.770672e-11]
-    # Not sure if a bug or not...
-    #
-    np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-6)
-
+    np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-8)
     np.testing.assert_allclose(du_violations[-1], np.zeros(n), atol=1e-8)
