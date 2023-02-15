@@ -279,6 +279,7 @@ cdef class Problem:
     cdef public Index __m
 
     cdef public object __exception
+    cdef Bool __in_ipopt_solve
 
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
                  cu=None):
@@ -436,6 +437,10 @@ cdef class Problem:
             self.add_option(b"hessian_approximation", b"limited-memory")
 
         self.__exception = None
+
+        # This flag is necessary to prevent segfaults in Ipopt <=3.14.11 due
+        # to the lack of guard for __nlp->tnlp being NULL or undefined.
+        self.__in_ipopt_solve = False
 
     def __dealloc__(self):
         if self.__nlp != NULL:
@@ -632,6 +637,9 @@ cdef class Problem:
 
         cdef Number obj_val = 0
 
+        # Set flag that we are in a solve, so __nlp->tnlp references (e.g. in
+        # get_current_iterate) are valid.
+        self.__in_ipopt_solve = True
         stat = IpoptSolve(self.__nlp,
                           <Number*>np_x.data,
                           <Number*>g.data,
@@ -641,6 +649,8 @@ cdef class Problem:
                           <Number*>mult_x_U.data,
                           <UserDataPtr>self
                           )
+        # Unset flag
+        self.__in_ipopt_solve = False
 
         if self.__exception:
             raise self.__exception[0], self.__exception[1], self.__exception[2]
@@ -659,12 +669,21 @@ cdef class Problem:
         return np_x, info
 
     def get_current_iterate(self, scaled=False):
+        # Check that we are using an Ipopt version that supports this
+        # functionality
         major, minor, release = IPOPT_VERSION
         if major < 3 or (major == 3 and minor < 14):
             raise RuntimeError(
                 "get_current_iterate only supports Ipopt version >=3.14.0"
                 " CyIpopt is compiled with version %s.%s.%s"
                 % (major, minor, release)
+            )
+        # Check that we are in a solve. This is necessary to prevent segfaults
+        # pre-Ipopt 3.14.12
+        if not self.__in_ipopt_solve:
+            raise RuntimeError(
+                "get_current_iterate can only be called during a call to solve,"
+                " e.g. in an intermediate callback."
             )
         # Allocate arrays to hold the current iterate
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x
@@ -685,11 +704,7 @@ cdef class Problem:
         g = <Number*>np_g.data
         mult_g = <Number*>np_mult_g.data
 
-        # NOTE: GetIpoptCurrentIterate can *only* be called during an
-        # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
-        # TODO: Either catch error or avoid calling if we are not in an
-        # intermediate callback
-        ret = CyGetCurrentIterate(
+        successful = CyGetCurrentIterate(
             self.__nlp,
             scaled,
             self.__n,
@@ -700,12 +715,21 @@ cdef class Problem:
             g,
             mult_g,
         )
+        if not successful:
+            raise RuntimeError(
+                "Ipopt could not get the current iterate. This can happen when"
+                " get_current_iterate is called outside of an intermediate"
+                " callback."
+            )
 
         # Return values to user
-        # - Is another data type (e.g. dict, namedtuple) more appropriate than
-        #   simply a tuple?
-        # - Should `ret` be returned here?
-        return (np_x, np_mult_x_L, np_mult_x_U, np_g, np_mult_g)
+        return {
+            "x": np_x,
+            "mult_x_L": np_mult_x_L,
+            "mult_x_U": np_mult_x_U,
+            "g": np_g,
+            "mult_g": np_mult_g,
+        }
 
     def get_current_violations(self, scaled=False):
         major, minor, release = IPOPT_VERSION
@@ -714,6 +738,13 @@ cdef class Problem:
                 "get_current_violations only supports Ipopt version >=3.14.0"
                 " CyIpopt is compiled with version %s.%s.%s"
                 % (major, minor, release)
+            )
+        # Check that we are in a solve. This is necessary to prevent segfaults
+        # pre-Ipopt 3.14.12
+        if not self.__in_ipopt_solve:
+            raise RuntimeError(
+                "get_current_violations can only be called during a call to solve,"
+                " e.g. in an intermediate callback."
             )
         # Allocate arrays to hold current violations
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_L_viol
@@ -740,11 +771,7 @@ cdef class Problem:
         g_viol = <Number*>np_g_viol.data
         compl_g = <Number*>np_compl_g.data
 
-        # NOTE: GetIpoptCurrentViolations can *only* be called during an
-        # intermediate callback (otherwise __nlp->tnlp->ip_data_ is NULL)
-        # TODO: Either catch error or avoid calling if we are not in an
-        # intermediate callback
-        ret = CyGetCurrentViolations(
+        successful = CyGetCurrentViolations(
             self.__nlp,
             scaled,
             self.__n,
@@ -757,16 +784,22 @@ cdef class Problem:
             g_viol,
             compl_g,
         )
+        if not successful:
+            raise RuntimeError(
+                "Ipopt could not get the current violations. This can happen"
+                " when get_current_violations is called outside of an"
+                " intermediate callback."
+            )
 
-        return (
-            np_x_L_viol,
-            np_x_U_viol,
-            np_compl_x_L,
-            np_compl_x_U,
-            np_grad_lag_x,
-            np_g_viol,
-            np_compl_g,
-        )
+        return {
+            "x_L_violation": np_x_L_viol,
+            "x_U_violation": np_x_U_viol,
+            "compl_x_L": np_compl_x_L,
+            "compl_x_U": np_compl_x_U,
+            "grad_lag_x": np_grad_lag_x,
+            "nlp_constraint_violation": np_g_viol,
+            "compl_g": np_compl_g,
+        }
 
 
 #

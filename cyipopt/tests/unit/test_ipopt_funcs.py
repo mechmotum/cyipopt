@@ -9,15 +9,25 @@ pre_3_14_0 = (
 )
 
 
-@pytest.mark.skipif(True, reason="This segfaults. Ideally, it fails gracefully")
+@pytest.mark.skipif(
+    pre_3_14_0,
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+    # skip these tests in old versions as the version check happens before
+    # the __in_ipopt_solve check
+)
 def test_get_iterate_uninit(hs071_problem_instance_fixture):
     """Test that we can call get_current_iterate on an uninitialized problem
     """
     nlp = hs071_problem_instance_fixture
-    x, zL, zU, g, lam = nlp.get_current_iterate()
+    msg = "can only be called during a call to solve"
+    with pytest.raises(RuntimeError, match=msg):
+        iterate = nlp.get_current_iterate()
 
 
-@pytest.mark.skipif(True, reason="This also segfaults")
+@pytest.mark.skipif(
+    pre_3_14_0,
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+)
 def test_get_iterate_postsolve(
     hs071_initial_guess_fixture,
     hs071_problem_instance_fixture,
@@ -26,18 +36,28 @@ def test_get_iterate_postsolve(
     nlp = hs071_problem_instance_fixture
     x, info = nlp.solve(x0)
 
-    x_iter, zL, zU, g, lam = nlp.get_current_iterate()
+    msg = "can only be called during a call to solve"
+    with pytest.raises(RuntimeError, match=msg):
+        iterate = nlp.get_current_iterate()
     expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
     np.testing.assert_allclose(x, expected_x)
 
 
-@pytest.mark.skipif(True, reason="Segfaults")
+@pytest.mark.skipif(
+    pre_3_14_0,
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+)
 def test_get_violations_uninit(hs071_problem_instance_fixture):
     nlp = hs071_problem_instance_fixture
-    violations = nlp.get_current_violations()
+    msg = "can only be called during a call to solve"
+    with pytest.raises(RuntimeError, match=msg):
+        violations = nlp.get_current_violations()
 
 
-@pytest.mark.skipif(True, reason="Segfaults")
+@pytest.mark.skipif(
+    pre_3_14_0,
+    reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
+)
 def test_get_violations_postsolve(
     hs071_initial_guess_fixture,
     hs071_problem_instance_fixture,
@@ -46,7 +66,9 @@ def test_get_violations_postsolve(
     nlp = hs071_problem_instance_fixture
     x, info = nlp.solve(x0)
 
-    violations = nlp.get_current_violations()
+    msg = "can only be called during a call to solve"
+    with pytest.raises(RuntimeError, match=msg):
+        violations = nlp.get_current_violations()
     expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
     np.testing.assert_allclose(x, expected_x)
 
@@ -57,9 +79,11 @@ def test_get_violations_postsolve(
 )
 def test_get_iterate_fail_pre_3_14_0(hs071_problem_instance_fixture):
     nlp = hs071_problem_instance_fixture
-    with pytest.raises(RuntimeError):
-        # TODO: Test error message
-        x, zL, zU, g, lam = nlp.get_current_iterate()
+    # Note that the version check happens before the __in_ipopt_solve
+    # check, so we don't need to call solve to test this.
+    msg = "only supports Ipopt version >=3.14.0"
+    with pytest.raises(RuntimeError, match=msg):
+        iterate = nlp.get_current_iterate()
 
 
 @pytest.mark.skipif(
@@ -68,8 +92,10 @@ def test_get_iterate_fail_pre_3_14_0(hs071_problem_instance_fixture):
 )
 def test_get_violations_fail_pre_3_14_0(hs071_problem_instance_fixture):
     nlp = hs071_problem_instance_fixture
-    with pytest.raises(RuntimeError):
-        # TODO: Test error message
+    # Note that the version check happens before the __in_ipopt_solve
+    # check, so we don't need to call solve to test this.
+    msg = "only supports Ipopt version >=3.14.0"
+    with pytest.raises(RuntimeError, match=msg):
         violations = nlp.get_current_violations()
 
 
@@ -122,8 +148,7 @@ def test_get_iterate_hs071(
         # Problem to the "definition", then we can call get_current_iterate
         # from this callback.
         iterate = problem_definition.nlp.get_current_iterate(scaled=False)
-        x, zL, zU, g, lam = iterate
-        x_iterates.append(x)
+        x_iterates.append(iterate["x"])
 
         # Hack so we may get the number of iterations after the solve
         problem_definition.iter_count = iter_count
@@ -204,11 +229,8 @@ def test_get_violations_hs071(
         ls_trials,
     ):
         violations = problem_definition.nlp.get_current_violations(scaled=True)
-        (
-            xL_viol, xU_viol, xL_compl, xU_compl, grad_lag, g_viol, g_compl
-        ) = violations
-        pr_violations.append(g_viol)
-        du_violations.append(grad_lag)
+        pr_violations.append(violations["nlp_constraint_violation"])
+        du_violations.append(violations["grad_lag_x"])
 
         # Hack so we may get the number of iterations after the solve
         problem_definition.iter_count = iter_count
