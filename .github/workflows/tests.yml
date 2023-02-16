@@ -38,6 +38,7 @@ jobs:
           channels: conda-forge
       - name: Install basic dependencies
         run: |
+          conda install -n base libarchive
           conda install -n base conda-libmamba-solver
           conda config --set solver libmamba
           conda install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
