@@ -669,6 +669,23 @@ cdef class Problem:
         return np_x, info
 
     def get_current_iterate(self, scaled=False):
+        """Return the current iterate vectors during an Ipopt solve
+
+        The iterate contains vectors for primal variables, bound multipliers,
+        constraint function values, and constraint multipliers.
+
+        Parameters
+        ----------
+        scaled: Bool
+            Whether the scaled iterate vectors should be returned
+
+        Returns
+        -------
+        dict
+            A dict containing the iterate vector with keys ``x``,
+            ``mult_x_L``, ``mult_x_U``, ``g``, and ``mult_g``
+
+        """
         # Check that we are using an Ipopt version that supports this
         # functionality
         major, minor, release = IPOPT_VERSION
