@@ -682,8 +682,8 @@ cdef class Problem:
         Returns
         -------
         dict
-            A dict containing the iterate vector with keys ``x``,
-            ``mult_x_L``, ``mult_x_U``, ``g``, and ``mult_g``
+            A dict containing the iterate vector with keys ``"x"``,
+            ``"mult_x_L"``, ``"mult_x_U"``, ``"g"``, and ``"mult_g"``
 
         """
         # Check that we are using an Ipopt version that supports this
@@ -749,6 +749,26 @@ cdef class Problem:
         }
 
     def get_current_violations(self, scaled=False):
+        """Return the current violation vectors during an Ipopt solve
+
+        Violations returned are primal variable bound violations, bound
+        complementarities, the gradient of the Lagrangian, constraint
+        violation, and constraint complementarity.
+
+        Parameters
+        ----------
+        scaled: Bool
+            Whether to scale the returned violations
+
+        Returns
+        -------
+        dict
+            A dict containing the violation vector with keys
+            ``"x_L_violation"``, ``"x_U_violation"``, ``"compl_x_L"``,
+            ``"compl_x_U"``, ``"grad_lag_x"``, ``"nlp_constraint_violation"``,
+            and ``"compl_g"``
+
+        """
         major, minor, release = IPOPT_VERSION
         if major < 3 or (major == 3 and minor < 14):
             raise RuntimeError(
