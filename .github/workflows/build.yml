@@ -47,9 +47,7 @@ jobs:
       - name: Build wheel
         run: |
           python setup.py bdist_wheel --dist-dir=wheelhouse
-          for wheel in wheelhouse/*.whl; do \
-              auditwheel repair $wheel \
-          done
+          for wheel in wheelhouse/*.whl; do auditwheel repair $wheel; done
           unzip -l wheelhouse/*.whl
           mamba remove ipopt numpy
           python -m pip install wheelhouse/*.whl
