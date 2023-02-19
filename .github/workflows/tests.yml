@@ -29,22 +29,35 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout CyIpopt
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          conda-build-version: '3.21.4'
+          miniforge-variant: Mambaforge
       - name: Install basic dependencies
-        run: conda install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+        run: |
+          mamba install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
       - name: Install CyIpopt
-        run: python -m pip install .
+        run: |
+          rm pyproject.toml
+          python -m pip install .
+          mamba list
       - name: Test with pytest
-        run:
+        run: |
           python -c "import cyipopt"
-          conda install -y -q pytest>=3.3.2
+          mamba remove lapack
+          mamba install -q -y cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2
+          mamba list
           pytest
-          conda install -y -q scipy>=0.19.1
+      - name: Test with pytest and scipy, new ipopt
+        # cyipopt can build with these dependencies, but it seems impossible to
+        # also install scipy into these environments likely due to SciPy and
+        # Ipopt needed different libfortrans.
+        if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
+        run: |
+          mamba install -q -y -c conda-forge cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2 scipy>=0.19.0
+          mamba list
           pytest

@@ -4,9 +4,9 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2022 cyipopt developers
+Copyright (C) 2017-2023 cyipopt developers
 
-License: EPL 1.0
+License: EPL 2.0
 """
 
 import sys
@@ -52,10 +52,10 @@ INSTALL_REQUIRES = [
     "numpy>=1.15",
     "setuptools>=39.0",
 ]
-LICENSE = "EPL-1.0"
+LICENSE = "EPL-2.0"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)",
+    "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.7",

@@ -108,6 +108,22 @@ official python.org distribution. Even though it has been tested to work with th
 latest builds, it is well-known for causing issues. (see
 https://github.com/mechmotum/cyipopt/issues/52).
 
+On Ubuntu 22.04 Using APT Dependencies
+--------------------------------------
+
+All of the dependencies can be installed with Ubuntu's package manager::
+
+  $ apt install build-essential pkg-config python3-pip python3-dev cython3 python3-numpy coinor-libipopt1v5 coinor-libipopt-dev
+
+You can then install cyipopt from the PyPi release with::
+
+  $ python3 -m pip install cyipopt
+
+Or you use a local copy with::
+
+  $ cd /cyipopt/source/directory/
+  $ python3 setup.py install
+
 On Ubuntu 18.04 Using APT Dependencies
 --------------------------------------
 
