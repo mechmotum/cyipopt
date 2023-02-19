@@ -4,9 +4,9 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2022 cyipopt developers
+Copyright (C) 2017-2023 cyipopt developers
 
-License: EPL 1.0
+License: EPL 2.0
 """
 
 import sys
@@ -28,9 +28,10 @@ else:
         from scipy.optimize import Result
         OptimizeResult = Result
     try:
-        from scipy.optimize import MemoizeJac
+        # MemoizeJac has been made a private class, see
+        # https://github.com/scipy/scipy/issues/17572
+        from scipy.optimize._optimize import MemoizeJac
     except ImportError:
-        # The optimize.optimize namespace is being deprecated
         from scipy.optimize.optimize import MemoizeJac
     try:
         from scipy.sparse import coo_array
@@ -67,10 +68,10 @@ class IpoptProblemWrapper(object):
     constraints : {Constraint, dict} or List of {Constraint, dict}, optional
         See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
         for more information. Note that the jacobian of each constraint
-        corresponds to the `'jac'` key and must be a callable function 
+        corresponds to the `'jac'` key and must be a callable function
         with signature ``jac(x) -> {ndarray, coo_array}``. If the constraint's
         value of `'jac'` is a boolean and True, the constraint function `fun`
-        is expected to return a tuple `(con_val, con_jac)` consisting of the 
+        is expected to return a tuple `(con_val, con_jac)` consisting of the
         evaluated constraint `con_val` and the evaluated jacobian `con_jac`.
     eps : float, optional
         Epsilon used in finite differences.
@@ -78,7 +79,7 @@ class IpoptProblemWrapper(object):
         Dimensions p_1, ..., p_m of the m constraint functions
         g_1, ..., g_m : R^n -> R^(p_i).
     sparse_jacs: array_like, optional
-        If sparse_jacs[i] = True, the i-th constraint's jacobian is sparse. 
+        If sparse_jacs[i] = True, the i-th constraint's jacobian is sparse.
         Otherwise, the i-th constraint jacobian is assumed to be dense.
     jac_nnz_row: array_like, optional
         The row indices of the nonzero elements in the stacked
