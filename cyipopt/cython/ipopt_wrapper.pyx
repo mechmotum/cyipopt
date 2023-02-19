@@ -672,7 +672,9 @@ cdef class Problem:
         """Return the current iterate vectors during an Ipopt solve
 
         The iterate contains vectors for primal variables, bound multipliers,
-        constraint function values, and constraint multipliers.
+        constraint function values, and constraint multipliers. Here, the
+        constraints are treated as a single function rather than separating
+        equality and inequality constraints.
 
         Parameters
         ----------
@@ -732,28 +734,28 @@ cdef class Problem:
             g,
             mult_g,
         )
-        if not successful:
-            raise RuntimeError(
-                "Ipopt could not get the current iterate. This can happen when"
-                " get_current_iterate is called outside of an intermediate"
-                " callback."
-            )
-
-        # Return values to user
-        return {
-            "x": np_x,
-            "mult_x_L": np_mult_x_L,
-            "mult_x_U": np_mult_x_U,
-            "g": np_g,
-            "mult_g": np_mult_g,
-        }
+        if successful:
+            # Return values to user
+            return {
+                "x": np_x,
+                "mult_x_L": np_mult_x_L,
+                "mult_x_U": np_mult_x_U,
+                "g": np_g,
+                "mult_g": np_mult_g,
+            }
+        else:
+            # This happens if this method is called during IpoptSolve,
+            # but outside of an intermediate callback.
+            return None
 
     def get_current_violations(self, scaled=False):
         """Return the current violation vectors during an Ipopt solve
 
         Violations returned are primal variable bound violations, bound
         complementarities, the gradient of the Lagrangian, constraint
-        violation, and constraint complementarity.
+        violation, and constraint complementarity. Here, the constraints
+        are treated as a single function rather than separating equality
+        and inequality constraints.
 
         Parameters
         ----------
@@ -765,7 +767,7 @@ cdef class Problem:
         dict
             A dict containing the violation vector with keys
             ``"x_L_violation"``, ``"x_U_violation"``, ``"compl_x_L"``,
-            ``"compl_x_U"``, ``"grad_lag_x"``, ``"nlp_constraint_violation"``,
+            ``"compl_x_U"``, ``"grad_lag_x"``, ``"g_violation"``,
             and ``"compl_g"``
 
         """
@@ -821,22 +823,21 @@ cdef class Problem:
             g_viol,
             compl_g,
         )
-        if not successful:
-            raise RuntimeError(
-                "Ipopt could not get the current violations. This can happen"
-                " when get_current_violations is called outside of an"
-                " intermediate callback."
-            )
-
-        return {
-            "x_L_violation": np_x_L_viol,
-            "x_U_violation": np_x_U_viol,
-            "compl_x_L": np_compl_x_L,
-            "compl_x_U": np_compl_x_U,
-            "grad_lag_x": np_grad_lag_x,
-            "nlp_constraint_violation": np_g_viol,
-            "compl_g": np_compl_g,
-        }
+        if successful:
+            # Return values to the user
+            return {
+                "x_L_violation": np_x_L_viol,
+                "x_U_violation": np_x_U_viol,
+                "compl_x_L": np_compl_x_L,
+                "compl_x_U": np_compl_x_U,
+                "grad_lag_x": np_grad_lag_x,
+                "g_violation": np_g_viol,
+                "compl_g": np_compl_g,
+            }
+        else:
+            # This happens if this method is called during IpoptSolve,
+            # but outside of an intermediate callback.
+            return None
 
 
 #
