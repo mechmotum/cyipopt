@@ -674,7 +674,10 @@ cdef class Problem:
         The iterate contains vectors for primal variables, bound multipliers,
         constraint function values, and constraint multipliers. Here, the
         constraints are treated as a single function rather than separating
-        equality and inequality constraints.
+        equality and inequality constraints. This method can only be called
+        during an intermediate callback.
+
+        **Only supports Ipopt >=3.14.0**
 
         Parameters
         ----------
@@ -685,7 +688,8 @@ cdef class Problem:
         -------
         dict
             A dict containing the iterate vector with keys ``"x"``,
-            ``"mult_x_L"``, ``"mult_x_U"``, ``"g"``, and ``"mult_g"``
+            ``"mult_x_L"``, ``"mult_x_U"``, ``"g"``, and ``"mult_g"``.
+            If iterate vectors cannot be obtained, ``None`` is returned.
 
         """
         # Check that we are using an Ipopt version that supports this
@@ -755,7 +759,10 @@ cdef class Problem:
         complementarities, the gradient of the Lagrangian, constraint
         violation, and constraint complementarity. Here, the constraints
         are treated as a single function rather than separating equality
-        and inequality constraints.
+        and inequality constraints. This method can only be called during
+        an intermediate callback.
+
+        **Only supports Ipopt >=3.14.0**
 
         Parameters
         ----------
@@ -764,11 +771,12 @@ cdef class Problem:
 
         Returns
         -------
-        dict
+        dict or None
             A dict containing the violation vector with keys
             ``"x_L_violation"``, ``"x_U_violation"``, ``"compl_x_L"``,
             ``"compl_x_U"``, ``"grad_lag_x"``, ``"g_violation"``,
-            and ``"compl_g"``
+            and ``"compl_g"``. If violation vectors cannot be obtained,
+            ``None`` is returned.
 
         """
         major, minor, release = IPOPT_VERSION
