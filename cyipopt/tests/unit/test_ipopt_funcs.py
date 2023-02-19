@@ -229,7 +229,7 @@ def test_get_violations_hs071(
         ls_trials,
     ):
         violations = problem_definition.nlp.get_current_violations(scaled=True)
-        pr_violations.append(violations["nlp_constraint_violation"])
+        pr_violations.append(violations["g_violation"])
         du_violations.append(violations["grad_lag_x"])
 
         # Hack so we may get the number of iterations after the solve
