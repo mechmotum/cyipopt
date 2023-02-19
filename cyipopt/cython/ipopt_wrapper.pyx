@@ -686,7 +686,7 @@ cdef class Problem:
 
         Returns
         -------
-        dict
+        dict or None
             A dict containing the iterate vector with keys ``"x"``,
             ``"mult_x_L"``, ``"mult_x_U"``, ``"g"``, and ``"mult_g"``.
             If iterate vectors cannot be obtained, ``None`` is returned.
