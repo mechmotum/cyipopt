@@ -39,11 +39,11 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          conda-build-version: '3.21.4'
+          miniforge-variant: Mambaforge
       - name: Install basic dependencies
         run: |
-          conda install -q -y cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 auditwheel
-          conda list
+          mamba install -q -y cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 auditwheel
+          mamba list
       - name: Build wheel
         run: |
           python setup.py bdist_wheel --dist-dir=wheelhouse
@@ -51,6 +51,6 @@ jobs:
               auditwheel repair $wheel \
           done
           unzip -l wheelhouse/*.whl
-          conda remove ipopt numpy
+          mamba remove ipopt numpy
           python -m pip install wheelhouse/*.whl
           python examples/hs071.py
