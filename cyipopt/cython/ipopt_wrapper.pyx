@@ -12,6 +12,7 @@ License: EPL 2.0
 import logging
 import sys
 import warnings
+import inspect
 
 import numpy as np
 cimport numpy as np
@@ -279,6 +280,7 @@ cdef class Problem:
     cdef public Index __m
 
     cdef public object __exception
+    cdef public object __n_callback_args
     cdef Bool __in_ipopt_solve
 
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
@@ -430,6 +432,11 @@ cdef class Problem:
             raise RuntimeError(msg)
 
         SetIntermediateCallback(self.__nlp, intermediate_cb)
+        if self.__intermediate is None:
+            self.__n_callback_args = None
+        else:
+            cb_signature = inspect.signature(self.__intermediate)
+            self.__n_callback_args = len(cb_signature.parameters)
 
         if self.__hessian is None:
             msg = b"Hessian callback not given, using approximation"
@@ -1122,18 +1129,33 @@ cdef Bool intermediate_cb(Index alg_mod,
     if not self.__intermediate:
         return True
 
-    ret_val = self.__intermediate(alg_mod,
-                                  iter_count,
-                                  obj_value,
-                                  inf_pr,
-                                  inf_du,
-                                  mu,
-                                  d_norm,
-                                  regularization_size,
-                                  alpha_du,
-                                  alpha_pr,
-                                  ls_trials
-                                  )
+    if self.__n_callback_args == 12:
+        ret_val = self.__intermediate(alg_mod,
+                                      iter_count,
+                                      obj_value,
+                                      inf_pr,
+                                      inf_du,
+                                      mu,
+                                      d_norm,
+                                      regularization_size,
+                                      alpha_du,
+                                      alpha_pr,
+                                      ls_trials,
+                                      self
+                                      )
+    else:
+        ret_val = self.__intermediate(alg_mod,
+                                      iter_count,
+                                      obj_value,
+                                      inf_pr,
+                                      inf_du,
+                                      mu,
+                                      d_norm,
+                                      regularization_size,
+                                      alpha_du,
+                                      alpha_pr,
+                                      ls_trials
+                                      )
 
     if ret_val is None:
         return True
