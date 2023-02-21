@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds manylinux cyipopt wheels with Ipopt 3.14.11 based on MUMPS 3.0.4, and OpenBLAS 0.3.15
+# Builds manylinux cyipopt wheels with Ipopt 3.14.11 based on MUMPS 5.5.1, and OpenBLAS 0.3.15
 set -eu  # Stop script if a line fails
 TAG=${1}
 echo "Building cyipopt with tag $TAG"
