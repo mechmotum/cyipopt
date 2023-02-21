@@ -54,6 +54,23 @@ Other `installation options`_ are present in the documentation.
 
 .. _installation options: https://github.com/mechmotum/cyipopt/blob/master/docs/source/install.rst
 
+
+Building `manylinux` wheels
+===========================
+
+manylinux wheels can be built for a tagged version of cyipopt via docker by running (while in the root of this repo)::
+
+   docker run -v $(pwd):/wheels --rm --platform=linux/amd64 quay.io/pypa/manylinux_2_28_x86_64 bash /wheels/build_manylinux_wheels.sh GIT_TAG
+
+for linux/amd64 and::
+
+   docker run -v $(pwd):/wheels --rm --platform=linux/aarch64 quay.io/pypa/manylinux_2_28_aarch64 bash /wheels/build_manylinux_wheels.sh GIT_TAG
+
+for linux/aarch64 platforms. Built wheels appear at the folder the command was executed from.
+
+.. warning::
+    Docker supports emulating non-native platforms to e.g. produce ARM binaries from an ARM64 host. However this can be quite slow (~1h for our case).
+
 License
 =======
 
