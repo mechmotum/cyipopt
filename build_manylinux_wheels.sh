@@ -30,7 +30,11 @@ popd
 # build cyipopt for many python versions
 git clone https://github.com/mechmotum/cyipopt --depth=1 --branch $TAG
 pushd cyipopt
-mkdir dist
+echo "------------------------------" >> LICENSE
+echo "This binary distribution of cyipopt also bundles the following software" >> LICENSE
+for bundled_license in licenses_manylinux_bundled_libraries/*.txt; do
+    cat $bundled_license >> LICENSE
+done
 for PYVERSION in "cp311-cp311" "cp310-cp310" "cp39-cp39" "cp38-cp38" "pp39-pypy39_pp73" "pp38-pypy38_pp73" ; do
     /opt/python/$PYVERSION/bin/pip wheel --no-deps --wheel-dir=./dist .
 done
