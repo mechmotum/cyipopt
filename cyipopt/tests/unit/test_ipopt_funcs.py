@@ -276,7 +276,7 @@ def test_get_iterate_hs071_12arg_callback(
     pre_3_14_0,
     reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
 )
-def test_get_violations_hs071(
+def test_get_violations_hs071_12arg_callback(
     hs071_initial_guess_fixture,
     hs071_definition_instance_fixture,
     hs071_variable_lower_bounds_fixture,
@@ -296,6 +296,7 @@ def test_get_violations_hs071(
 
     pr_violations = []
     du_violations = []
+    iter_counts = []
     def intermediate(
         alg_mod,
         iter_count,
@@ -308,14 +309,16 @@ def test_get_violations_hs071(
         alpha_du,
         alpha_pr,
         ls_trials,
+        problem,
     ):
-        violations = problem_definition.nlp.get_current_violations(scaled=True)
+        violations = problem.get_current_violations(scaled=True)
         pr_violations.append(violations["g_violation"])
         du_violations.append(violations["grad_lag_x"])
 
         # Hack so we may get the number of iterations after the solve
-        problem_definition.iter_count = iter_count
+        iter_counts.append(iter_count)
 
+    # Override the default callback with our locally defined callback.
     problem_definition.intermediate = intermediate
     nlp = cyipopt.Problem(
         n=n,
@@ -326,7 +329,6 @@ def test_get_violations_hs071(
         cl=cl,
         cu=cu,
     )
-    problem_definition.nlp = nlp
 
     nlp.add_option("tol", 1e-8)
     # Note that Ipopt appears to check tolerance in the scaled, bound-relaxed
@@ -343,8 +345,9 @@ def test_get_violations_hs071(
     #
     # Assert some very basic information about the collected violations
     #
-    assert len(pr_violations) == (1 + problem_definition.iter_count)
-    assert len(du_violations) == (1 + problem_definition.iter_count)
+    iter_count = iter_counts[-1]
+    assert len(pr_violations) == (1 + iter_count)
+    assert len(du_violations) == (1 + iter_count)
 
     np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-8)
     np.testing.assert_allclose(du_violations[-1], np.zeros(n), atol=1e-8)
