@@ -274,6 +274,104 @@ def test_get_iterate_hs071_12arg_callback(
 
 @pytest.mark.skipif(
     pre_3_14_0,
+    reason="GetIpoptCurrentIterate was introduced in Ipopt v3.14.0",
+)
+def test_get_iterate_hs071_subclass_Problem(
+    hs071_initial_guess_fixture,
+    hs071_definition_instance_fixture,
+    hs071_variable_lower_bounds_fixture,
+    hs071_variable_upper_bounds_fixture,
+    hs071_constraint_lower_bounds_fixture,
+    hs071_constraint_upper_bounds_fixture,
+):
+    x0 = hs071_initial_guess_fixture
+    lb = hs071_variable_lower_bounds_fixture
+    ub = hs071_variable_upper_bounds_fixture
+    cl = hs071_constraint_lower_bounds_fixture
+    cu = hs071_constraint_upper_bounds_fixture
+    n = len(x0)
+    m = len(cl)
+
+    problem_definition = hs071_definition_instance_fixture
+
+    x_iterates = []
+    class MyProblem(cyipopt.Problem):
+
+        def objective(self, x):
+            return problem_definition.objective(x)
+
+        def gradient(self, x):
+            return problem_definition.gradient(x)
+
+        def constraints(self, x):
+            return problem_definition.constraints(x)
+
+        def jacobian(self, x):
+            return problem_definition.jacobian(x)
+
+        def jacobian_structure(self, x):
+            return problem_definition.jacobian_structure(x)
+
+        def hessian(self, x, lagrange, obj_factor):
+            return problem_definition.hessian(x, lagrange, obj_factor)
+
+        def hessian_structure(self, x):
+            return problem_definition.hessian_structure(x)
+
+        def intermediate(
+            self,
+            alg_mod,
+            iter_count,
+            obj_value,
+            inf_pr,
+            inf_du,
+            mu,
+            d_norm,
+            regularization_size,
+            alpha_du,
+            alpha_pr,
+            ls_trials,
+        ):
+            # By subclassing Problem, we can call get_current_iterate
+            # without any "global" information, even with the backward-
+            # compatible 11-argument intermediate callback.
+            iterate = self.get_current_iterate(scaled=False)
+            x_iterates.append(iterate["x"])
+
+            # Hack so we may get the number of iterations after the solve
+            self.iter_count = iter_count
+
+    nlp = MyProblem(
+        n=n,
+        m=m,
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu,
+    )
+
+    # Disable bound push to make testing easier
+    nlp.add_option("bound_push", 1e-9)
+    x, info = nlp.solve(x0)
+
+    # Assert correct solution
+    expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
+    np.testing.assert_allclose(x, expected_x)
+
+    #
+    # Assert some very basic information about the collected primal iterates
+    #
+    assert len(x_iterates) == (1 + nlp.iter_count)
+
+    # These could be different due to bound_push (and scaling)
+    np.testing.assert_allclose(x_iterates[0], x0)
+
+    # These could be different due to honor_original_bounds (and scaling)
+    np.testing.assert_allclose(x_iterates[-1], x)
+
+
+@pytest.mark.skipif(
+    pre_3_14_0,
     reason="GetIpoptCurrentViolations was introduced in Ipopt v3.14.0",
 )
 def test_get_violations_hs071_12arg_callback(
