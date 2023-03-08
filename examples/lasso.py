@@ -142,7 +142,7 @@ if __name__ == '__main__':
     #
     n = 100
     e = 1
-    beta = np.array((0, 0, 2, -4, 0, 0, -1, 3), dtype=np.float).reshape((-1, 1))
+    beta = np.array((0, 0, 2, -4, 0, 0, -1, 3), dtype=np.float64).reshape((-1, 1))
 
     #
     # Set the random number generator seed.
