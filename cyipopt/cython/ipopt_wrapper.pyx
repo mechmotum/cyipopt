@@ -442,7 +442,41 @@ cdef class Problem:
             self.__n_callback_args = None
         else:
             cb_signature = inspect.signature(self.__intermediate)
-            self.__n_callback_args = len(cb_signature.parameters)
+            pos_args = [
+                param for param in cb_signature.parameters.values()
+                if param.kind in {
+                    inspect.Parameter.POSITIONAL_ONLY,
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                }
+            ]
+            var_args = [
+                param for param in cb_signature.parameters.values()
+                if param.kind == inspect.Parameter.VAR_POSITIONAL
+            ]
+            kwd_args = [
+                param for param in cb_signature.parameters.values()
+                if param.kind == inspect.Parameter.VAR_KEYWORD
+            ]
+            if kwd_args:
+                kwd_names = [param.name for param in kwd_args]
+                raise RuntimeError(
+                    "Keyword arguments are not allowed in the intermediate"
+                    " callback function. Got keyword arguments %s"
+                    % (kwd_args,)
+                )
+            if var_args:
+                # If a catchall *args argument is specified in the callback,
+                # send all 12 possible callback arguments.
+                self.__n_callback_args = 12
+            else:
+                self.__n_callback_args = len(pos_args)
+                if self.__n_callback_args not in {11, 12}:
+                    raise RuntimeError(
+                        "Invalid intermediate callback call signature. This"
+                        " callback must accept either 11 or 12 positional"
+                        " arguments or a variable number of positional"
+                        " arguments."
+                    )
 
         if self.__hessian is None:
             msg = b"Hessian callback not given, using approximation"
