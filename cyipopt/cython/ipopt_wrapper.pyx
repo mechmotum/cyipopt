@@ -248,6 +248,12 @@ cdef class Problem:
                         The stepsize for the primal variables.
                     ``ls_trials``:
                         The number of backtracking line search steps.
+                    ``problem`` (optional):
+                        The ``Problem`` object itself. This argument can be used
+                        to call the ``get_current_iterate`` and
+                        ``get_current_violations`` methods from a callback that
+                        is not a method on this class. This argument is optional
+                        for backwards compatibility.
 
                 more information can be found in the following link:
                 https://coin-or.github.io/Ipopt/OUTPUT.html
