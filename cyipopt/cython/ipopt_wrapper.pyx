@@ -286,7 +286,7 @@ cdef class Problem:
     cdef public Index __m
 
     cdef public object __exception
-    cdef public object __n_callback_args
+    cdef public object __send_self_to_intermediate
     cdef Bool __in_ipopt_solve
 
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
@@ -439,8 +439,10 @@ cdef class Problem:
 
         SetIntermediateCallback(self.__nlp, intermediate_cb)
         if self.__intermediate is None:
-            self.__n_callback_args = None
+            self.__send_self_to_intermediate = None
         else:
+            # A callback was provided. We need to know whether to send this
+            # callback 11 arguments or 12 arguments.
             cb_signature = inspect.signature(self.__intermediate)
             pos_args = [
                 param for param in cb_signature.parameters.values()
@@ -458,25 +460,35 @@ cdef class Problem:
                 if param.kind == inspect.Parameter.VAR_KEYWORD
             ]
             if kwd_args:
-                kwd_names = [param.name for param in kwd_args]
+                # **kwds is not allowed in the intermediate callback
                 raise RuntimeError(
-                    "Keyword arguments are not allowed in the intermediate"
-                    " callback function. Got keyword arguments %s"
-                    % (kwd_args,)
+                    "Variable keyword arguments are not allowed in the"
+                    " intermediate callback function."
                 )
-            if var_args:
+            elif var_args:
+                # Even if *args is provided, having more than 12 positional
+                # arguments is an error.
+                if len(pos_args) > 12:
+                    raise RuntimeError(
+                        "More than 12 positional arguments were specified in"
+                        " the intermediate callback."
+                    )
                 # If a catchall *args argument is specified in the callback,
                 # send all 12 possible callback arguments.
-                self.__n_callback_args = 12
+                self.__send_self_to_intermediate = True
+            elif len(pos_args) == 11:
+                # If the callback takes 11 arguments, do not send self
+                self.__send_self_to_intermediate = False
+            elif len(pos_args) == 12:
+                # If the callback takes 12 arguments, do send self
+                self.__send_self_to_intermediate = True
             else:
-                self.__n_callback_args = len(pos_args)
-                if self.__n_callback_args not in {11, 12}:
-                    raise RuntimeError(
-                        "Invalid intermediate callback call signature. This"
-                        " callback must accept either 11 or 12 positional"
-                        " arguments or a variable number of positional"
-                        " arguments."
-                    )
+                raise RuntimeError(
+                    "Invalid intermediate callback call signature. This"
+                    " callback must accept either 11 or 12 positional"
+                    " arguments or a variable number of positional"
+                    " arguments."
+                )
 
         if self.__hessian is None:
             msg = b"Hessian callback not given, using approximation"
@@ -1169,7 +1181,7 @@ cdef Bool intermediate_cb(Index alg_mod,
     if not self.__intermediate:
         return True
 
-    if self.__n_callback_args == 12:
+    if self.__send_self_to_intermediate:
         ret_val = self.__intermediate(alg_mod,
                                       iter_count,
                                       obj_value,
