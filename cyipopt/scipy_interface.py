@@ -341,7 +341,7 @@ def minimize_ipopt(fun,
 
        x_L \leq  x  \leq x_U
 
-    Where :math:`x` are the optimization variables, :math:`f(x)` is the
+    where :math:`x` are the optimization variables, :math:`f(x)` is the
     objective function, :math:`g(x)` are the general nonlinear constraints,
     and :math:`x_L` and :math:`x_U` are the upper and lower bounds
     (respectively) on the decision variables. The constraints, :math:`g(x)`,
@@ -369,11 +369,12 @@ def minimize_ipopt(fun,
         The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
         ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
     hess : callable, optional
+        The Hessian of the objective function:
+        ``hess(x) -> ndarray, shape(n, )``.
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
-        Explicitly defined Hessians are not yet supported via this interface.
     hessp : callable, optional
-        If ``None``, the Hessian is computed using IPOPT's numerical methods.
-        Explicitly defined Hessians are not yet supported via this interface.
+        This parameter is currently unused. An error will be raised if a value
+        other than ``None`` is provided.
     bounds :  sequence, shape(n, ), optional
         Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
         to specify no bound.
@@ -387,14 +388,63 @@ def minimize_ipopt(fun,
         constraint ``con_val`` and the evaluated Jacobian ``con_jac``.
     tol : float, optional (default=1e-8)
         The desired relative convergence tolerance, passed as an option to
-        Ipopt. See [https://coin-or.github.io/Ipopt/OPTIONS.html] for details.
+        Ipopt. See [1]_ for details.
     options : dict, optional
         A dictionary of solver options. The options ``disp`` and ``maxiter``
         are automatically mapped to their Ipopt equivalents ``print_level``
         and ``max_iter``. All other options are passed directly to Ipopt. See
-        [https://coin-or.github.io/Ipopt/OPTIONS.html] for details.
+        [1]_ for details.
     callback : callable, optional
         This parameter is ignored.
+
+    References
+    ----------
+    .. [1] COIN-OR Project. "Ipopt: Ipopt Options".
+           https://coin-or.github.io/Ipopt/OPTIONS.html
+
+    Examples
+    --------
+    Consider the problem of minimizing the Rosenbrock function. The Rosenbrock
+    function and its derivatives are implemented in `scipy.optimize.rosen`,
+    `scipy.optimize.rosen_der`, and `scipy.optimize.rosen_hess`.
+
+    >>> from cyipopt import minimize_ipopt
+    >>> from scipy.optimize import rosen, rosen_der
+    >>> x0 = [1.3, 0.7, 0.8, 1.9, 1.2]  # initial guess
+
+    If we provide the objective function but no derivatives, Ipopt finds the
+    correct minimizer (``[1, 1, 1, 1, 1]``) with a minimum objective value of
+    0. However, it does not report success, and it requires many iterations
+    and function evaluations before termination. This is because SciPy's
+    ``approx_fprime`` requires many objective function evaluations to
+    approximate the gradient, and still the approximation is not very accurate,
+    delaying convergence.
+
+    >>> res = minimize_ipopt(rosen, x0, jac=rosen_der)
+    >>> res.success
+    False
+    >>> res.x
+    array([1., 1., 1., 1., 1.])
+    >>> res.nit, res.nfev, res.njev
+    (46, 528, 48)
+
+    To improve performance, provide the gradient using the `jac` keyword.
+    In this case, Ipopt recognizes its own success, and requires fewer function
+    evaluations to do so.
+
+    >>> res = minimize_ipopt(rosen, x0, jac=rosen_der)
+    >>> res.success
+    True
+    >>> res.nit, res.nfev, res.njev
+    (37, 200, 39)
+
+    For best results, provide the Hessian, too.
+
+    >>> res = minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess)
+    >>> res.success
+    True
+    >>> res.nit, res.nfev, res.njev
+    (17, 29, 19)
     """
     if not SCIPY_INSTALLED:
         msg = 'Install SciPy to use the `minimize_ipopt` function.'
