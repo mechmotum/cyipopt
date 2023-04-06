@@ -66,13 +66,13 @@ class IpoptProblemWrapper(object):
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
         Explicitly defined Hessians are not yet supported for this class.
     constraints : {Constraint, dict} or List of {Constraint, dict}, optional
-        See https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
-        for more information. Note that the jacobian of each constraint
-        corresponds to the `'jac'` key and must be a callable function
-        with signature ``jac(x) -> {ndarray, coo_array}``. If the constraint's
-        value of `'jac'` is a boolean and True, the constraint function `fun`
-        is expected to return a tuple `(con_val, con_jac)` consisting of the
-        evaluated constraint `con_val` and the evaluated jacobian `con_jac`.
+        See :py:func:`scipy.optimize.minimize` for more information. Note that
+        the jacobian of each constraint corresponds to the `'jac'` key and must
+        be a callable function with signature ``jac(x) -> {ndarray,
+        coo_array}``. If the constraint's value of `'jac'` is a boolean and
+        True, the constraint function `fun` is expected to return a tuple
+        `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
+        and the evaluated jacobian `con_jac`.
     eps : float, optional
         Epsilon used in finite differences.
     con_dims : array_like, optional
@@ -324,7 +324,8 @@ def minimize_ipopt(fun,
                    callback=None,
                    options=None):
     """
-    Minimization using Ipopt with an interface like `scipy.optimize.minimize`.
+    Minimization using Ipopt with an interface like
+    :py:func:`scipy.optimize.minimize`.
 
     This function can be used to solve general nonlinear programming problems
     of the form:
@@ -364,7 +365,7 @@ def minimize_ipopt(fun,
         derivatives (``fun``, ``jac``, ``hess``).
     method : str, optional
         This parameter is ignored. `minimize_ipopt` always uses Ipopt; use
-        `scipy.optimize.minimize` directly for other methods.
+        :py:func:`scipy.optimize.minimize` directly for other methods.
     jac : callable, optional
         The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
         ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
@@ -379,13 +380,13 @@ def minimize_ipopt(fun,
         Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
         to specify no bound.
     constraints : {Constraint, dict}, optional
-        See `scipy.optimize.minimize` for more information. Note that the
-        Jacobian of each constraint corresponds to the ``'jac'`` key and must
-        be a callable function with signature
-        ``jac(x) -> {ndarray, coo_array}``. If the constraint's
-        value of ``'jac'`` is ``True``, the constraint function ``fun`` must
-        return a tuple ``(con_val, con_jac)`` consisting of the evaluated
-        constraint ``con_val`` and the evaluated Jacobian ``con_jac``.
+        See :py:func:`scipy.optimize.minimize` for more information. Note that
+        the Jacobian of each constraint corresponds to the ``'jac'`` key and
+        must be a callable function with signature ``jac(x) -> {ndarray,
+        coo_array}``. If the constraint's value of ``'jac'`` is ``True``, the
+        constraint function ``fun`` must return a tuple ``(con_val, con_jac)``
+        consisting of the evaluated constraint ``con_val`` and the evaluated
+        Jacobian ``con_jac``.
     tol : float, optional (default=1e-8)
         The desired relative convergence tolerance, passed as an option to
         Ipopt. See [1]_ for details.
@@ -405,8 +406,9 @@ def minimize_ipopt(fun,
     Examples
     --------
     Consider the problem of minimizing the Rosenbrock function. The Rosenbrock
-    function and its derivatives are implemented in `scipy.optimize.rosen`,
-    `scipy.optimize.rosen_der`, and `scipy.optimize.rosen_hess`.
+    function and its derivatives are implemented in
+    :py:func:`scipy.optimize.rosen`, :py:func:`scipy.optimize.rosen_der`, and
+    :py:func:`scipy.optimize.rosen_hess`.
 
     >>> from cyipopt import minimize_ipopt
     >>> from scipy.optimize import rosen, rosen_der
