@@ -99,7 +99,8 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
+@pytest.mark.parametrize('method', [None, 'slsqp', 'trust-constr'])
+def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs(method):
     """Makes sure that args and kwargs can be passed to all user defined
     functions in minimize_ipopt."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
@@ -118,17 +119,19 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
         "kwargs": {'b': 1.0},
     }
     res = cyipopt.minimize_ipopt(rosen2, x0,
-                                 jac=rosen_der2,
-                                 hess=rosen_hess2,
+                                 method=method,
                                  args=constr['args'],
                                  kwargs=constr['kwargs'],
+                                 jac=rosen_der2,
+                                 hess = rosen_hess2,
                                  constraints=constr)
+    
     assert isinstance(res, dict)
-    assert np.isclose(res.get("fun"), 0.0)
+    assert np.isclose(res.get("fun"), 0.0, atol=1e-6)
     assert res.get("status") == 0
-    assert res.get("success") is True
+    assert res.get("success") == True
     expected_res = np.array([1.0, 1.0])
-    np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-5)
+    np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-3)
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,

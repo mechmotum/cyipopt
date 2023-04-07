@@ -19,7 +19,7 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy.optimize import approx_fprime
+    from scipy.optimize import approx_fprime, minimize
     import scipy.sparse
     try:
         from scipy.optimize import OptimizeResult
@@ -323,6 +323,33 @@ def convert_to_bytes(options):
                 pass
 
 
+def _wrap_fun(fun, kwargs):
+    if callable(fun) and kwargs:
+        def new_fun(x, *args):
+            return fun(x, *args, **kwargs)
+    else:
+        new_fun = fun
+    return new_fun
+
+def _wrap_funs(fun, jac, hess, hessp, constraints, kwargs):
+    wrapped_fun = _wrap_fun(fun, kwargs)
+    wrapped_jac = _wrap_fun(jac, kwargs)
+    wrapped_hess = _wrap_fun(hess, kwargs)
+    wrapped_hessp = _wrap_fun(hessp, kwargs)
+    if isinstance(constraints, dict):
+        constraints = (constraints,)
+    wrapped_constraints = []
+    for constraint in constraints:
+        constraint = constraint.copy()
+        ckwargs = constraint.pop('kwargs', {})
+        constraint['fun'] = _wrap_fun(constraint.get('fun', None), ckwargs)
+        constraint['jac'] = _wrap_fun(constraint.get('jac', None), ckwargs)
+        wrapped_constraints.append(constraint)
+    return (wrapped_fun, wrapped_jac, wrapped_hess, wrapped_hessp,
+            wrapped_constraints)
+
+
+
 def minimize_ipopt(fun,
                    x0,
                    args=(),
@@ -377,8 +404,9 @@ def minimize_ipopt(fun,
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
     method : str, optional
-        This parameter is ignored. `minimize_ipopt` always uses Ipopt; use
-        :py:func:`scipy.optimize.minimize` directly for other methods.
+        If unspecified (default), Ipopt is used.
+        :py:func:`scipy.optimize.minimize` methods can also be used as long
+        as no `kwargs` are specified.
     jac : callable, optional
         The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
         ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
@@ -464,6 +492,17 @@ def minimize_ipopt(fun,
     if not SCIPY_INSTALLED:
         msg = 'Install SciPy to use the `minimize_ipopt` function.'
         raise ImportError(msg)
+
+    if method is not None:
+        # if kwargs is not None:
+        #     message = (f"`method={method}` may only be used if "
+        #                "`kwargs` is `None` (default).")
+        #     raise NotImplementedError(message)
+        funs = _wrap_funs(fun, jac, hess, hessp, constraints, kwargs)
+        fun, jac, hess, hessp, constraints = funs
+        res = minimize(fun, x0, args, method, jac, hess, hessp,
+                       bounds, constraints, tol, callback, options)
+        return res
 
     _x0 = np.atleast_1d(x0)
 
