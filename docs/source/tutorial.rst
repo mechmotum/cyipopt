@@ -390,6 +390,142 @@ The method returns the optimal solution and an info dictionary that contains
 the status of the algorithm, the value of the constraints multipliers at the
 solution, and more.
 
+Accessing iterate and infeasibility vectors in an intermediate callback
+=======================================================================
+
+When debugging an Ipopt solve that converges slowly or not at all, it can be
+very useful to track the primal/dual iterate and infeasibility vectors
+to get a sense for the variable and constraint coordinates that are causing
+a problem. This can be done with Ipopt's ``GetCurrentIterate`` and
+``GetCurrentViolations`` functions, which were added to Ipopt's C interface in
+version 3.14.0. These functions are accessed in CyIpopt via the
+``get_current_iterate`` and ``get_current_violations`` methods of
+``cyipopt.Problem``.
+These methods can be accessed in one of two ways:
+
+- Subclassing ``cyipopt.Problem``
+- Augmenting the intermediate callback signature
+
+Subclassing cyipopt.Problem
+---------------------------
+
+In contrast to the previous example, we now define the HS071
+problem as a subclass of ``cyipopt.Problem``. This is the most straightforward
+way to access to access the ``get_current_iterate`` and ``get_current_violations``
+methods.::
+
+    import cyipopt
+    import numpy as np
+
+    class HS071(cyipopt.Problem):
+
+        def objective(self, x):
+            """Returns the scalar value of the objective given x."""
+            return x[0] * x[3] * np.sum(x[0:3]) + x[2]
+
+        def gradient(self, x):
+            """Returns the gradient of the objective with respect to x."""
+            return np.array([
+                x[0]*x[3] + x[3]*np.sum(x[0:3]),
+                x[0]*x[3],
+                x[0]*x[3] + 1.0,
+                x[0]*np.sum(x[0:3])
+            ])
+
+        def constraints(self, x):
+            """Returns the constraints."""
+            return np.array((np.prod(x), np.dot(x, x)))
+
+        def jacobian(self, x):
+            """Returns the Jacobian of the constraints with respect to x."""
+            return np.concatenate((np.prod(x)/x, 2*x))
+
+        def hessianstructure(self):
+            """Returns the row and column indices for non-zero vales of the
+            Hessian."""
+
+            # NOTE: The default hessian structure is of a lower triangular matrix,
+            # therefore this function is redundant. It is included as an example
+            # for structure callback.
+
+            return np.nonzero(np.tril(np.ones((4, 4))))
+
+        def hessian(self, x, lagrange, obj_factor):
+            """Returns the non-zero values of the Hessian."""
+
+            H = obj_factor*np.array((
+                (2*x[3], 0, 0, 0),
+                (x[3],   0, 0, 0),
+                (x[3],   0, 0, 0),
+                (2*x[0]+x[1]+x[2], x[0], x[0], 0)))
+
+            H += lagrange[0]*np.array((
+                (0, 0, 0, 0),
+                (x[2]*x[3], 0, 0, 0),
+                (x[1]*x[3], x[0]*x[3], 0, 0),
+                (x[1]*x[2], x[0]*x[2], x[0]*x[1], 0)))
+
+            H += lagrange[1]*2*np.eye(4)
+
+            row, col = self.hessianstructure()
+
+            return H[row, col]
+
+        def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
+                         d_norm, regularization_size, alpha_du, alpha_pr,
+                         ls_trials):
+            """Prints information at every Ipopt iteration."""
+            iterate = self.get_current_iterate()
+            infeas = self.get_current_violations()
+            primal = iterate["x"]
+            jac = self.jacobian(primal)
+
+            print("Iteration:", iter_count)
+            print("Primal iterate:", primal)
+            print("Flattened Jacobian:", jac)
+            print("Dual infeasibility:", infeas["grad_lag_x"])
+
+
+Now, in the ``intermediate`` method of ``HS071``, we call
+``self.get_current_iterate`` and ``self.get_current_violations``.
+These are implemented on ``cyipopt.Problem``. These methods return dicts
+that contain each component of the Ipopt iterate and infeasibility
+vectors. The primal iterate and constraint dual iterate can be accessed
+with ``iterate["x"]`` and ``iterate["mult_g"]``, while the primal and
+dual infeasibilities can be accessed with ``infeas["g_violation"]``
+and ``infeas["grad_lag_x"]``. A full list of keys present in these
+dictionaries can be found in the ``cyipopt.Problem`` documentation.
+
+We can now set up and solve the optimization problem.
+Note that now we instantiate the ``HS071`` class and provide it the arguments
+that are required by ``cyipopt.Problem``.
+When we solve, we will see the primal iterate and dual infeasibility vectors
+printed every iteration.::
+
+    lb = [1.0, 1.0, 1.0, 1.0]
+    ub = [5.0, 5.0, 5.0, 5.0]
+
+    cl = [25.0, 40.0]
+    cu = [2.0e19, 40.0]
+
+    x0 = [1.0, 5.0, 5.0, 1.0]
+
+    nlp = HS071(
+        n=len(x0),
+        m=len(cl),
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu,
+    )
+
+    x, info = nlp.solve(x0)
+
+While here we have implemented a very basic callback, much more sophisticated
+analysis is possible. For example, we could compute the condition number or
+rank of the constraint Jacobian to identify when constraint qualifications
+are close to being violated.
+
 Where to go from here
 =====================
 
