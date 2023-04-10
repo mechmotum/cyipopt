@@ -405,8 +405,7 @@ def minimize_ipopt(fun,
         derivatives (``fun``, ``jac``, ``hess``).
     method : str, optional
         If unspecified (default), Ipopt is used.
-        :py:func:`scipy.optimize.minimize` methods can also be used as long
-        as no `kwargs` are specified.
+        :py:func:`scipy.optimize.minimize` methods can also be used.
     jac : callable, optional
         The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
         ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
@@ -494,10 +493,6 @@ def minimize_ipopt(fun,
         raise ImportError(msg)
 
     if method is not None:
-        # if kwargs is not None:
-        #     message = (f"`method={method}` may only be used if "
-        #                "`kwargs` is `None` (default).")
-        #     raise NotImplementedError(message)
         funs = _wrap_funs(fun, jac, hess, hessp, constraints, kwargs)
         fun, jac, hess, hessp, constraints = funs
         res = minimize(fun, x0, args, method, jac, hess, hessp,

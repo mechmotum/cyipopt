@@ -108,16 +108,16 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
     functions in minimize_ipopt."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
 
-    rosen2 = lambda x, a, b=None: rosen(x)*a*b
-    rosen_der2 = lambda x, a, b=None: rosen_der(x)*a*b
-    rosen_hess2 = lambda x, a, b=None: rosen_hess(x)*a*b
+    rosen2 = lambda x, a, b=None: rosen(x)
+    rosen_der2 = lambda x, a, b=None: rosen_der(x)
+    rosen_hess2 = lambda x, a, b=None: rosen_hess(x)
 
     x0 = [0.0, 0.0]
     constr = {
         "type": "ineq",
-        "fun": lambda x, a, b=None: -x[0]**2 - x[1]**2 + 2*a*b,
-        "jac": lambda x, a, b=None: np.array([-2 * x[0], -2 * x[1]])*a*b,
-        "hess": lambda x, v, a, b=None: -2 * np.eye(2) * v[0]*a*b,
+        "fun": lambda x, a, b=None: -x[0]**2 - x[1]**2 + 2,
+        "jac": lambda x, a, b=None: np.array([-2 * x[0], -2 * x[1]]),
+        "hess": lambda x, v, a, b=None: -2 * np.eye(2) * v[0],
         "args": (1.0, ),
         "kwargs": {'b': 1.0},
     }
@@ -212,15 +212,16 @@ def test_minimize_ipopt_jac_with_scipy_methods(method):
     # that we provide are actually being executed; that is, the assertions
     # are *passing*, not being skipped
     assert fun.count > 0
-    if 'jac' in kwargs:
+    if method in jac_methods:
         assert grad.count > 0
-    if 'hess' in kwargs:
+    if method in hess_methods:
         assert hess.count > 0
-    if 'constraints' in kwargs:
-        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=1e-3)
+    if method in constr_methods:
         assert fun_constraint.count > 0
-    if 'constraints' in kwargs and 'jac' in kwargs['constraints']:
         assert grad_constraint.count > 0
+        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=1e-3)
+    else:
+        np.testing.assert_allclose(res.x[2:], 0, atol=1e-3)
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
