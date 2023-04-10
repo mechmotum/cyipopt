@@ -1,3 +1,68 @@
 [build-system]
 requires = ["cython >= 0.26", "oldest-supported-numpy", "setuptools>=39.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyipopt"
+dynamic = ["version"]
+description = "A Cython wrapper to the IPOPT optimization package"
+requires-python = ">=3.7"
+readme = "README.rst"
+license = { file = "LICENSE" }
+keywords = [
+    "coin-or",
+    "interior-point",
+    "ipopt",
+    "nlp",
+    "nonlinear programming",
+    "optimization",
+]
+authors = [
+    { name = "Amit Aides", email = "amitibo@tx.technion.ac.il" },
+    { name = "Anders Andreasen" },
+    { name = "Matthias Kümmerer", email = "matthias.kuemmerer@bethgelab.org" },
+    { name = "André Toscano", email = "andre@venidera.com" },
+    { name = "Wieland Brendel", email = "wieland.brendel@posteo.de" },
+    { name = "Jason K. Moore", email = "moorepants@gmail.com" },
+    { name = "Brandon Bocklund", email = "brandonbocklund@gmail.com" },
+    { name = "Huawei Wang", email = "huawei.wang.buaa@gmail.com" },
+    { name = "Aurélien Pommel", email = "aurelien.pommel@gmail.com" },
+    { name = "Avik De", email = "avikde@gmail.com" },
+    { name = "Sam Brockie", email = "sgb39@cam.ac.uk" },
+    { name = "Yannik Schälte", email = "yannik.schaelte@gmail.com" },
+    { name = "Jonathan Helgert", email = "jonathan.helgert@posteo.de" },
+    { name = "Benjamin A. Beasley", email = "code@musicinmybrain.net" },
+    { name = "Tobias Kies", email = "tobias.kies@artemis.auto" },
+    { name = "John Siirola", email = "jsiirola@users.noreply.github.com" },
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = ["numpy >= 1.15"]
+
+[tools.setup]
+zip-safe = false
+
+[tool.setuptools]
+packages = ["cyipopt", "ipopt"]
+
+[tool.setuptools.dynamic]
+version = { attr = "cyipopt.version.__version__" }
+
+[project.urls]
+documentation = "https://cyipopt.readthedocs.io/en/stable/"
+repository = "https://github.com/mechmotum/cyipopt"
+changelog = "https://github.com/mechmotum/cyipopt/blob/master/CHANGELOG.rst"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "cyipopt/tests"
+]
