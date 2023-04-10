@@ -14,6 +14,10 @@ import pytest
 
 import cyipopt
 
+# Hard-code rather than importing from scipy.optimize._minimize in a try/except
+MINIMIZE_METHODS = ['nelder-mead', 'powell', 'cg', 'bfgs', 'newton-cg',
+                    'l-bfgs-b', 'tnc', 'cobyla', 'slsqp', 'trust-constr',
+                    'dogleg', 'trust-ncg', 'trust-exact', 'trust-krylov']
 
 @pytest.mark.skipif("scipy" in sys.modules,
                     reason="Test only valid if no Scipy available.")
@@ -129,6 +133,94 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
     assert res.get("success") is True
     expected_res = np.array([1.0, 1.0])
     np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-5)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+@pytest.mark.parametrize('method', MINIMIZE_METHODS)
+def test_minimize_ipopt_jac_with_scipy_methods(method):
+    x0 = [0] * 4
+    a0, b0, c0, d0 = 1, 2, 3, 4
+
+    def fun(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        fun.count += 1
+        return (x[0] - a) ** 2 + (x[1] - b) ** 2 + x[2] ** 2 + x[3] ** 2
+
+    def grad(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        grad.count += 1
+        return [2 * (x[0] - a), 2 * (x[1] - b), 2 * x[2], 2 * x[3]]
+
+    def hess(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        hess.count += 1
+        return 2 * np.eye(4)
+
+    def fun_constraint(x, c=0, e=0, d=0):
+        assert c == c0
+        assert d == d0
+        fun_constraint.count += 1
+        return [(x[2] - c) ** 2, (x[3] - d) ** 2]
+
+    def grad_constraint(x, c=0, e=0, d=0):
+        assert c == c0
+        assert d == d0
+        grad_constraint.count += 1
+        return np.hstack((np.zeros((2, 2)),
+                         np.diag([2 * (x[2] - c), 2 * (x[3] - d)])))
+
+    fun.count = 0
+    grad.count = 0
+    hess.count = 0
+    fun_constraint.count = 0
+    grad_constraint.count = 0
+
+    constr = {
+        "type": "eq",
+        "fun": fun_constraint,
+        "jac": grad_constraint,
+        "args": (c0,),
+        "kwargs": {'d': d0},
+    }
+
+    kwargs = {}
+    jac_methods = {'cg', 'bfgs', 'newton-cg', 'l-bfgs-b', 'tnc', 'slsqp,',
+                   'dogleg', 'trust-ncg', 'trust-krylov', 'trust-exact',
+                   'trust-constr'}
+    hess_methods = {'newton-cg', 'dogleg', 'trust-ncg', 'trust-krylov',
+                   'trust-exact', 'trust-constr'}
+    constr_methods = {'slsqp', 'trust-constr'}
+
+    if method in jac_methods:
+        kwargs['jac'] = grad
+    if method in hess_methods:
+        kwargs['hess'] = hess
+    if method in constr_methods:
+        kwargs['constraints'] = constr
+
+    res = cyipopt.minimize_ipopt(fun, x0, method=method, args=(a0,),
+                                 kwargs={'b': b0}, **kwargs)
+
+    assert res.success
+    np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=1e-3)
+
+    # confirm that the test covers what we think it does: all the functions
+    # that we provide are actually being executed; that is, the assertions
+    # are *passing*, not being skipped
+    assert fun.count > 0
+    if 'jac' in kwargs:
+        assert grad.count > 0
+    if 'hess' in kwargs:
+        assert hess.count > 0
+    if 'constraints' in kwargs:
+        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=1e-3)
+        assert fun_constraint.count > 0
+    if 'constraints' in kwargs and 'jac' in kwargs['constraints']:
+        assert grad_constraint.count > 0
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
