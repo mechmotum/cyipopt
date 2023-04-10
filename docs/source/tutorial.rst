@@ -406,13 +406,13 @@ These methods can be accessed in one of two ways:
 - Subclassing ``cyipopt.Problem``
 - Augmenting the intermediate callback signature
 
-Subclassing cyipopt.Problem
----------------------------
+Subclassing ``cyipopt.Problem``
+-------------------------------
 
 In contrast to the previous example, we now define the HS071
 problem as a subclass of ``cyipopt.Problem``. This is the most straightforward
 way to access to access the ``get_current_iterate`` and ``get_current_violations``
-methods.::
+methods::
 
     import cyipopt
     import numpy as np
