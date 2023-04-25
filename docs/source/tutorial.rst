@@ -165,7 +165,7 @@ We start by importing all required libraries::
    config.update('jax_platform_name', 'cpu')
 
    import jax.numpy as np
-   from jax import jit, grad, jacfwd
+   from jax import jit, grad, jacfwd, jacrev
    from cyipopt import minimize_ipopt
 
 
