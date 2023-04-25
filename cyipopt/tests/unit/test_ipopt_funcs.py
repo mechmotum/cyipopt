@@ -276,6 +276,77 @@ def test_get_iterate_hs071_12arg_callback(
     pre_3_14_0,
     reason="GetIpoptCurrentIterate was introduced in Ipopt v3.14.0",
 )
+def test_get_iterate_hs071_vararg_callback(
+    hs071_initial_guess_fixture,
+    hs071_definition_instance_fixture,
+    hs071_variable_lower_bounds_fixture,
+    hs071_variable_upper_bounds_fixture,
+    hs071_constraint_lower_bounds_fixture,
+    hs071_constraint_upper_bounds_fixture,
+):
+    # This test makes sure we pass the correct information to the user's
+    # callback even when using a callback with variable number of arguments,
+    # i.e. using *args.
+    x0 = hs071_initial_guess_fixture
+    lb = hs071_variable_lower_bounds_fixture
+    ub = hs071_variable_upper_bounds_fixture
+    cl = hs071_constraint_lower_bounds_fixture
+    cu = hs071_constraint_upper_bounds_fixture
+    n = len(x0)
+    m = len(cl)
+
+    #
+    # Define a callback that uses some "global" information to call
+    # get_current_iterate and store the result
+    #
+    x_iterates = []
+    iter_counts = []
+    def intermediate(*args):
+        iterate = args[11].get_current_iterate(scaled=False)
+        x_iterates.append(iterate["x"])
+
+        # Hack so we may get the number of iterations after the solve
+        iter_counts.append(args[1])
+
+    problem_definition = hs071_definition_instance_fixture
+    # Replace "intermediate" attribute with our callback
+    problem_definition.intermediate = intermediate
+
+    nlp = cyipopt.Problem(
+        n=n,
+        m=m,
+        problem_obj=problem_definition,
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu,
+    )
+
+    # Disable bound push to make testing easier
+    nlp.add_option("bound_push", 1e-9)
+    x, info = nlp.solve(x0)
+
+    # Assert correct solution
+    expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
+    np.testing.assert_allclose(x, expected_x)
+
+    #
+    # Assert some very basic information about the collected primal iterates
+    #
+    iter_count = iter_counts[-1]
+    assert len(x_iterates) == (1 + iter_count)
+
+    # These could be different due to bound_push (and scaling)
+    np.testing.assert_allclose(x_iterates[0], x0)
+
+    # These could be different due to honor_original_bounds (and scaling)
+    np.testing.assert_allclose(x_iterates[-1], x)
+
+
+@pytest.mark.skipif(
+    pre_3_14_0,
+    reason="GetIpoptCurrentIterate was introduced in Ipopt v3.14.0",
+)
 def test_get_iterate_hs071_subclass_Problem(
     hs071_initial_guess_fixture,
     hs071_definition_instance_fixture,
