@@ -248,12 +248,6 @@ cdef class Problem:
                         The stepsize for the primal variables.
                     ``ls_trials``:
                         The number of backtracking line search steps.
-                    ``problem`` (optional):
-                        The ``Problem`` object itself. This argument can be used
-                        to call the ``get_current_iterate`` and
-                        ``get_current_violations`` methods from a callback that
-                        is not a method on this class. This argument is optional
-                        for backwards compatibility.
 
                 more information can be found in the following link:
                 https://coin-or.github.io/Ipopt/OUTPUT.html
@@ -286,7 +280,6 @@ cdef class Problem:
     cdef public Index __m
 
     cdef public object __exception
-    cdef public object __send_self_to_intermediate
     cdef Bool __in_ipopt_solve
 
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
@@ -438,57 +431,6 @@ cdef class Problem:
             raise RuntimeError(msg)
 
         SetIntermediateCallback(self.__nlp, intermediate_cb)
-        if self.__intermediate is None:
-            self.__send_self_to_intermediate = None
-        else:
-            # A callback was provided. We need to know whether to send this
-            # callback 11 arguments or 12 arguments.
-            cb_signature = inspect.signature(self.__intermediate)
-            pos_args = [
-                param for param in cb_signature.parameters.values()
-                if param.kind in {
-                    inspect.Parameter.POSITIONAL_ONLY,
-                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
-                }
-            ]
-            var_args = [
-                param for param in cb_signature.parameters.values()
-                if param.kind == inspect.Parameter.VAR_POSITIONAL
-            ]
-            kwd_args = [
-                param for param in cb_signature.parameters.values()
-                if param.kind == inspect.Parameter.VAR_KEYWORD
-            ]
-            if kwd_args:
-                # **kwds is not allowed in the intermediate callback
-                raise RuntimeError(
-                    "Variable keyword arguments are not allowed in the"
-                    " intermediate callback function."
-                )
-            elif var_args:
-                # Even if *args is provided, having more than 12 positional
-                # arguments is an error.
-                if len(pos_args) > 12:
-                    raise RuntimeError(
-                        "More than 12 positional arguments were specified in"
-                        " the intermediate callback."
-                    )
-                # If a catchall *args argument is specified in the callback,
-                # send all 12 possible callback arguments.
-                self.__send_self_to_intermediate = True
-            elif len(pos_args) == 11:
-                # If the callback takes 11 arguments, do not send self
-                self.__send_self_to_intermediate = False
-            elif len(pos_args) == 12:
-                # If the callback takes 12 arguments, do send self
-                self.__send_self_to_intermediate = True
-            else:
-                raise RuntimeError(
-                    "Invalid intermediate callback call signature. This"
-                    " callback must accept either 11 or 12 positional"
-                    " arguments or a variable number of positional"
-                    " arguments."
-                )
 
         if self.__hessian is None:
             msg = b"Hessian callback not given, using approximation"
@@ -1181,33 +1123,18 @@ cdef Bool intermediate_cb(Index alg_mod,
     if not self.__intermediate:
         return True
 
-    if self.__send_self_to_intermediate:
-        ret_val = self.__intermediate(alg_mod,
-                                      iter_count,
-                                      obj_value,
-                                      inf_pr,
-                                      inf_du,
-                                      mu,
-                                      d_norm,
-                                      regularization_size,
-                                      alpha_du,
-                                      alpha_pr,
-                                      ls_trials,
-                                      self
-                                      )
-    else:
-        ret_val = self.__intermediate(alg_mod,
-                                      iter_count,
-                                      obj_value,
-                                      inf_pr,
-                                      inf_du,
-                                      mu,
-                                      d_norm,
-                                      regularization_size,
-                                      alpha_du,
-                                      alpha_pr,
-                                      ls_trials
-                                      )
+    ret_val = self.__intermediate(alg_mod,
+                                  iter_count,
+                                  obj_value,
+                                  inf_pr,
+                                  inf_du,
+                                  mu,
+                                  d_norm,
+                                  regularization_size,
+                                  alpha_du,
+                                  alpha_pr,
+                                  ls_trials
+                                  )
 
     if ret_val is None:
         return True
