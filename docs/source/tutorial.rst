@@ -398,21 +398,16 @@ very useful to track the primal/dual iterate and infeasibility vectors
 to get a sense for the variable and constraint coordinates that are causing
 a problem. This can be done with Ipopt's ``GetCurrentIterate`` and
 ``GetCurrentViolations`` functions, which were added to Ipopt's C interface in
-version 3.14.0. These functions are accessed in CyIpopt via the
+Ipopt version 3.14.0. These functions are accessed in CyIpopt via the
 ``get_current_iterate`` and ``get_current_violations`` methods of
 ``cyipopt.Problem``.
-These methods can be accessed in one of two ways:
+These methods should only be called during an intermediate callback.
+To access them, we define our problem as a subclass of ``cyipopt.Problem``
+and access the ``get_current_iterate`` and ``get_current_violations`` methods
+on ``self``.
 
-- Subclassing ``cyipopt.Problem``
-- Augmenting the intermediate callback signature
-
-Subclassing ``cyipopt.Problem``
--------------------------------
-
-In contrast to the previous example, we now define the HS071
-problem as a subclass of ``cyipopt.Problem``. This is the most straightforward
-way to access to access the ``get_current_iterate`` and ``get_current_violations``
-methods::
+In contrast to the previous example, we now define the HS071 problem as a
+subclass of ``cyipopt.Problem``::
 
     import cyipopt
     import numpy as np
@@ -500,7 +495,7 @@ We can now set up and solve the optimization problem.
 Note that now we instantiate the ``HS071`` class and provide it the arguments
 that are required by ``cyipopt.Problem``.
 When we solve, we will see the primal iterate and dual infeasibility vectors
-printed every iteration.::
+printed every iteration::
 
     lb = [1.0, 1.0, 1.0, 1.0]
     ub = [5.0, 5.0, 5.0, 5.0]
