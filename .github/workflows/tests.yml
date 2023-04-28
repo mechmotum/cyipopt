@@ -54,6 +54,6 @@ jobs:
         # Ipopt needed different libfortrans.
         if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
         run: |
-          mamba install -q -y -c conda-forge cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2 scipy==1.10.0
+          mamba install -q -y -c conda-forge cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2 "scipy=1.10.0"
           mamba list
           pytest
