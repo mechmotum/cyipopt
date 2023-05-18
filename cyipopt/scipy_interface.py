@@ -113,8 +113,10 @@ class IpoptProblemWrapper(object):
         if hess is not None:
             self.obj_hess = hess
         if jac is None:
-            jac = lambda x0, *args, **kwargs: approx_fprime(
-                x0, fun, eps, *args, **kwargs)
+            def jac(x, *args, **kwargs):
+                def wrapped_fun(x):
+                    return fun(x, *args, **kwargs)
+                return approx_fprime(x, wrapped_fun, eps)
         elif jac is True:
             fun = MemoizeJac(fun)
             jac = fun.derivative
@@ -367,6 +369,14 @@ def minimize_ipopt(fun,
     Minimization using Ipopt with an interface like
     :py:func:`scipy.optimize.minimize`.
 
+    Differences compared to :py:func:`scipy.optimize.minimize` include:
+
+    - A different default `method`: when `method` is not provided, Ipopt is
+      used to solve the problem.
+    - Support for parameter `kwargs`: additional keyword arguments to be
+      passed to the objective function, constraints, and their derivatives.
+    - Lack of support for `callback` and `hessp` with the default `method`.
+
     This function can be used to solve general nonlinear programming problems
     of the form:
 
@@ -414,8 +424,9 @@ def minimize_ipopt(fun,
         ``hess(x) -> ndarray, shape(n, )``.
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
     hessp : callable, optional
-        This parameter is currently unused. An error will be raised if a value
-        other than ``None`` is provided.
+        If `method` is one of the SciPy methods, this is a callable that
+        produces the inner product of the Hessian and a vector. Otherwise, an
+        error will be raised if a value other than ``None`` is provided.
     bounds :  sequence, shape(n, ), optional
         Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
         to specify no bound.
@@ -436,7 +447,8 @@ def minimize_ipopt(fun,
         and ``max_iter``. All other options are passed directly to Ipopt. See
         [1]_ for details.
     callback : callable, optional
-        This parameter is ignored.
+        This parameter is ignored unless a `method` is one of the SciPy
+        methods.
 
     References
     ----------
