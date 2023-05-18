@@ -447,7 +447,7 @@ def minimize_ipopt(fun,
         and ``max_iter``. All other options are passed directly to Ipopt. See
         [1]_ for details.
     callback : callable, optional
-        This parameter is ignored unless a `method` is one of the SciPy
+        This parameter is ignored unless `method` is one of the SciPy
         methods.
 
     References

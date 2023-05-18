@@ -108,16 +108,16 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
     functions in minimize_ipopt."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
 
-    rosen2 = lambda x, a, b=None: rosen(x)
-    rosen_der2 = lambda x, a, b=None: rosen_der(x)
-    rosen_hess2 = lambda x, a, b=None: rosen_hess(x)
+    rosen2 = lambda x, a, b=None: rosen(x)*a*b
+    rosen_der2 = lambda x, a, b=None: rosen_der(x)*a*b
+    rosen_hess2 = lambda x, a, b=None: rosen_hess(x)*a*b
 
     x0 = [0.0, 0.0]
     constr = {
         "type": "ineq",
-        "fun": lambda x, a, b=None: -x[0]**2 - x[1]**2 + 2,
-        "jac": lambda x, a, b=None: np.array([-2 * x[0], -2 * x[1]]),
-        "hess": lambda x, v, a, b=None: -2 * np.eye(2) * v[0],
+        "fun": lambda x, a, b=None: -x[0]**2 - x[1]**2 + 2*a*b,
+        "jac": lambda x, a, b=None: np.array([-2 * x[0], -2 * x[1]])*a*b,
+        "hess": lambda x, v, a, b=None: -2 * np.eye(2) * v[0]*a*b,
         "args": (1.0, ),
         "kwargs": {'b': 1.0},
     }
