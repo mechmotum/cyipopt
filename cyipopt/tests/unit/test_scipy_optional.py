@@ -28,9 +28,11 @@ def test_minimize_ipopt_import_error_if_no_scipy():
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_input_validation():
+    from scipy import optimize
+
     x0 = 1
     def f(x):
-        return x**2
+        return x @ x
 
     message = "`fun` must be callable."
     with pytest.raises(ValueError, match=message):
@@ -59,6 +61,18 @@ def test_minimize_ipopt_input_validation():
     message = "`hessp` is not yet supported by Ipopt."
     with pytest.raises(NotImplementedError, match=message):
         cyipopt.minimize_ipopt(f, x0, hessp='shrubbery')
+
+    message = "`bounds` must specify both lower and upper..."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, [1, 2], bounds=1)
+
+    message = "The number of lower bounds, upper bounds..."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, [1, 2], bounds=[(1, 2), (3, 4), (5, 6)])
+
+    message = "The bounds must be numeric."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, bounds=[['low', 'high']])
 
     message = "`callback` is not yet supported by Ipopt."
     with pytest.raises(NotImplementedError, match=message):
@@ -365,3 +379,25 @@ def test_minimize_ipopt_hs071():
     assert res.get("success") is True
     expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
     np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_minimize_ipopt_bounds():
+    # Test that `minimize_ipopt` accepts  bounds sequences or `optimize.Bounds`
+    from scipy import optimize
+
+    def f(x):
+        return x @ x
+
+    # accept size 2 sequence containing same bounds for all variables
+    res = cyipopt.minimize_ipopt(f, [2, 3], bounds=[1, 10])
+    np.testing.assert_allclose(res.x, [1, 1])
+
+    res = cyipopt.minimize_ipopt(f, [2, 3], bounds=[None, None])
+    np.testing.assert_allclose(res.x, [0, 0], atol=1e-6)
+
+    # accept instance of Bounds
+    bounds = optimize.Bounds(lb=0.5, ub=[1, 2])
+    res = cyipopt.minimize_ipopt(f, [2, 3], bounds=bounds)
+    np.testing.assert_allclose(res.x, [0.5, 0.5])

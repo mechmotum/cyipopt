@@ -19,7 +19,7 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy.optimize import approx_fprime
+    from scipy import optimize
     import scipy.sparse
     try:
         from scipy.optimize import OptimizeResult
@@ -130,7 +130,7 @@ class IpoptProblemWrapper(object):
         if hess is not None:
             self.obj_hess = hess
         if jac is None:
-            jac = lambda x0, *args, **kwargs: approx_fprime(
+            jac = lambda x0, *args, **kwargs: optimize.approx_fprime(
                 x0, fun, eps, *args, **kwargs)
         elif jac is True:
             fun = MemoizeJac(fun)
@@ -157,7 +157,7 @@ class IpoptProblemWrapper(object):
             con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', {})
             if con_jac is None:
-                con_jac = lambda x0, *args, **kwargs: approx_fprime(
+                con_jac = lambda x0, *args, **kwargs: optimize.approx_fprime(
                     x0, con_fun, eps, *args, **kwargs)
             elif con_jac is True:
                 con_fun = MemoizeJac(con_fun)
@@ -486,13 +486,11 @@ def minimize_ipopt(fun,
     (fun, x0, args, kwargs, method, jac, hess, hessp,
      bounds, constraints, tol, callback, options) = res
 
-    _x0 = np.atleast_1d(x0)
-
-    lb, ub = get_bounds(bounds)
-    cl, cu = get_constraint_bounds(constraints, _x0)
-    con_dims = get_constraint_dimensions(constraints, _x0)
+    lb, ub = bounds
+    cl, cu = get_constraint_bounds(constraints, x0)
+    con_dims = get_constraint_dimensions(constraints, x0)
     sparse_jacs, jac_nnz_row, jac_nnz_col = _get_sparse_jacobian_structure(
-        constraints, _x0)
+        constraints, x0)
 
     problem = IpoptProblemWrapper(fun,
                                   args=args,
@@ -510,7 +508,7 @@ def minimize_ipopt(fun,
     if options is None:
         options = {}
 
-    nlp = cyipopt.Problem(n=len(_x0),
+    nlp = cyipopt.Problem(n=len(x0),
                           m=len(cl),
                           problem_obj=problem,
                           lb=lb,
@@ -540,10 +538,7 @@ def minimize_ipopt(fun,
             msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
             raise TypeError(msg.format(option, value, e))
 
-    x, info = nlp.solve(_x0)
-
-    if np.asarray(x0).shape == ():
-        x = x[0]
+    x, info = nlp.solve(x0)
 
     return OptimizeResult(x=x,
                           success=info['status'] == 0,
@@ -555,20 +550,50 @@ def minimize_ipopt(fun,
                           njev=problem.njev,
                           nit=problem.nit)
 
+
 def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
                        bounds, constraints, tol, callback, options):
     # basic input validation for minimize_ipopt that is not included in
     # IpoptProblemWrapper
-
-    x0 = np.asarray(x0)[()]
+    x0 = np.atleast_1d(x0)
     if not np.issubdtype(x0.dtype, np.number):
         raise ValueError('`x0` must be a numeric array.')
 
     if method is not None:  # this will be updated when gh-200 is merged
         raise NotImplementedError('`method` is not yet supported.`')
 
-    # TODO: add input validation for `bounds` when adding
-    #  support for instances of new-style constraints (e.g. `Bounds`)
+    # Handle bounds that are either sequences (of sequences) or instances of
+    # `optimize.Bounds`.
+    if bounds is None:
+        bounds = [-np.inf, np.inf]
+
+    if isinstance(bounds, optimize.Bounds):
+        lb, ub = bounds.lb, bounds.ub
+    else:
+        bounds = np.atleast_2d(bounds)
+        if bounds.shape[1] != 2:
+            raise ValueError("`bounds` must specify both lower and upper "
+                             "limits for each decision variable.")
+        lb, ub = bounds.T
+
+    try:
+        lb, ub, x0 = np.broadcast_arrays(lb, ub, x0)
+    except ValueError:
+        raise ValueError("The number of lower bounds, upper bounds, and "
+                         "decision variables must be equal or broadcastable.")
+
+    try:
+        lb = lb.astype(np.float64)
+        ub = ub.astype(np.float64)
+    except ValueError:
+        raise ValueError("The bounds must be numeric.")
+
+    # Nones turn into NaNs above. Previously, NaNs caused Ipopt to hang, so
+    # I'm not concerned about turning them into infs.
+    lb[np.isnan(lb)] = -np.inf
+    ub[np.isnan(ub)] = np.inf
+
+    bounds = lb, ub
 
     if callback is not None:
         raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
