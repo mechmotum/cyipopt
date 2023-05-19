@@ -107,9 +107,26 @@ class IpoptProblemWrapper(object):
             raise ImportError()
         self.obj_hess = None
         self.last_x = None
+
+        # Input validation of user-provided arguments
+        if fun is not None and not callable(fun):
+            raise ValueError('`fun` must be callable.')
+        if not isinstance(args, tuple):
+            args = (args,)
+        kwargs = dict() if kwargs is None else kwargs
+        if not isinstance(kwargs, dict):
+            raise ValueError('`kwargs` must be a dictionary.')
+        if jac is not None and jac not in {True, False} and not callable(jac):
+            raise ValueError('`jac` must be callable or boolean.')
+        if hess is not None and not callable(hess):
+            raise ValueError('`hess` must be callable.')
         if hessp is not None:
-            msg = 'Using hessian matrix times an arbitrary vector is not yet implemented!'
-            raise NotImplementedError(msg)
+            raise NotImplementedError(
+                '`hessp` is not yet supported by Ipopt.`')
+        # TODO: add input validation for `constraints` when adding
+        #  support for instances of new-style constraints (e.g.
+        #  `NonlinearConstraint`) and sequences of constraints.
+
         if hess is not None:
             self.obj_hess = hess
         if jac is None:
@@ -118,8 +135,7 @@ class IpoptProblemWrapper(object):
         elif jac is True:
             fun = MemoizeJac(fun)
             jac = fun.derivative
-        elif not callable(jac):
-            raise NotImplementedError('jac has to be bool or a function')
+
         self.fun = fun
         self.jac = jac
         self.args = args
@@ -465,6 +481,11 @@ def minimize_ipopt(fun,
         msg = 'Install SciPy to use the `minimize_ipopt` function.'
         raise ImportError(msg)
 
+    res = _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
+                             bounds, constraints, tol, callback, options)
+    (fun, x0, args, kwargs, method, jac, hess, hessp,
+     bounds, constraints, tol, callback, options) = res
+
     _x0 = np.atleast_1d(x0)
 
     lb, ub = get_bounds(bounds)
@@ -533,3 +554,33 @@ def minimize_ipopt(fun,
                           nfev=problem.nfev,
                           njev=problem.njev,
                           nit=problem.nit)
+
+def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
+                       bounds, constraints, tol, callback, options):
+    # basic input validation for minimize_ipopt that is not included in
+    # IpoptProblemWrapper
+
+    x0 = np.asarray(x0)[()]
+    if not np.issubdtype(x0.dtype, np.number):
+        raise ValueError('`x0` must be a numeric array.')
+
+    if method is not None:  # this will be updated when gh-200 is merged
+        raise NotImplementedError('`method` is not yet supported.`')
+
+    # TODO: add input validation for `bounds` when adding
+    #  support for instances of new-style constraints (e.g. `Bounds`)
+
+    if callback is not None:
+        raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
+
+    if tol is not None:
+        tol = np.asarray(tol)[()]
+        if tol.ndim != 0 or not np.issubdtype(tol.dtype, np.number) or tol <= 0:
+            raise ValueError('`tol` must be a positive scalar.')
+
+    options = dict() if options is None else options
+    if not isinstance(options, dict):
+        raise ValueError('`options` must be a dictionary.')
+
+    return (fun, x0, args, kwargs, method, jac, hess, hessp,
+            bounds, constraints, tol, callback, options)

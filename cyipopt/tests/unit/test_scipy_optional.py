@@ -27,6 +27,58 @@ def test_minimize_ipopt_import_error_if_no_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
+def test_minimize_ipopt_input_validation():
+    x0 = 1
+    def f(x):
+        return x**2
+
+    message = "`fun` must be callable."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt('migratory coconuts', x0)
+
+    message = "`x0` must be a numeric array."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, 'spamalot')
+
+    message = "`kwargs` must be a dictionary."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, kwargs='elderberries')
+
+    message = "`method` is not yet supported."
+    with pytest.raises(NotImplementedError, match=message):
+        cyipopt.minimize_ipopt(f, x0, method='a newt')
+
+    message = "`jac` must be callable or boolean."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, jac='self-perpetuating autocracy')
+
+    message = "`hess` must be callable."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, hess='farcical aquatic ceremony')
+
+    message = "`hessp` is not yet supported by Ipopt."
+    with pytest.raises(NotImplementedError, match=message):
+        cyipopt.minimize_ipopt(f, x0, hessp='shrubbery')
+
+    message = "`callback` is not yet supported by Ipopt."
+    with pytest.raises(NotImplementedError, match=message):
+        cyipopt.minimize_ipopt(f, x0, callback='a duck')
+
+    message = "`tol` must be a positive scalar."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol=[1, 2, 3])
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol='ni')
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol=-1)
+
+    message = "`options` must be a dictionary."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, options='supreme executive power')
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_if_scipy():
     """If SciPy is installed `minimize_ipopt` works correctly."""
     from scipy.optimize import rosen, rosen_der
