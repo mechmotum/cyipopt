@@ -15,9 +15,10 @@ import pytest
 import cyipopt
 
 # Hard-code rather than importing from scipy.optimize._minimize in a try/except
-MINIMIZE_METHODS = ['nelder-mead', 'powell', 'cg', 'bfgs', 'newton-cg',
-                    'l-bfgs-b', 'tnc', 'cobyla', 'slsqp', 'trust-constr',
-                    'dogleg', 'trust-ncg', 'trust-exact', 'trust-krylov']
+try:
+    from scipy.optimize._minimize import MINIMIZE_METHODS
+except ImportError:
+    MINIMIZE_METHODS = []
 
 @pytest.mark.skipif("scipy" in sys.modules,
                     reason="Test only valid if no Scipy available.")
@@ -141,6 +142,7 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
 def test_minimize_ipopt_jac_with_scipy_methods(method):
     x0 = [0] * 4
     a0, b0, c0, d0 = 1, 2, 3, 4
+    atol, rtol = 5e-5, 5e-5
 
     def fun(x, a=0, e=0, b=0):
         assert a == a0
@@ -220,7 +222,7 @@ def test_minimize_ipopt_jac_with_scipy_methods(method):
                                  kwargs={'b': b0}, **kwargs)
 
     assert res.success
-    np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=1e-3)
+    np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=rtol)
 
     # confirm that the test covers what we think it does: all the functions
     # that we provide are actually being executed; that is, the assertions
@@ -235,9 +237,9 @@ def test_minimize_ipopt_jac_with_scipy_methods(method):
     if method in constr_methods:
         assert fun_constraint.count > 0
         assert grad_constraint.count > 0
-        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=1e-3)
+        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=rtol)
     else:
-        np.testing.assert_allclose(res.x[2:], 0, atol=1e-3)
+        np.testing.assert_allclose(res.x[2:], 0, atol=atol)
 
     # For methods that support `hessp`, check that it works, too.
     if method in hessp_methods:
@@ -248,11 +250,11 @@ def test_minimize_ipopt_jac_with_scipy_methods(method):
                                      kwargs={'b': b0}, **kwargs)
         assert res.success
         assert hessp.count > 0
-        np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=1e-3)
+        np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=rtol)
         if method in constr_methods:
-            np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=1e-3)
+            np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=rtol)
         else:
-            np.testing.assert_allclose(res.x[2:], 0, atol=1e-3)
+            np.testing.assert_allclose(res.x[2:], 0, atol=atol)
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
