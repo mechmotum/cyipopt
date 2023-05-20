@@ -19,7 +19,7 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy.optimize import approx_fprime
+    from scipy.optimize import approx_fprime, minimize
     import scipy.sparse
     try:
         from scipy.optimize import OptimizeResult
@@ -130,8 +130,10 @@ class IpoptProblemWrapper(object):
         if hess is not None:
             self.obj_hess = hess
         if jac is None:
-            jac = lambda x0, *args, **kwargs: approx_fprime(
-                x0, fun, eps, *args, **kwargs)
+            def jac(x, *args, **kwargs):
+                def wrapped_fun(x):
+                    return fun(x, *args, **kwargs)
+                return approx_fprime(x, wrapped_fun, eps)
         elif jac is True:
             fun = MemoizeJac(fun)
             jac = fun.derivative
@@ -342,6 +344,33 @@ def convert_to_bytes(options):
                 pass
 
 
+def _wrap_fun(fun, kwargs):
+    if callable(fun) and kwargs:
+        def new_fun(x, *args):
+            return fun(x, *args, **kwargs)
+    else:
+        new_fun = fun
+    return new_fun
+
+def _wrap_funs(fun, jac, hess, hessp, constraints, kwargs):
+    wrapped_fun = _wrap_fun(fun, kwargs)
+    wrapped_jac = _wrap_fun(jac, kwargs)
+    wrapped_hess = _wrap_fun(hess, kwargs)
+    wrapped_hessp = _wrap_fun(hessp, kwargs)
+    if isinstance(constraints, dict):
+        constraints = (constraints,)
+    wrapped_constraints = []
+    for constraint in constraints:
+        constraint = constraint.copy()
+        ckwargs = constraint.pop('kwargs', {})
+        constraint['fun'] = _wrap_fun(constraint.get('fun', None), ckwargs)
+        constraint['jac'] = _wrap_fun(constraint.get('jac', None), ckwargs)
+        wrapped_constraints.append(constraint)
+    return (wrapped_fun, wrapped_jac, wrapped_hess, wrapped_hessp,
+            wrapped_constraints)
+
+
+
 def minimize_ipopt(fun,
                    x0,
                    args=(),
@@ -358,6 +387,14 @@ def minimize_ipopt(fun,
     """
     Minimization using Ipopt with an interface like
     :py:func:`scipy.optimize.minimize`.
+
+    Differences compared to :py:func:`scipy.optimize.minimize` include:
+
+    - A different default `method`: when `method` is not provided, Ipopt is
+      used to solve the problem.
+    - Support for parameter `kwargs`: additional keyword arguments to be
+      passed to the objective function, constraints, and their derivatives.
+    - Lack of support for `callback` and `hessp` with the default `method`.
 
     This function can be used to solve general nonlinear programming problems
     of the form:
@@ -396,8 +433,8 @@ def minimize_ipopt(fun,
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
     method : str, optional
-        This parameter is ignored. `minimize_ipopt` always uses Ipopt; use
-        :py:func:`scipy.optimize.minimize` directly for other methods.
+        If unspecified (default), Ipopt is used.
+        :py:func:`scipy.optimize.minimize` methods can also be used.
     jac : callable, optional
         The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
         ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
@@ -406,8 +443,9 @@ def minimize_ipopt(fun,
         ``hess(x) -> ndarray, shape(n, )``.
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
     hessp : callable, optional
-        This parameter is currently unused. An error will be raised if a value
-        other than ``None`` is provided.
+        If `method` is one of the SciPy methods, this is a callable that
+        produces the inner product of the Hessian and a vector. Otherwise, an
+        error will be raised if a value other than ``None`` is provided.
     bounds :  sequence, shape(n, ), optional
         Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
         to specify no bound.
@@ -428,7 +466,8 @@ def minimize_ipopt(fun,
         and ``max_iter``. All other options are passed directly to Ipopt. See
         [1]_ for details.
     callback : callable, optional
-        This parameter is ignored.
+        This parameter is ignored unless `method` is one of the SciPy
+        methods.
 
     References
     ----------
@@ -488,6 +527,13 @@ def minimize_ipopt(fun,
                              bounds, constraints, tol, callback, options)
     (fun, x0, args, kwargs, method, jac, hess, hessp,
      bounds, constraints, tol, callback, options) = res
+
+    if method is not None:
+        funs = _wrap_funs(fun, jac, hess, hessp, constraints, kwargs)
+        fun, jac, hess, hessp, constraints = funs
+        res = minimize(fun, x0, args, method, jac, hess, hessp,
+                       bounds, constraints, tol, callback, options)
+        return res
 
     _x0 = np.atleast_1d(x0)
 
@@ -567,13 +613,14 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
     if not np.issubdtype(x0.dtype, np.number):
         raise ValueError('`x0` must be a numeric array.')
 
-    if method is not None:  # this will be updated when gh-200 is merged
-        raise NotImplementedError('`method` is not yet supported.`')
+    # `method` does not need input validation. If `method is not None`, it is
+    # passed to `scipy.optimize.minimize`, which raises a readable error if
+    # the value isn't recognized.
 
     # TODO: add input validation for `bounds` when adding
     #  support for instances of new-style constraints (e.g. `Bounds`)
 
-    if callback is not None:
+    if method is None and callback is not None:
         raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
 
     if tol is not None:

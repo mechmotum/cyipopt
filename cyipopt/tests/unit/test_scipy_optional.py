@@ -14,6 +14,11 @@ import pytest
 
 import cyipopt
 
+# Hard-code rather than importing from scipy.optimize._minimize in a try/except
+try:
+    from scipy.optimize._minimize import MINIMIZE_METHODS
+except ImportError:
+    MINIMIZE_METHODS = []
 
 @pytest.mark.skipif("scipy" in sys.modules,
                     reason="Test only valid if no Scipy available.")
@@ -44,8 +49,8 @@ def test_minimize_ipopt_input_validation():
     with pytest.raises(ValueError, match=message):
         cyipopt.minimize_ipopt(f, x0, kwargs='elderberries')
 
-    message = "`method` is not yet supported."
-    with pytest.raises(NotImplementedError, match=message):
+    message = "Unknown solver..."
+    with pytest.raises(ValueError, match=message):
         cyipopt.minimize_ipopt(f, x0, method='a newt')
 
     message = "`jac` must be callable or boolean."
@@ -181,6 +186,155 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
     assert res.get("success") is True
     expected_res = np.array([1.0, 1.0])
     np.testing.assert_allclose(res.get("x"), expected_res, rtol=1e-5)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+@pytest.mark.parametrize('method', [None] + MINIMIZE_METHODS)
+def test_minimize_ipopt_jac_with_scipy_methods(method):
+    x0 = [0] * 4
+    a0, b0, c0, d0 = 1, 2, 3, 4
+    atol, rtol = 5e-5, 5e-5
+
+    def fun(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        fun.count += 1
+        return (x[0] - a) ** 2 + (x[1] - b) ** 2 + x[2] ** 2 + x[3] ** 2
+
+    def grad(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        grad.count += 1
+        return [2 * (x[0] - a), 2 * (x[1] - b), 2 * x[2], 2 * x[3]]
+
+    def hess(x, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        hess.count += 1
+        return 2 * np.eye(4)
+
+    def hessp(x, p, a=0, e=0, b=0):
+        assert a == a0
+        assert b == b0
+        hessp.count += 1
+        return 2 * np.eye(4) @ p
+
+    def fun_constraint(x, c=0, e=0, d=0):
+        assert c == c0
+        assert d == d0
+        fun_constraint.count += 1
+        return [(x[2] - c) ** 2, (x[3] - d) ** 2]
+
+    def grad_constraint(x, c=0, e=0, d=0):
+        assert c == c0
+        assert d == d0
+        grad_constraint.count += 1
+        return np.hstack((np.zeros((2, 2)),
+                         np.diag([2 * (x[2] - c), 2 * (x[3] - d)])))
+
+    def callback(*args, **kwargs):
+        callback.count += 1
+
+    constr = {
+        "type": "eq",
+        "fun": fun_constraint,
+        "jac": grad_constraint,
+        "args": (c0,),
+        "kwargs": {'d': d0},
+    }
+
+    kwargs = {}
+    jac_methods = {'cg', 'bfgs', 'newton-cg', 'l-bfgs-b', 'tnc', 'slsqp,',
+                   'dogleg', 'trust-ncg', 'trust-krylov', 'trust-exact',
+                   'trust-constr'}
+    hess_methods = {'newton-cg', 'dogleg', 'trust-ncg', 'trust-krylov',
+                   'trust-exact', 'trust-constr'}
+    hessp_methods = hess_methods - {'dogleg', 'trust-exact'}
+    constr_methods = {'slsqp', 'trust-constr'}
+
+    if method in jac_methods:
+        kwargs['jac'] = grad
+    if method in hess_methods:
+        kwargs['hess'] = hess
+    if method in constr_methods:
+        kwargs['constraints'] = constr
+    if method in MINIMIZE_METHODS:
+        kwargs['callback'] = callback
+
+    fun.count = 0
+    grad.count = 0
+    hess.count = 0
+    hessp.count = 0
+    fun_constraint.count = 0
+    grad_constraint.count = 0
+    callback.count = 0
+
+    res = cyipopt.minimize_ipopt(fun, x0, method=method, args=(a0,),
+                                 kwargs={'b': b0}, **kwargs)
+
+    assert res.success
+    np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=rtol)
+
+    # confirm that the test covers what we think it does: all the functions
+    # that we provide are actually being executed; that is, the assertions
+    # are *passing*, not being skipped
+    assert fun.count > 0
+    if method in MINIMIZE_METHODS:
+        assert callback.count > 0
+    if method in jac_methods:
+        assert grad.count > 0
+    if method in hess_methods:
+        assert hess.count > 0
+    if method in constr_methods:
+        assert fun_constraint.count > 0
+        assert grad_constraint.count > 0
+        np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=rtol)
+    else:
+        np.testing.assert_allclose(res.x[2:], 0, atol=atol)
+
+    # For methods that support `hessp`, check that it works, too.
+    if method in hessp_methods:
+        del kwargs['hess']
+        kwargs['hessp'] = hessp
+
+        res = cyipopt.minimize_ipopt(fun, x0, method=method, args=(a0,),
+                                     kwargs={'b': b0}, **kwargs)
+        assert res.success
+        assert hessp.count > 0
+        np.testing.assert_allclose(res.x[:2], [a0, b0], rtol=rtol)
+        if method in constr_methods:
+            np.testing.assert_allclose(res.x[2:], [c0, d0], rtol=rtol)
+        else:
+            np.testing.assert_allclose(res.x[2:], 0, atol=atol)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid of Scipy available")
+def test_minimize_ipopt_bounds_tol_options():
+    # spot check additional cases not tested above
+    def fun(x):
+        return x**2
+
+    x0 = 2.
+
+    # make sure `bounds` is passed to SciPy methods
+    bounds = (1, 3)
+    res = cyipopt.minimize_ipopt(fun, x0, method='slsqp', bounds=[(1, 3)])
+    np.testing.assert_allclose(res.x, bounds[0])
+
+    # make sure `tol` is passed to SciPy methods
+    tol1, tol2 = 1e-3, 1e-9
+    res1 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol1)
+    res2 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol2)
+    assert abs(res2.x[0]) <= tol2 < abs(res1.x[0]) <= tol1
+
+    # make sure `options` is passed to SciPy methods
+    res = cyipopt.minimize_ipopt(fun, x0, method='slsqp')
+    assert res.nit > 1
+    options = dict(maxiter=1)
+    res = cyipopt.minimize_ipopt(fun, x0, method='slsqp', options=options)
+    assert res.nit == 1
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
