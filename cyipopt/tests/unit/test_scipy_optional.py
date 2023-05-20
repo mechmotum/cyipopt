@@ -32,6 +32,58 @@ def test_minimize_ipopt_import_error_if_no_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
+def test_minimize_ipopt_input_validation():
+    x0 = 1
+    def f(x):
+        return x**2
+
+    message = "`fun` must be callable."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt('migratory coconuts', x0)
+
+    message = "`x0` must be a numeric array."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, 'spamalot')
+
+    message = "`kwargs` must be a dictionary."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, kwargs='elderberries')
+
+    message = "Unknown solver..."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, method='a newt')
+
+    message = "`jac` must be callable or boolean."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, jac='self-perpetuating autocracy')
+
+    message = "`hess` must be callable."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, hess='farcical aquatic ceremony')
+
+    message = "`hessp` is not yet supported by Ipopt."
+    with pytest.raises(NotImplementedError, match=message):
+        cyipopt.minimize_ipopt(f, x0, hessp='shrubbery')
+
+    message = "`callback` is not yet supported by Ipopt."
+    with pytest.raises(NotImplementedError, match=message):
+        cyipopt.minimize_ipopt(f, x0, callback='a duck')
+
+    message = "`tol` must be a positive scalar."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol=[1, 2, 3])
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol='ni')
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, tol=-1)
+
+    message = "`options` must be a dictionary."
+    with pytest.raises(ValueError, match=message):
+        cyipopt.minimize_ipopt(f, x0, options='supreme executive power')
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_if_scipy():
     """If SciPy is installed `minimize_ipopt` works correctly."""
     from scipy.optimize import rosen, rosen_der
@@ -272,8 +324,10 @@ def test_minimize_ipopt_bounds_tol_options():
     np.testing.assert_allclose(res.x, bounds[0])
 
     # make sure `tol` is passed to SciPy methods
-    with pytest.raises(ValueError, match='could not convert string to float'):
-        cyipopt.minimize_ipopt(fun, x0, method='slsqp', tol='invalid')
+    tol1, tol2 = 1e-3, 1e-9
+    res1 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol1)
+    res2 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol2)
+    assert abs(res2.x[0]) <= tol2 < abs(res1.x[0]) <= tol1
 
     # make sure `options` is passed to SciPy methods
     res = cyipopt.minimize_ipopt(fun, x0, method='slsqp')
@@ -465,3 +519,23 @@ def test_minimize_ipopt_hs071():
     assert res.get("success") is True
     expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
     np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_minimize_late_binding_bug():
+    # `IpoptProblemWrapper` had a late binding bug when constraint Jacobians
+    # were defined with `optimize.approx_fprime`. Check that this is resolved.
+    from scipy.optimize import minimize
+
+    fun = lambda x: (x[0] - 1)**2 + (x[1] - 2.5)**2
+    cons = ({'type': 'ineq', 'fun': lambda x:  x[0] - 2 * x[1] + 2},
+            {'type': 'ineq', 'fun': lambda x: -x[0] - 2 * x[1] + 6},
+            {'type': 'ineq', 'fun': lambda x: -x[0] + 2 * x[1] + 2})
+    bnds = ((0, None), (0, None))
+
+    res = cyipopt.minimize_ipopt(fun, (2, 0), bounds=bnds, constraints=cons)
+    ref = minimize(fun, (2, 0), bounds=bnds, constraints=cons)
+    assert res.success
+    np.testing.assert_allclose(res.x, ref.x)
+    np.testing.assert_allclose(res.fun, ref.fun)

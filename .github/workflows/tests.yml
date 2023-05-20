@@ -1,10 +1,6 @@
 name: tests
 
-on:
-  push:
-    branches: master
-  pull_request:
-    branches: master
+on: [push, pull_request]
 
 # cancels prior builds for this workflow when new commit is pushed
 concurrency:
@@ -19,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
         ipopt-version: ['3.12', '3.13', '3.14']
         exclude:
           - os: windows-latest
@@ -58,6 +54,6 @@ jobs:
         # Ipopt needed different libfortrans.
         if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
         run: |
-          mamba install -q -y -c conda-forge cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2 scipy>=0.19.0
+          mamba install -q -y -c conda-forge "cython>=0.26" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "scipy=1.9.*" "pytest>=3.3.2"
           mamba list
           pytest
