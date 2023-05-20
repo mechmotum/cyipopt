@@ -157,8 +157,11 @@ class IpoptProblemWrapper(object):
             con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', {})
             if con_jac is None:
-                con_jac = lambda x0, *args, **kwargs: approx_fprime(
-                    x0, con_fun, eps, *args, **kwargs)
+                # beware of late binding!
+                def con_jac(x, *args, con_fun=con_fun, **kwargs):
+                    def wrapped(x):
+                        return con_fun(x, *args, **kwargs)
+                    return approx_fprime(x, wrapped, eps)
             elif con_jac is True:
                 con_fun = MemoizeJac(con_fun)
                 con_jac = con_fun.derivative

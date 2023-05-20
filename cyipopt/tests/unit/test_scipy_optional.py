@@ -365,3 +365,23 @@ def test_minimize_ipopt_hs071():
     assert res.get("success") is True
     expected_res = np.array([0.99999999, 4.74299964, 3.82114998, 1.3794083])
     np.testing.assert_allclose(res.get("x"), expected_res)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_minimize_late_binding_bug():
+    # `IpoptProblemWrapper` had a late binding bug when constraint Jacobians
+    # were defined with `optimize.approx_fprime`. Check that this is resolved.
+    from scipy.optimize import minimize
+
+    fun = lambda x: (x[0] - 1)**2 + (x[1] - 2.5)**2
+    cons = ({'type': 'ineq', 'fun': lambda x:  x[0] - 2 * x[1] + 2},
+            {'type': 'ineq', 'fun': lambda x: -x[0] - 2 * x[1] + 6},
+            {'type': 'ineq', 'fun': lambda x: -x[0] + 2 * x[1] + 2})
+    bnds = ((0, None), (0, None))
+
+    res = cyipopt.minimize_ipopt(fun, (2, 0), bounds=bnds, constraints=cons)
+    ref = minimize(fun, (2, 0), bounds=bnds, constraints=cons)
+    assert res.success
+    np.testing.assert_allclose(res.x, ref.x)
+    np.testing.assert_allclose(res.fun, ref.fun)
