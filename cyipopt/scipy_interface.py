@@ -129,7 +129,7 @@ class IpoptProblemWrapper(object):
 
         if hess is not None:
             self.obj_hess = hess
-        if jac is None:
+        if not jac:
             jac = lambda x0, *args, **kwargs: optimize.approx_fprime(
                 x0, fun, eps, *args, **kwargs)
         elif jac is True:
@@ -522,7 +522,9 @@ def minimize_ipopt(fun,
     # Rename some default scipy options
     replace_option(options, b'disp', b'print_level')
     replace_option(options, b'maxiter', b'max_iter')
-    if b'print_level' not in options:
+    if getattr(options, 'print_level', False) is True:
+        options[b'print_level'] = 1
+    else:
         options[b'print_level'] = 0
     if b'tol' not in options:
         options[b'tol'] = tol or 1e-8
@@ -594,6 +596,9 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
     ub[np.isnan(ub)] = np.inf
 
     bounds = lb, ub
+
+    constraints = optimize._minimize.standardize_constraints(constraints, x0,
+                                                             'old')
 
     if callback is not None:
         raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
