@@ -2,10 +2,16 @@
 Unit tests written for scipy.optimize.minimize method='SLSQP';
 adapted for minimize_ipopt
 """
+import sys
+import pytest
 from numpy.testing import (assert_, assert_allclose)
 import numpy as np
 
-from scipy.optimize import Bounds, NonlinearConstraint
+try:
+    from scipy.optimize import Bounds
+except ImportError:
+    pass
+
 from cyipopt import minimize_ipopt as minimize
 
 
@@ -23,6 +29,8 @@ class MyCallBack:
         self.ncalls += 1
 
 
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 class TestSLSQP:
     """
     Test SLSQP algorithm using Example 14.4 from Numerical Methods for
@@ -288,7 +296,8 @@ class TestSLSQP:
         ]
         for bounds in bounds_list:
             res = minimize(self.fun, [-1.0, 1.0], bounds=bounds, method=None)
-            assert res.status == -11  # invalid problem definition
+            # "invalid problem definition" or "problem may be infeasible"
+            assert res.status == -11 or res.status == 2
 
     def test_bounds_clipping(self):
         #
