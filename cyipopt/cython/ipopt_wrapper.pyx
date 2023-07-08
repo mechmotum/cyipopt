@@ -17,6 +17,7 @@ import inspect
 import numpy as np
 cimport numpy as np
 
+from cyipopt.exceptions import CyIpoptEvaluationError
 from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 from ipopt cimport *
 
@@ -868,6 +869,8 @@ cdef Bool objective_cb(Index n,
         _x[i] = x[i]
     try:
         obj_value[0] = self.__objective(_x)
+    except CyIpoptEvaluationError:
+        return False
     except:
         self.__exception = sys.exc_info()
     return True
@@ -980,6 +983,8 @@ cdef Bool jacobian_cb(Index n,
             #
             try:
                 ret_val = self.__jacobianstructure()
+            except CyIpoptEvaluationError:
+                return False
             except:
                 self.__exception = sys.exc_info()
                 return True
@@ -1002,6 +1007,8 @@ cdef Bool jacobian_cb(Index n,
 
         try:
             ret_val = self.__jacobian(_x)
+        except CyIpoptEvaluationError:
+            return False
         except:
             self.__exception = sys.exc_info()
             return True
