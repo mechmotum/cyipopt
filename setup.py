@@ -21,7 +21,7 @@ from setuptools.extension import Extension
 # install requirements before import
 from setuptools import dist
 SETUP_REQUIRES = [
-    "cython >= 0.26",
+    "cython >= 0.26,<3",
     "numpy >= 1.15",
 ]
 dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
