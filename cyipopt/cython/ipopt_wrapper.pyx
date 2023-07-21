@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# cython: language_level=2, legacy_implicit_noexcept=True
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 

@@ -20,7 +20,7 @@ from setuptools.extension import Extension
 # install requirements before import
 from setuptools import dist
 SETUP_REQUIRES = [
-    "cython >= 0.26,<3",
+    "cython >= 0.26",
     "numpy >= 1.15",
 ]
 dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
@@ -48,7 +48,7 @@ AUTHOR = "Jason K. Moore"
 EMAIL = "moorepants@gmail.com"
 URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
-    "cython >= 0.26,<3",
+    "cython >= 0.26",
     "numpy>=1.15",
     "setuptools>=39.0",
 ]

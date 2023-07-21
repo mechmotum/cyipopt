@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# cython: language_level=2, legacy_implicit_noexcept=True
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
@@ -12,7 +13,7 @@ License: EPL 2.0
 cdef extern from "IpoptConfig.h":
 
     int IPOPT_VERSION_MAJOR
-    
+
     int IPOPT_VERSION_MINOR
 
     int IPOPT_VERSION_RELEASE
