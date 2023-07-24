@@ -895,6 +895,8 @@ cdef Bool gradient_cb(Index n,
 
     try:
         ret_val = self.__gradient(_x)
+    except CyIpoptEvaluationError:
+        return False
     except:
         self.__exception = sys.exc_info()
         return True
@@ -931,6 +933,8 @@ cdef Bool constraints_cb(Index n,
 
     try:
         ret_val = self.__constraints(_x)
+    except CyIpoptEvaluationError:
+        return False
     except:
         self.__exception = sys.exc_info()
         return True
@@ -1069,6 +1073,8 @@ cdef Bool hessian_cb(Index n,
             #
             try:
                 ret_val = self.__hessianstructure()
+            except CyIpoptEvaluationError:
+                return False
             except:
                 self.__exception = sys.exc_info()
                 return True
@@ -1094,6 +1100,8 @@ cdef Bool hessian_cb(Index n,
 
         try:
             ret_val = self.__hessian(_x, _lambda, obj_factor)
+        except CyIpoptEvaluationError:
+            return False
         except:
             self.__exception = sys.exc_info()
             return True
