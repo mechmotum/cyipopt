@@ -70,6 +70,13 @@ def test_hs071_objective_eval_error(
     cu = hs071_constraint_upper_bounds_fixture
 
     problem = _make_problem(definition, lb, ub, cl, cu)
+    # Note that the behavior tested here (success or failure of the solve when
+    # an evaluation error is raised in each callback) is documented in the
+    # CyIpoptEvaluationError class. If this behavior changes (e.g. Ipopt starts
+    # handling evaluation errors in the Jacobian), these tests will start to
+    # fail. We will need to (a) update these tests and (b) update the
+    # CyIpoptEvaluationError documentation, possibly with Ipopt version-specific
+    # behavior.
     _solve_and_assert_correct(problem, x0)
 
     assert objective_with_error.n_eval_error > 0
