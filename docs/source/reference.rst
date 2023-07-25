@@ -17,3 +17,5 @@ specifications may not be enough to give full guidelines on their uses.
 .. autofunction:: cyipopt.set_logging_level
 
 .. autofunction:: cyipopt.setLoggingLevel
+
+.. autoclass:: cyipopt.CyIpoptEvaluationError
