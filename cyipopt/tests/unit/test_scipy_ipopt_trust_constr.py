@@ -176,10 +176,7 @@ class HyperbolicIneq:
         self.x_opt = [1.952823, 0.088659]
         self.constr_jac = constr_jac
         self.constr_hess = constr_hess
-        try:
-            self.bounds = Bounds(0, np.inf)
-        except ImportError:
-            pass
+        self.bounds = (0, np.inf)
 
     def fun(self, x):
         return 1/2*(x[0] - 2)**2 + 1/2*(x[1] - 1/2)**2
@@ -293,10 +290,7 @@ class BoundedRosenbrock(Rosenbrock):
         Rosenbrock.__init__(self, 2, random_state)
         self.x0 = [-0.2, 0.2]
         self.x_opt = None
-        try:
-            self.bounds = Bounds([-2, 0], [0, 2])
-        except ImportError:
-            pass
+        self.bounds = [(-2, 0), (0, 2)]
 
 
 class EqIneqRosenbrock(Rosenbrock):
