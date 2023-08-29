@@ -987,8 +987,6 @@ cdef Bool jacobian_cb(Index n,
             #
             try:
                 ret_val = self.__jacobianstructure()
-            except CyIpoptEvaluationError:
-                return False
             except:
                 self.__exception = sys.exc_info()
                 return True
@@ -1073,8 +1071,6 @@ cdef Bool hessian_cb(Index n,
             #
             try:
                 ret_val = self.__hessianstructure()
-            except CyIpoptEvaluationError:
-                return False
             except:
                 self.__exception = sys.exc_info()
                 return True
