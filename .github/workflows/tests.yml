@@ -35,7 +35,7 @@ jobs:
           miniforge-variant: Mambaforge
       - name: Install basic dependencies
         run: |
-          mamba install -q -y lapack "libblas=*=*netlib" cython<3 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "cython+=0.26,<3"
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
@@ -45,7 +45,7 @@ jobs:
         run: |
           python -c "import cyipopt"
           mamba remove lapack
-          mamba install -q -y cython<3 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0 pytest>=3.3.2
+          mamba install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "pytest>=3.3.2" "cython>=0.26,<3"
           mamba list
           pytest
       - name: Test with pytest and scipy, new ipopt
@@ -54,6 +54,6 @@ jobs:
         # Ipopt needed different libfortrans.
         if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
         run: |
-          mamba install -q -y -c conda-forge cython<3 "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "scipy=1.9.*" "pytest>=3.3.2"
+          mamba install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "scipy=1.9.*" "pytest>=3.3.2" "cython>=0.26,<3"
           mamba list
           pytest
