@@ -188,6 +188,9 @@ if __name__ == "__main__":
         ext_module_data = handle_ext_modules_win_32_conda_forge_ipopt()
     elif sys.platform == "win32" and ipoptdir:
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
+    elif sys.platform == "win32":
+        ipopdir = os.path.abspath(os.path.dirname(__file__))
+        ext_module_data = handle_ext_modules_win_32_other_ipopt()
     else:
         ext_module_data = handle_ext_modules_general_os()
     EXT_MODULES, DATA_FILES, include_package_data = ext_module_data
