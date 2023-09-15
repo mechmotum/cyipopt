@@ -1032,6 +1032,11 @@ cdef Bool jacobian_cb(Index n,
 
         np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
 
+        if (np_jac_g.size != nele_jac):
+            msg = b"Invalid number of indices returned from jacobian"
+            log(msg, logging.ERROR)
+            return False
+
         for i in range(nele_jac):
             values[i] = np_jac_g[i]
 
@@ -1138,6 +1143,11 @@ cdef Bool hessian_cb(Index n,
             return True
 
         np_h = np.array(ret_val, dtype=DTYPEd).flatten()
+
+        if (np_h.size != nele_hess):
+            msg = b"Invalid number of indices returned from hessian"
+            log(msg, logging.ERROR)
+            return False
 
         for i in range(nele_hess):
             values[i] = np_h[i]
