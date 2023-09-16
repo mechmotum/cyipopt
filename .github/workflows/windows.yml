@@ -23,3 +23,4 @@ jobs:
       - run: 7z x Ipopt-3.13.3-win64-msvs2019-md.zip
       - run: mv Ipopt-3.13.3-win64-msvs2019-md/* .
       - run: python setup.py install
+      - run: python examples/hs071.py
