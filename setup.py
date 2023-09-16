@@ -185,10 +185,18 @@ if __name__ == "__main__":
     # environment variable is set to USECONDAFORGEIPOPT then this setup will be
     # run.
     if sys.platform == "win32" and ipoptdir == "USECONDAFORGEIPOPT":
+        print('Using Conda Forge Ipopt on Windows.')
         ext_module_data = handle_ext_modules_win_32_conda_forge_ipopt()
     elif sys.platform == "win32" and ipoptdir:
+        print('Using Ipopt in {} directory on Windows.'.format(ipoptdir))
+        ext_module_data = handle_ext_modules_win_32_other_ipopt()
+    elif sys.platform == "win32" and not ipoptdir:
+        ipoptdir = os.path.abspath(os.path.dirname(__file__))
+        msg = 'Using Ipopt adjacent to setup.py in {} on Windows.'
+        print(msg.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
     else:
+        print('Using Ipopt found with pkg-config.')
         ext_module_data = handle_ext_modules_general_os()
     EXT_MODULES, DATA_FILES, include_package_data = ext_module_data
     # NOTE : The `name` kwarg here is the distribution name, i.e. the name that
