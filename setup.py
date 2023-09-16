@@ -188,11 +188,12 @@ if __name__ == "__main__":
         print('Using Conda Forge Ipopt on Windows.')
         ext_module_data = handle_ext_modules_win_32_conda_forge_ipopt()
     elif sys.platform == "win32" and ipoptdir:
-        print('Using custom Ipopt in custom directory on Windows.')
+        print('Using Ipopt in {} directory on Windows.'.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
-    elif sys.platform == "win32":
-        print('Using Ipopt adjacent to setup.py on Windows.')
-        ipopdir = os.path.abspath(os.path.dirname(__file__))
+    elif sys.platform == "win32" and not ipoptdir:
+        ipoptdir = os.path.abspath(os.path.dirname(__file__))
+        msg = 'Using Ipopt adjacent to setup.py in {} on Windows.'
+        print(msg.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
     else:
         print('Using Ipopt found with pkg-config.')
