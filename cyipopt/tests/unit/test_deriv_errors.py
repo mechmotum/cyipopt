@@ -5,6 +5,11 @@ import cyipopt
 import pytest
 
 
+pre_3_14_13 = (
+    cyipopt.IPOPT_VERSION < (3, 14, 13)
+)
+
+
 def full_indices(shape):
     def indices():
         r, c = np.indices(shape)
@@ -114,7 +119,7 @@ def ensure_unrecoverable_exception(instance):
     ensure_solve_status(instance, -100)
 
 
-@pytest.mark.skip(reason="Not caught in Ipopt")
+@pytest.mark.skipif(pre_3_14_13, reason="Not caught in Ipopt < (3,14,13)")
 def test_solve_neg_jac(hs071_sparse_instance):
     n = hs071_sparse_instance.n
     m = hs071_sparse_instance.m
@@ -130,7 +135,7 @@ def test_solve_neg_jac(hs071_sparse_instance):
     ensure_unrecoverable_exception(hs071_sparse_instance)
 
 
-@pytest.mark.skip(reason="Not caught in Ipopt")
+@pytest.mark.skipif(pre_3_14_13, reason="Not caught in Ipopt < (3,14,13)")
 def test_solve_large_jac(hs071_sparse_instance):
     n = hs071_sparse_instance.n
     m = hs071_sparse_instance.m
@@ -149,7 +154,7 @@ def test_solve_large_jac(hs071_sparse_instance):
     ensure_unrecoverable_exception(hs071_sparse_instance)
 
 
-@pytest.mark.skip(reason="Not caught in Ipopt")
+@pytest.mark.skipif(pre_3_14_13, reason="Not caught in Ipopt < (3,14,13)")
 def test_solve_wrong_jac_structure_size(hs071_sparse_instance):
     n = hs071_sparse_instance.n
     m = hs071_sparse_instance.m
@@ -161,7 +166,7 @@ def test_solve_wrong_jac_structure_size(hs071_sparse_instance):
     ensure_unrecoverable_exception(hs071_sparse_instance)
 
 
-@pytest.mark.skip(reason="Not caught in Ipopt")
+@pytest.mark.skipif(pre_3_14_13, reason="Not caught in Ipopt < (3,14,13)")
 def test_solve_wrong_jac_value_size(hs071_sparse_instance):
     n = hs071_sparse_instance.n
     m = hs071_sparse_instance.m
