@@ -38,7 +38,7 @@ jobs:
           mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "cython=0.29.*"
       - name: Install CyIpopt
         run: |
-          echo "IPOPTWINDIR=USECONDAFORGE" >> $GITHUB_ENV
+          echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
           rm pyproject.toml
           python -m pip install .
           mamba list
