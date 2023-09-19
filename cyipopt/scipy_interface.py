@@ -19,7 +19,7 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy.optimize import approx_fprime, minimize
+    from scipy import optimize
     import scipy.sparse
     try:
         from scipy.optimize import OptimizeResult
@@ -129,11 +129,11 @@ class IpoptProblemWrapper(object):
 
         if hess is not None:
             self.obj_hess = hess
-        if jac is None:
+        if not jac:
             def jac(x, *args, **kwargs):
                 def wrapped_fun(x):
                     return fun(x, *args, **kwargs)
-                return approx_fprime(x, wrapped_fun, eps)
+                return optimize.approx_fprime(x, wrapped_fun, eps)
         elif jac is True:
             fun = MemoizeJac(fun)
             jac = fun.derivative
@@ -163,7 +163,7 @@ class IpoptProblemWrapper(object):
                 def con_jac(x, *args, con_fun=con_fun, **kwargs):
                     def wrapped(x):
                         return con_fun(x, *args, **kwargs)
-                    return approx_fprime(x, wrapped, eps)
+                    return optimize.approx_fprime(x, wrapped, eps)
             elif con_jac is True:
                 con_fun = MemoizeJac(con_fun)
                 con_jac = con_fun.derivative
@@ -446,10 +446,18 @@ def minimize_ipopt(fun,
         If `method` is one of the SciPy methods, this is a callable that
         produces the inner product of the Hessian and a vector. Otherwise, an
         error will be raised if a value other than ``None`` is provided.
-    bounds :  sequence, shape(n, ), optional
-        Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
-        to specify no bound.
+    bounds :  sequence of shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
+        Simple bounds on decision variables. There are two ways to specify the
+        bounds:
+
+            1. Instance of :py:class:`scipy.optimize.Bounds` class.
+            2. Sequence of ``(min, max)`` pairs for each element in `x`. Use
+               ``None`` to specify an infinite bound (i.e., no bound).
+
     constraints : {Constraint, dict}, optional
+        Linear or nonlinear constraint specified by a dictionary,
+        :py:class:`scipy.optimize.LinearConstraint`, or
+        :py:class:`scipy.optimize.NonlinearConstraint`.
         See :py:func:`scipy.optimize.minimize` for more information. Note that
         the Jacobian of each constraint corresponds to the ``'jac'`` key and
         must be a callable function with signature ``jac(x) -> {ndarray,
@@ -531,17 +539,18 @@ def minimize_ipopt(fun,
     if method is not None:
         funs = _wrap_funs(fun, jac, hess, hessp, constraints, kwargs)
         fun, jac, hess, hessp, constraints = funs
-        res = minimize(fun, x0, args, method, jac, hess, hessp,
-                       bounds, constraints, tol, callback, options)
+        bounds = optimize.Bounds(*bounds)
+        res = optimize.minimize(fun, x0, args, method, jac, hess, hessp,
+                                bounds, constraints, tol, callback, options)
         return res
 
     _x0 = np.atleast_1d(x0)
 
-    lb, ub = get_bounds(bounds)
+    lb, ub = bounds
     cl, cu = get_constraint_bounds(constraints, _x0)
     con_dims = get_constraint_dimensions(constraints, _x0)
     sparse_jacs, jac_nnz_row, jac_nnz_col = _get_sparse_jacobian_structure(
-        constraints, _x0)
+        constraints, x0)
 
     problem = IpoptProblemWrapper(fun,
                                   args=args,
@@ -559,7 +568,7 @@ def minimize_ipopt(fun,
     if options is None:
         options = {}
 
-    nlp = cyipopt.Problem(n=len(_x0),
+    nlp = cyipopt.Problem(n=len(x0),
                           m=len(cl),
                           problem_obj=problem,
                           lb=lb,
@@ -573,7 +582,9 @@ def minimize_ipopt(fun,
     # Rename some default scipy options
     replace_option(options, b'disp', b'print_level')
     replace_option(options, b'maxiter', b'max_iter')
-    if b'print_level' not in options:
+    if getattr(options, 'print_level', False) is True:
+        options[b'print_level'] = 1
+    else:
         options[b'print_level'] = 0
     if b'tol' not in options:
         options[b'tol'] = tol or 1e-8
@@ -589,10 +600,7 @@ def minimize_ipopt(fun,
             msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
             raise TypeError(msg.format(option, value, e))
 
-    x, info = nlp.solve(_x0)
-
-    if np.asarray(x0).shape == ():
-        x = x[0]
+    x, info = nlp.solve(x0)
 
     return OptimizeResult(x=x,
                           success=info['status'] == 0,
@@ -604,12 +612,12 @@ def minimize_ipopt(fun,
                           njev=problem.njev,
                           nit=problem.nit)
 
+
 def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
                        bounds, constraints, tol, callback, options):
     # basic input validation for minimize_ipopt that is not included in
     # IpoptProblemWrapper
-
-    x0 = np.asarray(x0)[()]
+    x0 = np.atleast_1d(x0)
     if not np.issubdtype(x0.dtype, np.number):
         raise ValueError('`x0` must be a numeric array.')
 
@@ -617,8 +625,41 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
     # passed to `scipy.optimize.minimize`, which raises a readable error if
     # the value isn't recognized.
 
-    # TODO: add input validation for `bounds` when adding
-    #  support for instances of new-style constraints (e.g. `Bounds`)
+    # Handle bounds that are either sequences (of sequences) or instances of
+    # `optimize.Bounds`.
+    if bounds is None:
+        bounds = [-np.inf, np.inf]
+
+    if isinstance(bounds, optimize.Bounds):
+        lb, ub = bounds.lb, bounds.ub
+    else:
+        bounds = np.atleast_2d(bounds)
+        if bounds.shape[1] != 2:
+            raise ValueError("`bounds` must specify both lower and upper "
+                             "limits for each decision variable.")
+        lb, ub = bounds.T
+
+    try:
+        lb, ub, x0 = np.broadcast_arrays(lb, ub, x0)
+    except ValueError:
+        raise ValueError("The number of lower bounds, upper bounds, and "
+                         "decision variables must be equal or broadcastable.")
+
+    try:
+        lb = lb.astype(np.float64)
+        ub = ub.astype(np.float64)
+    except ValueError:
+        raise ValueError("The bounds must be numeric.")
+
+    # Nones turn into NaNs above. Previously, NaNs caused Ipopt to hang, so
+    # I'm not concerned about turning them into infs.
+    lb[np.isnan(lb)] = -np.inf
+    ub[np.isnan(ub)] = np.inf
+
+    bounds = lb, ub
+
+    constraints = optimize._minimize.standardize_constraints(constraints, x0,
+                                                             'old')
 
     if method is None and callback is not None:
         raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
