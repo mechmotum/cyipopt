@@ -159,8 +159,6 @@ class IpoptProblemWrapper(object):
             con_hessian = con.get('hess', None)
             con_kwargs = con.get('kwargs', {})
             if con_jac is None:
-                con_jac = lambda x0, *args, **kwargs: optimize.approx_fprime(
-                    x0, con_fun, eps, *args, **kwargs)
                 # beware of late binding!
                 def con_jac(x, *args, con_fun=con_fun, **kwargs):
                     def wrapped(x):
@@ -448,10 +446,18 @@ def minimize_ipopt(fun,
         If `method` is one of the SciPy methods, this is a callable that
         produces the inner product of the Hessian and a vector. Otherwise, an
         error will be raised if a value other than ``None`` is provided.
-    bounds :  sequence, shape(n, ), optional
-        Sequence of ``(min, max)`` pairs for each element in `x`. Use ``None``
-        to specify no bound.
+    bounds :  sequence of shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
+        Simple bounds on decision variables. There are two ways to specify the
+        bounds:
+
+            1. Instance of :py:class:`scipy.optimize.Bounds` class.
+            2. Sequence of ``(min, max)`` pairs for each element in `x`. Use
+               ``None`` to specify an infinite bound (i.e., no bound).
+
     constraints : {Constraint, dict}, optional
+        Linear or nonlinear constraint specified by a dictionary,
+        :py:class:`scipy.optimize.LinearConstraint`, or
+        :py:class:`scipy.optimize.NonlinearConstraint`.
         See :py:func:`scipy.optimize.minimize` for more information. Note that
         the Jacobian of each constraint corresponds to the ``'jac'`` key and
         must be a callable function with signature ``jac(x) -> {ndarray,
