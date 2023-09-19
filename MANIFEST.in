@@ -4,6 +4,7 @@ include LICENSE
 include CHANGELOG.rst
 include README.rst
 exclude pyproject.toml
+exclude cyipopt/tests/unit/test_scipy_ipopt_from_scipy.py
 recursive-include cyipopt *.py *.pyx *.pxd
 recursive-include ipopt *.py
 recursive-include tests *.py
