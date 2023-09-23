@@ -28,12 +28,12 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [>= 3.13 on Windows]
-  * Python 3.6+
-  * setuptools
-  * cython
-  * numpy
-  * scipy [optional]
+  * Ipopt >=3.12 [>= 3.13 on Windows]
+  * Python 3.8+
+  * setuptools >=44.1.1
+  * cython >=0.29.28,<3
+  * NumPy >=1.21.5
+  * SciPy >=1.8 [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
@@ -44,12 +44,13 @@ On Linux and Mac
 ~~~~~~~~~~~~~~~~
 
 For Linux and Mac, the ``ipopt`` executable should be in your path and
-discoverable by pkg-config, i.e. this command should return a valid result::
+discoverable by ``pkg-config``, i.e. this command should return a valid
+result::
 
    $ pkg-config --libs --cflags ipopt
 
 You will need to install Ipopt in a system location or set ``LD_LIBRARY_PATH``
-if pkg-config does not find the executable.
+if ``pkg-config`` does not find the executable.
 
 Once all the dependencies are installed, execute::
 

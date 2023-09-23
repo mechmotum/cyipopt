@@ -33,20 +33,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
           miniforge-variant: Mambaforge
-      - name: Install basic dependencies
+      - name: Install basic dependencies against generic blas/lapack
         run: |
-          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "cython=0.29.*"
+          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython=0.29.*"
       - run: echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
           python -m pip install .
           mamba list
-      - name: Test with pytest
+      - name: Test with pytest using OS specific blas/lapack
         run: |
           python -c "import cyipopt"
           mamba remove lapack
-          mamba install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "pytest>=3.3.2" "cython=0.29.*"
+          mamba install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "pytest>=6.2.5" "cython=0.29.*"
           mamba list
           pytest
       - name: Test with pytest and scipy, new ipopt
@@ -55,6 +55,6 @@ jobs:
         # Ipopt needed different libfortrans.
         if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
         run: |
-          mamba install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.15" "pkg-config>=0.29.2" "setuptools>=39.0" "scipy=1.9.*" "pytest>=3.3.2" "cython=0.29.*"
+          mamba install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython=0.29.*"
           mamba list
           pytest
