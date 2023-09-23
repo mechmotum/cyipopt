@@ -1,5 +1,0 @@
-cython>=0.26,<3
-ipopt>=3.12
-numpy>=1.15
-pkg-config>=0.29.2
-setuptools>=39.0
