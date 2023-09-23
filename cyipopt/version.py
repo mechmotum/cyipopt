@@ -9,4 +9,4 @@ Copyright (C) 2017-2023 cyipopt developers
 License: EPL 2.0
 """
 
-__version__ = '1.3.0'
+__version__ = '1.4.0.dev0'
