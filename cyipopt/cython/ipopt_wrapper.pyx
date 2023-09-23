@@ -994,6 +994,21 @@ cdef Bool jacobian_cb(Index n,
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
 
+            if (np_iRow.size != nele_jac) or (np_jCol.size != nele_jac):
+                msg = b"Invalid number of indices returned from jacobianstructure"
+                log(msg, logging.ERROR)
+                return False
+
+            if (np_iRow < 0).any() or (np_iRow >= m).any():
+                msg = b"Invalid row indices returned from jacobianstructure"
+                log(msg, logging.ERROR)
+                return False
+
+            if (np_jCol < 0).any() or (np_jCol >= n).any():
+                msg = b"Invalid column indices returned from jacobianstructure"
+                log(msg, logging.ERROR)
+                return False
+
         for i in range(nele_jac):
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
@@ -1016,6 +1031,11 @@ cdef Bool jacobian_cb(Index n,
             return True
 
         np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
+
+        if (np_jac_g.size != nele_jac):
+            msg = b"Invalid number of indices returned from jacobian"
+            log(msg, logging.ERROR)
+            return False
 
         for i in range(nele_jac):
             values[i] = np_jac_g[i]
@@ -1078,6 +1098,26 @@ cdef Bool hessian_cb(Index n,
             np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
             np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
 
+            if (np_iRow.size != nele_hess) or (np_jCol.size != nele_hess):
+                msg = b"Invalid number of indices returned from hessianstructure"
+                log(msg, logging.ERROR)
+                return False
+
+            if not(np_iRow >= np_jCol).all():
+                msg = b"Indices are not lower triangular in hessianstructure"
+                log(msg, logging.ERROR)
+                return False
+
+            if (np_jCol < 0).any():
+                msg = b"Invalid column indices returned from hessianstructure"
+                log(msg, logging.ERROR)
+                return False
+
+            if (np_iRow >= n).any():
+                msg = b"Invalid row indices returned from hessianstructure"
+                log(msg, logging.ERROR)
+                return False
+
         for i in range(nele_hess):
             iRow[i] = np_iRow[i]
             jCol[i] = np_jCol[i]
@@ -1103,6 +1143,11 @@ cdef Bool hessian_cb(Index n,
             return True
 
         np_h = np.array(ret_val, dtype=DTYPEd).flatten()
+
+        if (np_h.size != nele_hess):
+            msg = b"Invalid number of indices returned from hessian"
+            log(msg, logging.ERROR)
+            return False
 
         for i in range(nele_hess):
             values[i] = np_h[i]
