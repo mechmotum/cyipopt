@@ -3,10 +3,10 @@ include AUTHORS
 include LICENSE
 include CHANGELOG.rst
 include README.rst
-exclude cyipopt/tests/unit/test_scipy_ipopt_from_scipy.py
 recursive-include cyipopt *.py *.pyx *.pxd
 recursive-include ipopt *.py
 recursive-include tests *.py
 recursive-include docs Makefile *.bat *.rst *.py
+exclude cyipopt/tests/unit/test_scipy_ipopt_from_scipy.py
 prune include*
 prune lib*
