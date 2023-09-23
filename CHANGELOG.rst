@@ -39,6 +39,41 @@ Version History
 [1.3.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Added
++++++
+
+- Added a ``pyproject.toml`` file with build dependencies. #162
+- Added support for sparse Jacobians in the SciPy interface. #170
+- Added ``get_current_iterate`` and ``get_current_violations`` methods to
+  Problem class. #182
+- Added installation instructions for Ubuntu 22.04 LTS apt dependencies.
+- Added a script to build manylinux wheels. #189
+- Improved documentation of ``minimize_ipopt()``. #194
+- Added support for all SciPy ``minimize()`` methods. #200
+- Added support for SciPy style bounds in ``minimize_ipopt()`` and added input
+  validation. #207
+- Added new ``CyIpoptEvaluationError`` and included it in relevance callbacks.
+  #215
+- Added dimension checks for Jacobian and Hessian attributes/methods. #216
+
+Fixed
++++++
+
+- Fixed import of ``MemoizeJac`` from scipy.optimize. #183
+- ``args`` and ``kwargs`` can be passed to all functions used in
+  ``minimize_ipopt()``. #197
+- Fixed late binding bug in ``minimize_ipopt()`` when defining constraint
+  Jacobians. #208
+- Pinned build dependency Cython to < 3. #212 #214 #223
+- Fixed installation on Windows for official Ipopt binaries adjacent to
+  ``setup.py``. #220
+
+Changed
++++++++
+
+- Changed the license to Eclipse Public 2.0. #185
+- Updated all dependency pins to match those in Ubuntu 22.04 LTS. #223
+
 [1.2.0] - 2022-11-28
 ~~~~~~~~~~~~~~~~~~~~
 
