@@ -20,8 +20,9 @@ from setuptools.extension import Extension
 # install requirements before import
 from setuptools import dist
 SETUP_REQUIRES = [
-    "cython >= 0.26,<3",
-    "numpy >= 1.15",
+    "cython>=0.29.28,<3",
+    "numpy>=1.21.5",
+    "setuptools>=44.1.1",
 ]
 dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
 
@@ -48,9 +49,7 @@ AUTHOR = "Jason K. Moore"
 EMAIL = "moorepants@gmail.com"
 URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
-    "cython >= 0.26,<3",
-    "numpy>=1.15",
-    "setuptools>=39.0",
+    "numpy>=1.21.5",
 ]
 LICENSE = "EPL-2.0"
 CLASSIFIERS = [
@@ -58,7 +57,6 @@ CLASSIFIERS = [
     "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
