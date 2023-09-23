@@ -277,8 +277,8 @@ cdef class Problem:
     cdef public object __hessian
     cdef public object __hessianstructure
     cdef public object __intermediate
-    cdef public Index __n
-    cdef public Index __m
+    cdef public ipindex __n
+    cdef public ipindex __m
 
     cdef public object __exception
     cdef Bool __in_ipopt_solve
@@ -369,8 +369,8 @@ cdef class Problem:
                    "be defined.")
             raise ValueError(msg)
 
-        cdef Index nele_jac = self.__m * self.__n
-        cdef Index nele_hess = <Index>(<long>self.__n * (<long>self.__n + 1) / 2)
+        cdef ipindex nele_jac = self.__m * self.__n
+        cdef ipindex nele_hess = <ipindex>(<long>self.__n * (<long>self.__n + 1) / 2)
 
         if self.__jacobianstructure:
             ret_val = self.__jacobianstructure()
@@ -412,11 +412,11 @@ cdef class Problem:
 
         # TODO: verify that the numpy arrays use C order
         self.__nlp = CreateIpoptProblem(self.__n,
-                                        <Number*>np_lb.data,
-                                        <Number*>np_ub.data,
+                                        <ipnumber*>np_lb.data,
+                                        <ipnumber*>np_ub.data,
                                         self.__m,
-                                        <Number*>np_cl.data,
-                                        <Number*>np_cu.data,
+                                        <ipnumber*>np_cl.data,
+                                        <ipnumber*>np_cu.data,
                                         nele_jac,
                                         nele_hess,
                                         0,
@@ -548,8 +548,8 @@ cdef class Problem:
             msg = "obj_scaling should be convertible to float type."
             raise ValueError(msg)
 
-        cdef Number *x_scaling_p
-        cdef Number *g_scaling_p
+        cdef ipnumber *x_scaling_p
+        cdef ipnumber *g_scaling_p
         cdef np.ndarray[DTYPEd_t, ndim=1] np_x_scaling
         cdef np.ndarray[DTYPEd_t, ndim=1] np_g_scaling
 
@@ -561,7 +561,7 @@ cdef class Problem:
                 raise ValueError(msg)
 
             np_x_scaling = np.array(x_scaling, dtype=DTYPEd).flatten()
-            x_scaling_p = <Number*>np_x_scaling.data
+            x_scaling_p = <ipnumber*>np_x_scaling.data
 
         if g_scaling is None:
             g_scaling_p = NULL
@@ -571,7 +571,7 @@ cdef class Problem:
                 raise ValueError(msg)
 
             np_g_scaling = np.array(g_scaling, dtype=DTYPEd).flatten()
-            g_scaling_p = <Number*>np_g_scaling.data
+            g_scaling_p = <ipnumber*>np_g_scaling.data
 
         ret_val = SetIpoptProblemScaling(self.__nlp,
                                          obj_scaling,
@@ -637,18 +637,18 @@ cdef class Problem:
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.array(zu, dtype=DTYPEd).flatten()
 
 
-        cdef Number obj_val = 0
+        cdef ipnumber obj_val = 0
 
         # Set flag that we are in a solve, so __nlp->tnlp references (e.g. in
         # get_current_iterate) are valid.
         self.__in_ipopt_solve = True
         stat = IpoptSolve(self.__nlp,
-                          <Number*>np_x.data,
-                          <Number*>g.data,
+                          <ipnumber*>np_x.data,
+                          <ipnumber*>g.data,
                           &obj_val,
-                          <Number*>mult_g.data,
-                          <Number*>mult_x_L.data,
-                          <Number*>mult_x_U.data,
+                          <ipnumber*>mult_g.data,
+                          <ipnumber*>mult_x_L.data,
+                          <ipnumber*>mult_x_U.data,
                           <UserDataPtr>self
                           )
         # Unset flag
@@ -723,11 +723,11 @@ cdef class Problem:
         np_mult_g = np.zeros((self.__m,), dtype=DTYPEd).flatten()
 
         # Cast to C data types
-        x = <Number*>np_x.data
-        mult_x_L = <Number*>np_mult_x_L.data
-        mult_x_U = <Number*>np_mult_x_U.data
-        g = <Number*>np_g.data
-        mult_g = <Number*>np_mult_g.data
+        x = <ipnumber*>np_x.data
+        mult_x_L = <ipnumber*>np_mult_x_L.data
+        mult_x_U = <ipnumber*>np_mult_x_U.data
+        g = <ipnumber*>np_g.data
+        mult_g = <ipnumber*>np_mult_g.data
 
         successful = CyGetCurrentIterate(
             self.__nlp,
@@ -812,13 +812,13 @@ cdef class Problem:
         np_compl_g = np.zeros((self.__m,), dtype=DTYPEd).flatten()
 
         # Cast to C data types
-        x_L_viol = <Number*>np_x_L_viol.data
-        x_U_viol = <Number*>np_x_U_viol.data
-        compl_x_L = <Number*>np_compl_x_L.data
-        compl_x_U = <Number*>np_compl_x_U.data
-        grad_lag_x = <Number*>np_grad_lag_x.data
-        g_viol = <Number*>np_g_viol.data
-        compl_g = <Number*>np_compl_g.data
+        x_L_viol = <ipnumber*> np_x_L_viol.data
+        x_U_viol = <ipnumber*> np_x_U_viol.data
+        compl_x_L = <ipnumber*> np_compl_x_L.data
+        compl_x_U = <ipnumber*> np_compl_x_U.data
+        grad_lag_x = <ipnumber*> np_grad_lag_x.data
+        g_viol = <ipnumber*> np_g_viol.data
+        compl_g = <ipnumber*> np_compl_g.data
 
         successful = CyGetCurrentViolations(
             self.__nlp,
@@ -853,17 +853,17 @@ cdef class Problem:
 #
 # Callback functions
 #
-cdef Bool objective_cb(Index n,
-                       Number* x,
+cdef Bool objective_cb(ipindex n,
+                       ipnumber* x,
                        Bool new_x,
-                       Number* obj_value,
+                       ipnumber* obj_value,
                        UserDataPtr user_data
                        ):
 
     log(b"objective_cb", logging.INFO)
 
     cdef object self = <object>user_data
-    cdef Index i
+    cdef ipindex i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     for i in range(n):
         _x[i] = x[i]
@@ -876,17 +876,17 @@ cdef Bool objective_cb(Index n,
     return True
 
 
-cdef Bool gradient_cb(Index n,
-                      Number* x,
+cdef Bool gradient_cb(ipindex n,
+                      ipnumber* x,
                       Bool new_x,
-                      Number* grad_f,
+                      ipnumber* grad_f,
                       UserDataPtr user_data
                       ):
 
     log(b"gradient_cb", logging.INFO)
 
     cdef object self = <object>user_data
-    cdef Index i
+    cdef ipindex i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_grad_f
 
@@ -909,18 +909,18 @@ cdef Bool gradient_cb(Index n,
     return True
 
 
-cdef Bool constraints_cb(Index n,
-                         Number* x,
+cdef Bool constraints_cb(ipindex n,
+                         ipnumber* x,
                          Bool new_x,
-                         Index m,
-                         Number* g,
+                         ipindex m,
+                         ipnumber* g,
                          UserDataPtr user_data
                          ):
 
     log(b"constraints_cb", logging.INFO)
 
     cdef object self = <object>user_data
-    cdef Index i
+    cdef ipindex i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
 
@@ -947,21 +947,21 @@ cdef Bool constraints_cb(Index n,
     return True
 
 
-cdef Bool jacobian_cb(Index n,
-                      Number* x,
+cdef Bool jacobian_cb(ipindex n,
+                      ipnumber* x,
                       Bool new_x,
-                      Index m,
-                      Index nele_jac,
-                      Index *iRow,
-                      Index *jCol,
-                      Number *values,
+                      ipindex m,
+                      ipindex nele_jac,
+                      ipindex *iRow,
+                      ipindex *jCol,
+                      ipnumber *values,
                       UserDataPtr user_data
                       ):
 
     log(b"jacobian_cb", logging.INFO)
 
     cdef object self = <object>user_data
-    cdef Index i
+    cdef ipindex i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEi_t, ndim=1] np_iRow
     cdef np.ndarray[DTYPEi_t, ndim=1] np_jCol
@@ -1043,24 +1043,24 @@ cdef Bool jacobian_cb(Index n,
     return True
 
 
-cdef Bool hessian_cb(Index n,
-                     Number* x,
+cdef Bool hessian_cb(ipindex n,
+                     ipnumber* x,
                      Bool new_x,
-                     Number obj_factor,
-                     Index m,
-                     Number *lambd,
+                     ipnumber obj_factor,
+                     ipindex m,
+                     ipnumber *lambd,
                      Bool new_lambda,
-                     Index nele_hess,
-                     Index *iRow,
-                     Index *jCol,
-                     Number *values,
+                     ipindex nele_hess,
+                     ipindex *iRow,
+                     ipindex *jCol,
+                     ipnumber *values,
                      UserDataPtr user_data
                      ):
 
     log(b"hessian_cb", logging.INFO)
 
     cdef object self = <object>user_data
-    cdef Index i
+    cdef ipindex i
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEd_t, ndim=1] _lambda = np.zeros((m,), dtype=DTYPEd)
     cdef np.ndarray[DTYPEi_t, ndim=1] np_iRow
@@ -1155,17 +1155,17 @@ cdef Bool hessian_cb(Index n,
     return True
 
 
-cdef Bool intermediate_cb(Index alg_mod,
-                          Index iter_count,
-                          Number obj_value,
-                          Number inf_pr,
-                          Number inf_du,
-                          Number mu,
-                          Number d_norm,
-                          Number regularization_size,
-                          Number alpha_du,
-                          Number alpha_pr,
-                          Index ls_trials,
+cdef Bool intermediate_cb(ipindex alg_mod,
+                          ipindex iter_count,
+                          ipnumber obj_value,
+                          ipnumber inf_pr,
+                          ipnumber inf_du,
+                          ipnumber mu,
+                          ipnumber d_norm,
+                          ipnumber regularization_size,
+                          ipnumber alpha_du,
+                          ipnumber alpha_pr,
+                          ipindex ls_trials,
                           UserDataPtr user_data
                           ):
 
