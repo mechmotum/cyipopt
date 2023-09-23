@@ -31,7 +31,7 @@ dependencies:
   * Ipopt >=3.12 [>= 3.13 on Windows]
   * Python 3.8+
   * setuptools >=44.1.1
-  * cython >=0.29.8,<3
+  * cython >=0.29.28,<3
   * NumPy >=1.21.5
   * SciPy >=1.8 [optional]
 
