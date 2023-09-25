@@ -458,32 +458,32 @@ class TestSLSQP:
         problem = NestedProblem()
         problem.solve()
 
-    # def test_gh1758(self):
-    #     # minimize_ipopt finds this to be infeasible
-    #
-    #     # the test suggested in gh1758
-    #     # https://nlopt.readthedocs.io/en/latest/NLopt_Tutorial/
-    #     # implement two equality constraints, in R^2.
-    #     def fun(x):
-    #         return np.sqrt(x[1])
-    #
-    #     def f_eqcon(x):
-    #         """ Equality constraint """
-    #         return x[1] - (2 * x[0]) ** 3
-    #
-    #     def f_eqcon2(x):
-    #         """ Equality constraint """
-    #         return x[1] - (-x[0] + 1) ** 3
-    #
-    #     c1 = {'type': 'eq', 'fun': f_eqcon}
-    #     c2 = {'type': 'eq', 'fun': f_eqcon2}
-    #
-    #     res = minimize(fun, [8, 0.25], method=None,
-    #                    constraints=[c1, c2], bounds=[(-0.5, 1), (0, 8)])
-    #
-    #     np.testing.assert_allclose(res.fun, 0.5443310539518)
-    #     np.testing.assert_allclose(res.x, [0.33333333, 0.2962963])
-    #     assert res.success
+    def test_gh1758(self):
+        # minimize_ipopt finds this to be infeasible
+
+        # the test suggested in gh1758
+        # https://nlopt.readthedocs.io/en/latest/NLopt_Tutorial/
+        # implement two equality constraints, in R^2.
+        def fun(x):
+            return np.sqrt(x[1])
+
+        def f_eqcon(x):
+            """ Equality constraint """
+            return x[1] - (2 * x[0]) ** 3
+
+        def f_eqcon2(x):
+            """ Equality constraint """
+            return x[1] - (-x[0] + 1) ** 3
+
+        c1 = {'type': 'eq', 'fun': f_eqcon}
+        c2 = {'type': 'eq', 'fun': f_eqcon2}
+
+        res = minimize(fun, [8, 0.25], method=None,
+                       constraints=[c1, c2], bounds=[(-0.5, 1), (0, 8)])
+
+        np.testing.assert_allclose(res.fun, 0.5443310539518)
+        np.testing.assert_allclose(res.x, [0.33333333, 0.2962963])
+        assert res.success
 
     def test_gh9640(self):
         np.random.seed(10)
