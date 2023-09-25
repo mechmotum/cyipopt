@@ -42,7 +42,7 @@ else:
 import cyipopt
 
 
-class IpoptProblemWrapper(object):
+class IpoptProblemWrapper(cyipopt.Problem):
     """Class used to map a scipy minimize definition to a cyipopt problem.
 
     Parameters
@@ -73,6 +73,16 @@ class IpoptProblemWrapper(object):
         True, the constraint function `fun` is expected to return a tuple
         `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
         and the evaluated jacobian `con_jac`.
+    callback : callable, optional
+        A callable with signature
+
+            ``callback(OptimizeResult: intermediate_result)``
+
+        that is called once per iteration,
+        where ``intermediate_result`` is a keyword parameter containing an
+        :py:class:`scipy.optimize.OptimizeResult` with attributes ``x`` and
+        ``fun``, the present values of the parameter vector and objective
+        function.
     eps : float, optional
         Epsilon used in finite differences.
     con_dims : array_like, optional
@@ -97,6 +107,7 @@ class IpoptProblemWrapper(object):
                  hess=None,
                  hessp=None,
                  constraints=(),
+                 callback=None,
                  eps=1e-8,
                  con_dims=(),
                  sparse_jacs=(),
@@ -150,6 +161,7 @@ class IpoptProblemWrapper(object):
         self._constraint_kwargs = []
         self._constraint_jac_is_sparse = sparse_jacs
         self._constraint_jacobian_structure = (jac_nnz_row, jac_nnz_col)
+        self.callback = callback
         if isinstance(constraints, dict):
             constraints = (constraints, )
         for con in constraints:
@@ -239,6 +251,12 @@ class IpoptProblemWrapper(object):
                      ls_trials):
 
         self.nit = iter_count
+        if self.callback is not None:
+            iterate = self.get_current_iterate()
+            res = OptimizeResult()
+            res.x = iterate["x"]
+            res.fun = obj_value
+            self.callback(intermediate_result=res)
 
 
 def get_bounds(bounds):
@@ -465,6 +483,16 @@ def minimize_ipopt(fun,
         constraint function ``fun`` must return a tuple ``(con_val, con_jac)``
         consisting of the evaluated constraint ``con_val`` and the evaluated
         Jacobian ``con_jac``.
+    callback : callable, optional
+        A callable with signature
+
+            ``callback(OptimizeResult: intermediate_result)``
+
+        that is called once per iteration,
+        where ``intermediate_result`` is a keyword parameter containing an
+        :py:class:`scipy.optimize.OptimizeResult` with attributes ``x`` and
+        ``fun``, the present values of the parameter vector and objective
+        function.
     tol : float, optional (default=1e-8)
         The desired relative convergence tolerance, passed as an option to
         Ipopt. See [1]_ for details.
@@ -559,6 +587,7 @@ def minimize_ipopt(fun,
                                   hess=hess,
                                   hessp=hessp,
                                   constraints=constraints,
+                                  callback=callback,
                                   eps=1e-8,
                                   con_dims=con_dims,
                                   sparse_jacs=sparse_jacs,
@@ -660,9 +689,6 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
 
     constraints = optimize._minimize.standardize_constraints(constraints, x0,
                                                              'old')
-
-    if method is None and callback is not None:
-        raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
 
     if tol is not None:
         tol = np.asarray(tol)[()]

@@ -79,10 +79,6 @@ def test_minimize_ipopt_input_validation():
     with pytest.raises(ValueError, match=message):
         cyipopt.minimize_ipopt(f, x0, bounds=[['low', 'high']])
 
-    message = "`callback` is not yet supported by Ipopt."
-    with pytest.raises(NotImplementedError, match=message):
-        cyipopt.minimize_ipopt(f, x0, callback='a duck')
-
     message = "`tol` must be a positive scalar."
     with pytest.raises(ValueError, match=message):
         cyipopt.minimize_ipopt(f, x0, tol=[1, 2, 3])
@@ -575,3 +571,16 @@ def test_minimize_late_binding_bug():
     assert res.success
     np.testing.assert_allclose(res.x, ref.x)
     np.testing.assert_allclose(res.fun, ref.fun)
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_minimize_callback():
+    # Test that `callback` works
+    def f(x):
+        return x @ x
+
+    def callback(intermediate_result):
+        assert intermediate_result.fun == f(intermediate_result.x)
+        assert False
+
+    cyipopt.minimize_ipopt(f, [1, 2, 3], callback=callback)
