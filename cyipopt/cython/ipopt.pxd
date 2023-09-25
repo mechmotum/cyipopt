@@ -29,28 +29,28 @@ cdef extern from "IpStdCInterface.h":
         Bool GetIpoptCurrentIterate(
                         IpoptProblem ipopt_problem,
                         Bool scaled,
-                        Index n,
-                        Number* x,
-                        Number* z_L,
-                        Number* z_U,
-                        Index m,
-                        Number* g,
-                        Number* lambd
+                        int n,
+                        ipnumber* x,
+                        ipnumber* z_L,
+                        ipnumber* z_U,
+                        ipindex m,
+                        ipnumber* g,
+                        ipnumber* lambd
                         ){
             return 0;
         }
         Bool GetIpoptCurrentViolations(
                         IpoptProblem ipopt_problem,
                         Bool scaled,
-                        Index n,
-                        Number* x_L_violation,
-                        Number* x_U_violation,
-                        Number* compl_x_L,
-                        Number* compl_x_U,
-                        Number* grad_lag_x,
-                        Index m,
-                        Number* nlp_constraint_violation,
-                        Number* compl_g
+                        ipindex n,
+                        ipnumber* x_L_violation,
+                        ipnumber* x_U_violation,
+                        ipnumber* compl_x_L,
+                        ipnumber* compl_x_U,
+                        ipnumber* grad_lag_x,
+                        ipindex m,
+                        ipnumber* nlp_constraint_violation,
+                        ipnumber* compl_g
                         ){
             return 0;
         }
@@ -82,11 +82,9 @@ cdef extern from "IpStdCInterface.h":
     #endif
     """
 
-    ctypedef double Number
+    ctypedef double ipnumber
 
-    ctypedef int Index
-
-    ctypedef int Int
+    ctypedef int ipindex
 
     ctypedef struct IpoptProblemInfo:
         pass
@@ -123,82 +121,82 @@ cdef extern from "IpStdCInterface.h":
         RestorationPhaseMode=1
 
     ctypedef Bool (*Eval_F_CB)(
-                    Index n,
-                    Number* x,
+                    ipindex n,
+                    ipnumber* x,
                     Bool new_x,
-                    Number* obj_value,
+                    ipnumber* obj_value,
                     UserDataPtr user_data
                     )
 
     ctypedef Bool (*Eval_Grad_F_CB)(
-                    Index n,
-                    Number* x,
+                    ipindex n,
+                    ipnumber* x,
                     Bool new_x,
-                    Number* grad_f,
+                    ipnumber* grad_f,
                     UserDataPtr user_data
                     )
 
     ctypedef Bool (*Eval_G_CB)(
-                    Index n,
-                    Number* x,
+                    ipindex n,
+                    ipnumber* x,
                     Bool new_x,
-                    Index m,
-                    Number* g,
+                    ipindex m,
+                    ipnumber* g,
                     UserDataPtr user_data
                     )
 
     ctypedef Bool (*Eval_Jac_G_CB)(
-                    Index n,
-                    Number *x,
+                    ipindex n,
+                    ipnumber *x,
                     Bool new_x,
-                    Index m,
-                    Index nele_jac,
-                    Index *iRow,
-                    Index *jCol,
-                    Number *values,
+                    ipindex m,
+                    ipindex nele_jac,
+                    ipindex *iRow,
+                    ipindex *jCol,
+        ipnumber *values,
                     UserDataPtr user_data
                     )
 
     ctypedef Bool (*Eval_H_CB)(
-                    Index n,
-                    Number *x,
+                    ipindex n,
+                    ipnumber *x,
                     Bool new_x,
-                    Number obj_factor,
-                    Index m,
-                    Number *lambd,
+                    ipnumber obj_factor,
+                    ipindex m,
+                    ipnumber *lambd,
                     Bool new_lambda,
-                    Index nele_hess,
-                    Index *iRow,
-                    Index *jCol,
-                    Number *values,
+                    ipindex nele_hess,
+                    ipindex *iRow,
+                    ipindex *jCol,
+                    ipnumber *values,
                     UserDataPtr user_data
                     )
 
     ctypedef Bool (*Intermediate_CB)(
-                    Index alg_mod,
-                    Index iter_count,
-                    Number obj_value,
-                    Number inf_pr,
-                    Number inf_du,
-                    Number mu,
-                    Number d_norm,
-                    Number regularization_size,
-                    Number alpha_du,
-                    Number alpha_pr,
-                    Index ls_trials,
+                    ipindex alg_mod,
+                    ipindex iter_count,
+                    ipnumber obj_value,
+                    ipnumber inf_pr,
+                    ipnumber inf_du,
+                    ipnumber mu,
+                    ipnumber d_norm,
+                    ipnumber regularization_size,
+                    ipnumber alpha_du,
+                    ipnumber alpha_pr,
+                    ipindex ls_trials,
                     UserDataPtr user_data
                     )
 
     IpoptProblem CreateIpoptProblem(
-                            Index n,
-                            Number* x_L,
-                            Number* x_U,
-                            Index m,
-                            Number* g_L,
-                            Number* g_U,
-                            Index nele_jac,
-                            Index nele_hess,
-                            Index index_style,
+                            ipindex n,
+                            ipnumber* x_L,
+                            ipnumber* x_U,
+                            ipindex m,
+                            ipnumber* g_L,
+                            ipnumber* g_U,
+                            ipindex nele_jac,
+                            ipindex nele_hess,
+                            ipindex index_style,
                             Eval_F_CB eval_f,
                             Eval_G_CB eval_g,
                             Eval_Grad_F_CB eval_grad_f,
@@ -210,17 +208,17 @@ cdef extern from "IpStdCInterface.h":
 
     Bool AddIpoptStrOption(IpoptProblem ipopt_problem, char* keyword, char* val)
 
-    Bool AddIpoptNumOption(IpoptProblem ipopt_problem, char* keyword, Number val)
+    Bool AddIpoptNumOption(IpoptProblem ipopt_problem, char* keyword, ipnumber val)
 
-    Bool AddIpoptIntOption(IpoptProblem ipopt_problem, char* keyword, Int val)
+    Bool AddIpoptIntOption(IpoptProblem ipopt_problem, char* keyword, int val)
 
-    Bool OpenIpoptOutputFile(IpoptProblem ipopt_problem, char* file_name, Int print_level)
+    Bool OpenIpoptOutputFile(IpoptProblem ipopt_problem, char* file_name, int print_level)
 
     Bool SetIpoptProblemScaling(
                     IpoptProblem ipopt_problem,
-                    Number obj_scaling,
-                    Number* x_scaling,
-                    Number* g_scaling
+                    ipnumber obj_scaling,
+                    ipnumber* x_scaling,
+                    ipnumber* g_scaling
                     )
 
     Bool SetIntermediateCallback(
@@ -230,12 +228,12 @@ cdef extern from "IpStdCInterface.h":
 
     ApplicationReturnStatus IpoptSolve(
                     IpoptProblem ipopt_problem,
-                    Number* x,
-                    Number* g,
-                    Number* obj_val,
-                    Number* mult_g,
-                    Number* mult_x_L,
-                    Number* mult_x_U,
+                    ipnumber* x,
+                    ipnumber* g,
+                    ipnumber* obj_val,
+                    ipnumber* mult_g,
+                    ipnumber* mult_x_L,
+                    ipnumber* mult_x_U,
                     UserDataPtr user_data
                     )
 
@@ -244,13 +242,13 @@ cdef extern from "IpStdCInterface.h":
     Bool CyGetCurrentIterate "_ip_get_iter" (
                     IpoptProblem ipopt_problem,
                     Bool scaled,
-                    Index n,
-                    Number* x,
-                    Number* z_L,
-                    Number* z_U,
-                    Index m,
-                    Number* g,
-                    Number* lambd
+                    ipindex n,
+                    ipnumber* x,
+                    ipnumber* z_L,
+                    ipnumber* z_U,
+                    ipindex m,
+                    ipnumber* g,
+                    ipnumber* lambd
                     )
 
     # Wrapper around GetIpoptCurrentViolations with a dummy implementation in
@@ -258,13 +256,13 @@ cdef extern from "IpStdCInterface.h":
     Bool CyGetCurrentViolations "_ip_get_viol" (
                     IpoptProblem ipopt_problem,
                     Bool scaled,
-                    Index n,
-                    Number* x_L_violation,
-                    Number* x_U_violation,
-                    Number* compl_x_L,
-                    Number* compl_x_U,
-                    Number* grad_lag_x,
-                    Index m,
-                    Number* nlp_constraint_violation,
-                    Number* compl_g
+                    ipindex n,
+                    ipnumber* x_L_violation,
+                    ipnumber* x_U_violation,
+                    ipnumber* compl_x_L,
+                    ipnumber* compl_x_U,
+                    ipnumber* grad_lag_x,
+                    ipindex m,
+                    ipnumber* nlp_constraint_violation,
+                    ipnumber* compl_g
                     )
