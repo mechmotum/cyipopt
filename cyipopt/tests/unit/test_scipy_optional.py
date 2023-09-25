@@ -577,6 +577,8 @@ def test_minimize_late_binding_bug():
     np.testing.assert_allclose(res.fun, ref.fun)
 
 
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 def test_gh115_eps_option():
     # gh-115 requested that the `eps` argument be exposed as an option. Verify
     # that it is working as advertised (at least for the objective function).

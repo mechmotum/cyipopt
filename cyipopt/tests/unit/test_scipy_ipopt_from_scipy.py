@@ -1125,7 +1125,13 @@ def test_gh11649():
     ref = minimize(fun=obj, x0=x0, method='slsqp',
                    bounds=bnds, constraints=nlcs)
     assert ref.success
-    assert res.fun <= ref.fun
+    assert res.fun <= ref.fun  # Ipopt legitimately does better than slsqp here
+
+    # If we give SLSQP a good guess, it agrees with Ipopt
+    ref2 = minimize(fun=obj, x0=res.x, method='slsqp',
+                   bounds=bnds, constraints=nlcs)
+    assert ref2.success
+    assert_allclose(ref2.fun, res.fun)
 
 
 @pytest.mark.skipif("scipy" not in sys.modules,
