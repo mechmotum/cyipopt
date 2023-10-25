@@ -668,6 +668,8 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
         tol = np.asarray(tol)[()]
         if tol.ndim != 0 or not np.issubdtype(tol.dtype, np.number) or tol <= 0:
             raise ValueError('`tol` must be a positive scalar.')
+        else:  # tol should be a float, not an array
+            tol = float(tol)
 
     options = dict() if options is None else options
     if not isinstance(options, dict):

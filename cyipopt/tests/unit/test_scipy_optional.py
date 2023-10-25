@@ -32,6 +32,22 @@ def test_minimize_ipopt_import_error_if_no_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
+def test_tol_type_issue_235():
+    # from: https://github.com/mechmotum/cyipopt/issues/235
+
+    def fun(x):
+        return np.sum(x ** 2)
+
+    # tol should not raise and error
+    cyipopt.minimize_ipopt(
+        fun=fun,
+        x0=np.zeros(2),
+        tol=1e-9,
+    )
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
 def test_minimize_ipopt_input_validation():
     from scipy import optimize
 
