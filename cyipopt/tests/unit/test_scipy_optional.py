@@ -38,7 +38,7 @@ def test_tol_type_issue_235():
     def fun(x):
         return np.sum(x ** 2)
 
-    # tol should not raise and error
+    # tol should not raise an error
     cyipopt.minimize_ipopt(
         fun=fun,
         x0=np.zeros(2),
