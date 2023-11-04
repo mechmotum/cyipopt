@@ -373,6 +373,9 @@ def _wrap_funs(fun, jac, hess, hessp, constraints, kwargs):
 
 def minimize_ipopt(fun,
                    x0,
+                   mult_g=[],
+                   mult_x_L=[],
+                   mult_x_U=[],
                    args=(),
                    kwargs=None,
                    method=None,
@@ -426,6 +429,16 @@ def minimize_ipopt(fun,
     x0 : array-like, shape(n, )
         Initial guess. Array of real elements of shape (n,),
         where ``n`` is the number of independent variables.
+    mult_g : list, optional
+        Initial guess for the Lagrange multipliers of the constraints. A list
+        of real elements of length ``m``, where ``m`` is the number of
+        constraints.
+    mult_x_L : list, optional
+        Initial guess for the Lagrange multipliers of the lower bounds on the
+        variables. A list of real elements of length ``n``.
+    mult_x_U : list, optional
+        Initial guess for the Lagrange multipliers of the upper bounds on the
+        variables. A list of real elements of length ``n``.
     args : tuple, optional
         Extra arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, and ``hess``).
@@ -598,7 +611,17 @@ def minimize_ipopt(fun,
             msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
             raise TypeError(msg.format(option, value, e))
 
-    x, info = nlp.solve(x0)
+    if len(mult_g) > 0 and len(mult_g) != len(cl):
+        raise ValueError('`mult_g` must be empty or have length `m`, '
+                         'where `m` is the number of constraints.')
+    if len(mult_x_L) > 0 and len(mult_x_L) != len(lb):
+        raise ValueError('`mult_x_L` must be empty or have length `n`, '
+                         'where `n` is the number of decision variables.')
+    if len(mult_x_U) > 0 and len(mult_x_U) != len(ub):
+        raise ValueError('`mult_x_U` must be empty or have length `n`, '
+                         'where `n` is the number of decision variables.')
+    
+    x, info = nlp.solve(x0, lagrange=mult_g, zl=mult_x_L, zu=mult_x_U)
 
     return OptimizeResult(x=x,
                           success=info['status'] == 0,
