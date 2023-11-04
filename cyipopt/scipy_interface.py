@@ -582,9 +582,7 @@ def minimize_ipopt(fun,
     # Rename some default scipy options
     replace_option(options, b'disp', b'print_level')
     replace_option(options, b'maxiter', b'max_iter')
-    if getattr(options, 'print_level', False) is True:
-        options[b'print_level'] = 1
-    else:
+    if b'print_level' not in options:
         options[b'print_level'] = 0
     if b'tol' not in options:
         options[b'tol'] = tol or 1e-8
