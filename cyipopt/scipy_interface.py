@@ -57,8 +57,9 @@ class IpoptProblemWrapper(object):
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
     jac : callable, optional
-        The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
-        ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
+        The Jacobian (gradient) of the objective function:
+        ``jac(x, *args, **kwargs) -> ndarray, shape(n, )``.
+        If ``None``, SciPy's ``approx_fprime`` is used.
     hess : callable, optional
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
         Explicitly defined Hessians are not yet supported for this class.
@@ -74,7 +75,8 @@ class IpoptProblemWrapper(object):
         `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
         and the evaluated jacobian `con_jac`.
     eps : float, optional
-        Epsilon used in finite differences.
+        Step size used in finite difference approximations of the objective
+        function gradient and constraint Jacobian.
     con_dims : array_like, optional
         Dimensions p_1, ..., p_m of the m constraint functions
         g_1, ..., g_m : R^n -> R^(p_i).
@@ -436,8 +438,9 @@ def minimize_ipopt(fun,
         If unspecified (default), Ipopt is used.
         :py:func:`scipy.optimize.minimize` methods can also be used.
     jac : callable, optional
-        The Jacobian of the objective function: ``jac(x, *args, **kwargs) ->
-        ndarray, shape(n, )``. If ``None``, SciPy's ``approx_fprime`` is used.
+        The Jacobian (gradient) of the objective function:
+        ``jac(x, *args, **kwargs) -> ndarray, shape(n, )``.
+        If ``None``, SciPy's ``approx_fprime`` is used.
     hess : callable, optional
         The Hessian of the objective function:
         ``hess(x) -> ndarray, shape(n, )``.
@@ -469,18 +472,28 @@ def minimize_ipopt(fun,
         The desired relative convergence tolerance, passed as an option to
         Ipopt. See [1]_ for details.
     options : dict, optional
-        A dictionary of solver options. The options ``disp`` and ``maxiter``
-        are automatically mapped to their Ipopt equivalents ``print_level``
-        and ``max_iter``. All other options are passed directly to Ipopt. See
-        [1]_ for details.
+        A dictionary of solver options.
+
+        When `method` is unspecified (default: Ipopt), the options
+        ``disp`` and ``maxiter`` are automatically mapped to their Ipopt
+        equivalents ``print_level`` and ``max_iter``, and ``eps`` is used to
+        control the step size of finite difference gradient and constraint
+        Jacobian approximations. All other options are passed directly
+        to Ipopt. See [1]_ for details.
+
+        For other values of `method`, `options` is passed to the SciPy solver.
+        See [2]_ for details.
     callback : callable, optional
-        This parameter is ignored unless `method` is one of the SciPy
-        methods.
+        This argument is ignored by the default `method` (Ipopt).
+        If `method` is one of the SciPy methods, this is a callable that is
+        called once per iteration. See [2]_ for details.
 
     References
     ----------
     .. [1] COIN-OR Project. "Ipopt: Ipopt Options".
            https://coin-or.github.io/Ipopt/OPTIONS.html
+    .. [2] The SciPy Developers. "scipy.optimize.minimize".
+           https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
 
     Examples
     --------
@@ -552,6 +565,10 @@ def minimize_ipopt(fun,
     sparse_jacs, jac_nnz_row, jac_nnz_col = _get_sparse_jacobian_structure(
         constraints, x0)
 
+    if options is None:
+        options = {}
+    eps = options.pop('eps', 1e-8)
+
     problem = IpoptProblemWrapper(fun,
                                   args=args,
                                   kwargs=kwargs,
@@ -559,14 +576,11 @@ def minimize_ipopt(fun,
                                   hess=hess,
                                   hessp=hessp,
                                   constraints=constraints,
-                                  eps=1e-8,
+                                  eps=eps,
                                   con_dims=con_dims,
                                   sparse_jacs=sparse_jacs,
                                   jac_nnz_row=jac_nnz_row,
                                   jac_nnz_col=jac_nnz_col)
-
-    if options is None:
-        options = {}
 
     nlp = cyipopt.Problem(n=len(x0),
                           m=len(cl),
