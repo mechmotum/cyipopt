@@ -386,9 +386,9 @@ def minimize_ipopt(fun,
                    tol=None,
                    callback=None,
                    options=None,
-                   mult_g=[],
-                   mult_x_L=[],
-                   mult_x_U=[],):
+                   mult_g=None,
+                   mult_x_L=None,
+                   mult_x_U=None,):
     """
     Minimization using Ipopt with an interface like
     :py:func:`scipy.optimize.minimize`.
@@ -630,6 +630,9 @@ def minimize_ipopt(fun,
             msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
             raise TypeError(msg.format(option, value, e))
 
+    mult_g = [] if mult_g is None else mult_g
+    mult_x_L = [] if mult_x_L is None else mult_x_L
+    mult_x_U = [] if mult_x_U is None else mult_x_U
     _dual_initial_guess_validation("mult_g", mult_g, len(cl))
     _dual_initial_guess_validation("mult_x_L", mult_x_L, len(lb))
     _dual_initial_guess_validation("mult_x_U", mult_x_U, len(ub))
