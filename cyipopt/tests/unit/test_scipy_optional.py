@@ -575,3 +575,25 @@ def test_minimize_late_binding_bug():
     assert res.success
     np.testing.assert_allclose(res.x, ref.x)
     np.testing.assert_allclose(res.fun, ref.fun)
+
+
+@pytest.mark.skipif("scipy" not in sys.modules,
+                    reason="Test only valid if Scipy available.")
+def test_gh115_eps_option():
+    # gh-115 requested that the `eps` argument be exposed as an option. Verify
+    # that it is working as advertised (at least for the objective function).
+    def f(x):
+        if f.x is None:
+            f.x = x
+        elif f.dx is None:
+            f.dx = x - f.x
+        return x ** 2
+
+    f.x, f.dx = None, None
+    cyipopt.minimize_ipopt(f, x0=0)
+    np.testing.assert_equal(f.dx, 1e-8)
+
+    f.x, f.dx = None, None
+    eps = 1e-9
+    cyipopt.minimize_ipopt(f, x0=0, options={'eps': eps})
+    np.testing.assert_equal(f.dx, eps)
