@@ -373,9 +373,6 @@ def _wrap_funs(fun, jac, hess, hessp, constraints, kwargs):
 
 def minimize_ipopt(fun,
                    x0,
-                   mult_g=[],
-                   mult_x_L=[],
-                   mult_x_U=[],
                    args=(),
                    kwargs=None,
                    method=None,
@@ -386,7 +383,10 @@ def minimize_ipopt(fun,
                    constraints=(),
                    tol=None,
                    callback=None,
-                   options=None):
+                   options=None,
+                   mult_g=[],
+                   mult_x_L=[],
+                   mult_x_U=[],):
     """
     Minimization using Ipopt with an interface like
     :py:func:`scipy.optimize.minimize`.
@@ -429,16 +429,6 @@ def minimize_ipopt(fun,
     x0 : array-like, shape(n, )
         Initial guess. Array of real elements of shape (n,),
         where ``n`` is the number of independent variables.
-    mult_g : list, optional
-        Initial guess for the Lagrange multipliers of the constraints. A list
-        of real elements of length ``m``, where ``m`` is the number of
-        constraints.
-    mult_x_L : list, optional
-        Initial guess for the Lagrange multipliers of the lower bounds on the
-        variables. A list of real elements of length ``n``.
-    mult_x_U : list, optional
-        Initial guess for the Lagrange multipliers of the upper bounds on the
-        variables. A list of real elements of length ``n``.
     args : tuple, optional
         Extra arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, and ``hess``).
@@ -489,6 +479,16 @@ def minimize_ipopt(fun,
     callback : callable, optional
         This parameter is ignored unless `method` is one of the SciPy
         methods.
+    mult_g : list, optional
+        Initial guess for the Lagrange multipliers of the constraints. A list
+        of real elements of length ``m``, where ``m`` is the number of
+        constraints.
+    mult_x_L : list, optional
+        Initial guess for the Lagrange multipliers of the lower bounds on the
+        variables. A list of real elements of length ``n``.
+    mult_x_U : list, optional
+        Initial guess for the Lagrange multipliers of the upper bounds on the
+        variables. A list of real elements of length ``n``.
 
     References
     ----------
