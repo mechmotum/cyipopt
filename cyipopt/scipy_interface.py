@@ -611,15 +611,9 @@ def minimize_ipopt(fun,
             msg = 'Invalid option for IPOPT: {0}: {1} (Original message: "{2}")'
             raise TypeError(msg.format(option, value, e))
 
-    if len(mult_g) > 0 and len(mult_g) != len(cl):
-        raise ValueError('`mult_g` must be empty or have length `m`, '
-                         'where `m` is the number of constraints.')
-    if len(mult_x_L) > 0 and len(mult_x_L) != len(lb):
-        raise ValueError('`mult_x_L` must be empty or have length `n`, '
-                         'where `n` is the number of decision variables.')
-    if len(mult_x_U) > 0 and len(mult_x_U) != len(ub):
-        raise ValueError('`mult_x_U` must be empty or have length `n`, '
-                         'where `n` is the number of decision variables.')
+    _dual_initial_guess_validation("mult_g", mult_g, len(cl))
+    _dual_initial_guess_validation("mult_x_L", mult_x_L, len(lb))
+    _dual_initial_guess_validation("mult_x_U", mult_x_U, len(ub))
     
     x, info = nlp.solve(x0, lagrange=mult_g, zl=mult_x_L, zu=mult_x_U)
 
@@ -696,3 +690,13 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
 
     return (fun, x0, args, kwargs, method, jac, hess, hessp,
             bounds, constraints, tol, callback, options)
+
+def _dual_initial_guess_validation(dual_name: str, dual_value: list, length: int):
+    if not isinstance(dual_value, list):
+        raise TypeError(f'`{dual_name}` must be a list.')
+    if len(dual_value) > 0:
+        assert all(isinstance(x, (int, float)) for x in dual_value), \
+            f'All elements of `{dual_name}` must be numeric.'
+        if len(dual_value) != length:
+            raise ValueError(f'`{dual_name}` must be empty or have length '
+                             f'`{length}`.')
