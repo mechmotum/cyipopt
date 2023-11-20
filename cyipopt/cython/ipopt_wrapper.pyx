@@ -78,7 +78,7 @@ def setLoggingLevel(level=None):
 
 set_logging_level()
 
-cdef inline void log(char* msg, int level):
+cdef inline void log(object msg, int level):
      if level >= verbosity:
          logging.getLogger('cyipopt').log(level, msg)
 
@@ -290,7 +290,7 @@ cdef class Problem:
             raise TypeError("n must be a positive integer")
 
         if problem_obj is None:
-            log(b"problem_obj is not defined, using self", logging.INFO)
+            log("problem_obj is not defined, using self", logging.INFO)
             problem_obj = self
 
         self.__n = n
@@ -381,7 +381,7 @@ cdef class Problem:
             nele_hess = len(ret_val[0])
         else:
             if self.__hessian is None:
-                msg = b"Hessian callback not given, setting nele_hess to 0"
+                msg = "Hessian callback not given, setting nele_hess to 0"
                 log(msg, logging.INFO)
                 nele_hess = 0
             elif self.__n > 2**16:
@@ -406,7 +406,7 @@ cdef class Problem:
                                              repr(nele_jac),
                                              repr(nele_hess)
                                              )
-        creation_msg = creation_msg.encode("utf8")
+        # creation_msg = creation_msg.encode("utf8")
 
         log(creation_msg, logging.DEBUG)
 
@@ -434,7 +434,7 @@ cdef class Problem:
         SetIntermediateCallback(self.__nlp, intermediate_cb)
 
         if self.__hessian is None:
-            msg = b"Hessian callback not given, using approximation"
+            msg = "Hessian callback not given, using approximation"
             log(msg, logging.INFO)
             self.add_option(b"hessian_approximation", b"limited-memory")
 
@@ -864,7 +864,7 @@ cdef Bool objective_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] _x
 
     try:
-        log(b"objective_cb", logging.DEBUG)
+        log("objective_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
@@ -893,7 +893,7 @@ cdef Bool gradient_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_grad_f
 
     try:
-        log(b"gradient_cb", logging.DEBUG)
+        log("gradient_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
@@ -930,13 +930,13 @@ cdef Bool constraints_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
 
     try:
-        log(b"constraints_cb", logging.DEBUG)
+        log("constraints_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
 
         if not self.__constraints:
-            log(b"Constraints callback not defined", logging.DEBUG)
+            log("Constraints callback not defined", logging.DEBUG)
             return True
 
         for i in range(n):
@@ -968,7 +968,7 @@ cdef Bool jacobian_struct_cb(Index n,
     cdef Index i
 
     if not self.__jacobianstructure:
-        msg = b"Jacobian callback not defined. assuming a dense jacobian"
+        msg = "Jacobian callback not defined. assuming a dense jacobian"
         log(msg, logging.INFO)
 
         #
@@ -988,17 +988,17 @@ cdef Bool jacobian_struct_cb(Index n,
         np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
 
         if (np_iRow.size != nele_jac) or (np_jCol.size != nele_jac):
-            msg = b"Invalid number of indices returned from jacobianstructure"
+            msg = "Invalid number of indices returned from jacobianstructure"
             log(msg, logging.ERROR)
             return False
 
         if (np_iRow < 0).any() or (np_iRow >= m).any():
-            msg = b"Invalid row indices returned from jacobianstructure"
+            msg = "Invalid row indices returned from jacobianstructure"
             log(msg, logging.ERROR)
             return False
 
         if (np_jCol < 0).any() or (np_jCol >= n).any():
-            msg = b"Invalid column indices returned from jacobianstructure"
+            msg = "Invalid column indices returned from jacobianstructure"
             log(msg, logging.ERROR)
             return False
 
@@ -1022,7 +1022,7 @@ cdef Bool jacobian_value_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] _x = np.zeros((n,), dtype=DTYPEd)
 
     if not self.__jacobian:
-        log(b"Jacobian callback not defined", logging.DEBUG)
+        log("Jacobian callback not defined", logging.DEBUG)
         return True
 
     for i in range(n):
@@ -1036,7 +1036,7 @@ cdef Bool jacobian_value_cb(Index n,
     np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
 
     if (np_jac_g.size != nele_jac):
-        msg = b"Invalid number of indices returned from jacobian"
+        msg = "Invalid number of indices returned from jacobian"
         log(msg, logging.ERROR)
         return False
 
@@ -1060,14 +1060,14 @@ cdef Bool jacobian_cb(Index n,
     cdef object ret_val
 
     try:
-        log(b"jacobian_cb", logging.DEBUG)
+        log("jacobian_cb", logging.DEBUG)
         ret_val = True
         self = <Problem>user_data
         if values == NULL:
-            log(b"Querying for iRow/jCol indices of the jacobian", logging.INFO)
+            log("Querying for iRow/jCol indices of the jacobian", logging.INFO)
             ret_val = jacobian_struct_cb(n, m, nele_jac, iRow, jCol, user_data)
         else:
-            log(b"Querying for jacobian", logging.INFO)
+            log("Querying for jacobian", logging.INFO)
             ret_val = jacobian_value_cb(n, x, new_x, m, nele_jac, values, user_data)
 
     except:
@@ -1088,12 +1088,12 @@ cdef Bool hessian_struct_cb(Index n,
     cdef np.ndarray[DTYPEi_t, ndim=1] np_iRow
     cdef np.ndarray[DTYPEi_t, ndim=1] np_jCol
 
-    msg = b"Querying for iRow/jCol indices of the Hessian"
+    msg = "Querying for iRow/jCol indices of the Hessian"
     log(msg, logging.INFO)
 
     if not self.__hessianstructure:
-        msg = (b"Hessian callback not defined. assuming a lower triangle "
-               b"Hessian")
+        msg = ("Hessian callback not defined. assuming a lower triangle "
+               "Hessian")
         log(msg, logging.INFO)
 
         #
@@ -1115,22 +1115,22 @@ cdef Bool hessian_struct_cb(Index n,
         np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
 
         if (np_iRow.size != nele_hess) or (np_jCol.size != nele_hess):
-            msg = b"Invalid number of indices returned from hessianstructure"
+            msg = "Invalid number of indices returned from hessianstructure"
             log(msg, logging.ERROR)
             return False
 
         if not(np_iRow >= np_jCol).all():
-            msg = b"Indices are not lower triangular in hessianstructure"
+            msg = "Indices are not lower triangular in hessianstructure"
             log(msg, logging.ERROR)
             return False
 
         if (np_jCol < 0).any():
-            msg = b"Invalid column indices returned from hessianstructure"
+            msg = "Invalid column indices returned from hessianstructure"
             log(msg, logging.ERROR)
             return False
 
         if (np_iRow >= n).any():
-            msg = b"Invalid row indices returned from hessianstructure"
+            msg = "Invalid row indices returned from hessianstructure"
             log(msg, logging.ERROR)
             return False
 
@@ -1158,8 +1158,8 @@ cdef Bool hessian_value_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] _lambda = np.zeros((m,), dtype=DTYPEd)
 
     if not self.__hessian:
-        msg = (b"Hessian callback not defined but called by the Ipopt "
-               b"algorithm")
+        msg = ("Hessian callback not defined but called by the Ipopt "
+               "algorithm")
         log(msg, logging.ERROR)
         return False
 
@@ -1177,7 +1177,7 @@ cdef Bool hessian_value_cb(Index n,
     np_h = np.array(ret_val, dtype=DTYPEd).flatten()
 
     if (np_h.size != nele_hess):
-        msg = b"Invalid number of indices returned from hessian"
+        msg = "Invalid number of indices returned from hessian"
         log(msg, logging.ERROR)
         return False
 
@@ -1204,7 +1204,7 @@ cdef Bool hessian_cb(Index n,
     cdef object ret_val
 
     try:
-        log(b"hessian_cb", logging.DEBUG)
+        log("hessian_cb", logging.DEBUG)
         ret_val = True
         self = <object>user_data
 
@@ -1249,7 +1249,7 @@ cdef Bool intermediate_cb(Index alg_mod,
     cdef Problem self
 
     try:
-        log(b"intermediate_cb", logging.DEBUG)
+        log("intermediate_cb", logging.DEBUG)
 
         self = <Problem>user_data
 
