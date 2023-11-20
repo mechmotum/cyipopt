@@ -864,7 +864,7 @@ cdef Bool objective_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] _x
 
     try:
-        log(b"objective_cb", logging.INFO)
+        log(b"objective_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
@@ -893,7 +893,7 @@ cdef Bool gradient_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_grad_f
 
     try:
-        log(b"gradient_cb", logging.INFO)
+        log(b"gradient_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
@@ -930,7 +930,7 @@ cdef Bool constraints_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] np_g
 
     try:
-        log(b"constraints_cb", logging.INFO)
+        log(b"constraints_cb", logging.DEBUG)
 
         self = <Problem>user_data
         _x = np.zeros((n,), dtype=DTYPEd)
@@ -1060,7 +1060,7 @@ cdef Bool jacobian_cb(Index n,
     cdef object ret_val
 
     try:
-        log(b"jacobian_cb", logging.INFO)
+        log(b"jacobian_cb", logging.DEBUG)
         ret_val = True
         self = <Problem>user_data
         if values == NULL:
@@ -1204,7 +1204,7 @@ cdef Bool hessian_cb(Index n,
     cdef object ret_val
 
     try:
-        log(b"hessian_cb", logging.INFO)
+        log(b"hessian_cb", logging.DEBUG)
         ret_val = True
         self = <object>user_data
 
@@ -1249,7 +1249,7 @@ cdef Bool intermediate_cb(Index alg_mod,
     cdef Problem self
 
     try:
-        log(b"intermediate_cb", logging.INFO)
+        log(b"intermediate_cb", logging.DEBUG)
 
         self = <Problem>user_data
 
