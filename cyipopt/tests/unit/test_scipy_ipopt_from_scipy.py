@@ -152,7 +152,7 @@ class TestSLSQP:
         # Minimize, method=None: unbounded, approximated jacobian.
         jacs = [None, False]
         for jac in jacs:
-            res = minimize(self.fun, [-1.0, 1.0], args=(-1.0, ),
+            res = minimize(self.fun, [1.0, 1.0], args=(-1.0, ),
                            jac=jac, method=None,
                            options=self.opts)
             assert_(res['success'], res['message'])
@@ -170,7 +170,7 @@ class TestSLSQP:
         jacs = [None, False]
         for jac in jacs:
             with np.errstate(invalid='ignore'):
-                res = minimize(self.fun, [2.0, 1.0], args=(-1.0, ),
+                res = minimize(self.fun, [-1.0, 1.0], args=(-1.0, ),
                                jac=jac,
                                bounds=((2.5, None), (None, 0.5)),
                                method=None, options=self.opts)
