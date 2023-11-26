@@ -7,6 +7,7 @@ recursive-include cyipopt *.py *.pyx *.pxd
 recursive-include ipopt *.py
 recursive-include tests *.py
 recursive-include docs Makefile *.bat *.rst *.py
+recursive-include examples *.py
 exclude cyipopt/tests/unit/test_scipy_ipopt_from_scipy.py
 prune include*
 prune lib*
