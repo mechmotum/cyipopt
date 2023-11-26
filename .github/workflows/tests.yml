@@ -35,7 +35,7 @@ jobs:
           miniforge-variant: Mambaforge
       - name: Install basic dependencies against generic blas/lapack
         run: |
-          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython=0.29.*"
+          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28"
       - run: echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
       - name: Install CyIpopt
         run: |
