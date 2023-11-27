@@ -1,9 +1,12 @@
+import sys
 import pytest
 import numpy as np
 from numpy.testing import assert_, assert_allclose
 from cyipopt import minimize_ipopt
 
 
+@pytest.mark.skipif("scipy" not in sys.modules,
+                reason="Test only valid if Scipy available.")
 class TestDualWarmStart:
     atol = 1e-7
 
@@ -89,7 +92,7 @@ class TestDualWarmStart:
                        options=self.opts, mult_g=[1], mult_x_L=[1, 1], mult_x_U=[-1, -1])
         assert_(res['success'], res['message'])
         assert_allclose(res.x, [1, 1])
-    
+
     @pytest.mark.xfail(raises=(ValueError,), reason="Initial guesses for dual variables have wrong shape")
     def test_dual_warm_start_equality_with_wrong_shape(self):
         # equality constraint, with wrong warm start shape.
