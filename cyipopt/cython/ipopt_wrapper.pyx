@@ -365,7 +365,7 @@ cdef class Problem:
         # Verify that the constraints and jacobian callbacks are defined
         #
         if m > 0 and (self.__constraints is None or self.__jacobian is None):
-            msg = ("Both the \"constrains\" and \"jacobian\" callbacks must "
+            msg = ("Both the \"constraints\" and \"jacobian\" callbacks must "
                    "be defined.")
             raise ValueError(msg)
 
