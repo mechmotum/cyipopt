@@ -253,15 +253,18 @@ methods should return the non-zero values of the respective matrices as
 flattened arrays. The hessian should return a flattened lower triangular
 matrix.
 
-The Jacobian and Hessian can be dense or sparse. If sparse, you must also
-define:
+The Jacobian and Hessian can be dense or sparse. If sparse,
+:func:`cyipopt.Problem.jacobian` and :func:`cyipopt.Problem.hessian` methods
+should return only the non-zero values of the respective matrices and you must
+also define:
 
 - :func:`cyipopt.Problem.jacobianstructure`
 - :func:`cyipopt.Problem.hessianstructure`
 
-which should return a tuple of indices that indicate the location of the
-non-zero values of the Jacobian and Hessian matrices, respectively. If not
-defined then these matrices are assumed to be dense.
+which should return a tuple of indices (row indices, column indices) that
+indicate the location of the non-zero values of the Jacobian and Hessian
+matrices, respectively. If not defined then these matrices are assumed to be
+dense.
 
 The :func:`cyipopt.Problem.intermediate` method is called every Ipopt iteration
 algorithm and can be used to perform any needed computation at each iteration.
