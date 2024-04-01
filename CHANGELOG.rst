@@ -46,6 +46,7 @@ Added
 - Exposed the ``eps`` kwarg in the SciPy interface. #228
 - Added the examples to the source tarball. #242
 - Documentation improvements on specifics of Jacobian and Hessian inputs.  #247
+- Support for Python 3.12.
 
 Fixed
 +++++
