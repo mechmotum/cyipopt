@@ -39,6 +39,14 @@ Version History
 [1.5.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+[1.4.1] - 2024-04-02
+~~~~~~~~~~~~~~~~~~~~
+
+Fixed
++++++
+
+- Addressed regression in return value of ``intermediate_cb``. #250
+
 [1.4.0] - 2024-04-01
 ~~~~~~~~~~~~~~~~~~~~
 

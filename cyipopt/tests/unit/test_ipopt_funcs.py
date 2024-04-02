@@ -391,3 +391,51 @@ def test_get_violations_hs071_subclass_Problem(
 
     np.testing.assert_allclose(pr_violations[-1], np.zeros(m), atol=1e-8)
     np.testing.assert_allclose(du_violations[-1], np.zeros(n), atol=1e-8)
+
+
+def test_intermediate_cb(
+    hs071_initial_guess_fixture,
+    hs071_definition_instance_fixture,
+    hs071_variable_lower_bounds_fixture,
+    hs071_variable_upper_bounds_fixture,
+    hs071_constraint_lower_bounds_fixture,
+    hs071_constraint_upper_bounds_fixture,
+):
+    x0 = hs071_initial_guess_fixture
+    lb = hs071_variable_lower_bounds_fixture
+    ub = hs071_variable_upper_bounds_fixture
+    cl = hs071_constraint_lower_bounds_fixture
+    cu = hs071_constraint_upper_bounds_fixture
+    n = len(x0)
+    m = len(cl)
+
+    problem_definition = hs071_definition_instance_fixture
+
+    def intermediate(
+        alg_mod,
+        iter_count,
+        obj_value,
+        inf_pr,
+        inf_du,
+        mu,
+        d_norm,
+        regularization_size,
+        alpha_du,
+        alpha_pr,
+        ls_trials,
+    ):
+        return False
+
+    problem_definition.intermediate = intermediate
+
+    nlp = cyipopt.Problem(
+        n=n,
+        m=m,
+        problem_obj=problem_definition,
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu,
+    )
+    x, info = nlp.solve(x0)
+    assert b'premature termination' in info['status_msg']
