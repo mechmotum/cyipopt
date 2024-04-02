@@ -1278,7 +1278,7 @@ cdef Bool intermediate_cb(Index alg_mod,
         self.__exception = sys.exc_info()
         return True
 
-    return True
+    return ret_val
 
 
 class problem(Problem):
