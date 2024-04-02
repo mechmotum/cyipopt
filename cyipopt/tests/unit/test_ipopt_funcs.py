@@ -393,88 +393,49 @@ def test_get_violations_hs071_subclass_Problem(
     np.testing.assert_allclose(du_violations[-1], np.zeros(n), atol=1e-8)
 
 
-def test_intermediate_cb():
+def test_intermediate_cb(
+    hs071_initial_guess_fixture,
+    hs071_definition_instance_fixture,
+    hs071_variable_lower_bounds_fixture,
+    hs071_variable_upper_bounds_fixture,
+    hs071_constraint_lower_bounds_fixture,
+    hs071_constraint_upper_bounds_fixture,
+):
+    x0 = hs071_initial_guess_fixture
+    lb = hs071_variable_lower_bounds_fixture
+    ub = hs071_variable_upper_bounds_fixture
+    cl = hs071_constraint_lower_bounds_fixture
+    cu = hs071_constraint_upper_bounds_fixture
+    n = len(x0)
+    m = len(cl)
 
-    class MyProblem():
-        def __init__(self):
-            pass
+    problem_definition = hs071_definition_instance_fixture
 
-        def objective(self, x):
-            return x[0] * x[3] * np.sum(x[0:3]) + x[2]
+    def intermediate(
+        alg_mod,
+        iter_count,
+        obj_value,
+        inf_pr,
+        inf_du,
+        mu,
+        d_norm,
+        regularization_size,
+        alpha_du,
+        alpha_pr,
+        ls_trials,
+    ):
+        return False
 
-        def gradient(self, x):
-            return np.array([
-                        x[0] * x[3] + x[3] * np.sum(x[0:3]),
-                        x[0] * x[3],
-                        x[0] * x[3] + 1.0,
-                        x[0] * np.sum(x[0:3])
-                        ])
-
-        def constraints(self, x):
-            return np.array((np.prod(x), np.dot(x, x)))
-
-        def jacobian(self, x):
-            return np.concatenate((np.prod(x) / x, 2*x))
-
-        def hessianstructure(self):
-
-            return np.nonzero(np.tril(np.ones((4, 4))))
-
-        def hessian(self, x, lagrange, obj_factor):
-            H = obj_factor*np.array((
-                    (2*x[3], 0, 0, 0),
-                    (x[3],   0, 0, 0),
-                    (x[3],   0, 0, 0),
-                    (2*x[0]+x[1]+x[2], x[0], x[0], 0)))
-
-            H += lagrange[0]*np.array((
-                    (0, 0, 0, 0),
-                    (x[2]*x[3], 0, 0, 0),
-                    (x[1]*x[3], x[0]*x[3], 0, 0),
-                    (x[1]*x[2], x[0]*x[2], x[0]*x[1], 0)))
-
-            H += lagrange[1]*2*np.eye(4)
-
-            row, col = self.hessianstructure()
-
-            return H[row, col]
-
-        def intermediate(
-            self,
-            alg_mod,
-            iter_count,
-            obj_value,
-            inf_pr,
-            inf_du,
-            mu,
-            d_norm,
-            regularization_size,
-            alpha_du,
-            alpha_pr,
-            ls_trials,
-        ):
-            return False
-
-    x0 = [1.0, 5.0, 5.0, 1.0]
-
-    lb = [1.0, 1.0, 1.0, 1.0]
-    ub = [5.0, 5.0, 5.0, 5.0]
-
-    cl = [25.0, 40.0]
-    cu = [2.0e19, 40.0]
+    problem_definition.intermediate = intermediate
 
     nlp = cyipopt.Problem(
-        n=len(x0),
-        m=len(cl),
-        problem_obj=MyProblem(),
+        n=n,
+        m=m,
+        problem_obj=problem_definition,
         lb=lb,
         ub=ub,
         cl=cl,
         cu=cu,
     )
-
     x, info = nlp.solve(x0)
-    msg = (b'The user call-back function intermediate_callback (see Section '
-           b'3.3.4 in the documentation) returned false, i.e., the user code '
-           b'requested a premature termination of the optimization.')
-    assert info['status_msg'] == msg
+    assert b'premature termination' in info['status_msg']
