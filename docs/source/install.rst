@@ -336,6 +336,9 @@ descriptions::
 Conda Forge binaries with HSL
 -----------------------------
 
+On Linux
+-----------------------------
+
 It is possible to use the HSL linear solvers with cyipopt installed via Conda
 Forge. To do so, first download the HSL source code tarball. The following
 explanation uses ``coinhsl-2014.01.10.tar.gz`` with conda installed on Ubuntu
@@ -414,3 +417,39 @@ name must be specified because the default name ipopt looks for is
 ``libhsl.so``. Identify the shared library installed on your system and make
 sure the name provided for the ``hsllib`` option matches. For example, on macOS
 you may need ``problem.add_option('hsllib', 'libcoinhsl.dylib')``.
+
+
+On Windows
+-----------------------------
+On windows it could be possible to use HSL solvers with Conda version of cyipopt, 
+first install cyipopt via standard call::
+
+   $ conda create -n hsl-test -c conda-forge cyipopt
+   $ conda activate hsl-test
+
+Download HSL linear solvers, e.g. ``ma27, ma57, ma86`` from its
+official website <http://www.hsl.rl.ac.uk/ipopt/>. Download the ``windows`` binaries option, 
+in this example, we are using "CoinHSL Archive 2023.11.17 (windows binaries)" option. 
+This will download a zipped file that contains a folder ``bin``. Copy all the DLL files from
+that folder into your conda env\Library\bin folder 
+(This folder should also contain the an ipopt dll file installed with cyipopt (in our case it was called ``ipopt-3.dll``)::
+
+   <conda_location>\envs\<env_name>\Library\bin
+
+Once the DLL files are placed you should be able to access the HSL solvers using solver options, in pyomo::
+
+   solver = pyo.SolverFactory("cyipopt")
+   solver.config.options["linear_solver"] = "ma27"   
+
+If all works well, you should see the following when setting ``tee=True``::
+
+   ******************************************************************************
+   This program contains Ipopt, a library for large-scale nonlinear optimization.
+   Ipopt is released as open source code under the Eclipse Public License (EPL).
+            For more information visit https://github.com/coin-or/Ipopt
+   ******************************************************************************
+
+   This is Ipopt version 3.14.16, running with linear solver ma27.
+
+This was tested on Windows 11 x64 with Ipopt version 3.14.16. 
+
