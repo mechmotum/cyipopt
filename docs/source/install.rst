@@ -436,10 +436,9 @@ that folder into your conda env\Library\bin folder
 
    <conda_location>\envs\<env_name>\Library\bin
 
-Once the DLL files are placed you should be able to access the HSL solvers using solver options, in pyomo::
+Once the DLL files are placed you should be able to access the HSL solvers using solver options::
 
-   solver = pyo.SolverFactory("cyipopt")
-   solver.config.options["linear_solver"] = "ma27"   
+   problem.add_option('linear_solver', 'ma57')  
 
 If all works well, you should see the following when setting ``tee=True``::
 
