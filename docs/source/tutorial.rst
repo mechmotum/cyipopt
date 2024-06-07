@@ -26,6 +26,99 @@ the same behaviour as ``scipy.optimize.minimize``, for example::
    success: True
          x: array([1., 1., 1., 1., 1.])
 
+
+In order to demonstrate the usage of sparse jacobians, let's assume we want to 
+minimize the well-known rosenbrock function
+
+.. math::
+    f(x) = \sum_{i=1}^{4} 100 (x_{i+1} - x_i^2)^2 + (1-x_i)^2
+
+subject to some constraints, i.e. we want to solve the constraint
+optimization problem
+
+.. math::
+    \min_{x \in \mathbb{R}^5} f(x) \quad \text{s.t.} \quad 
+         10 - x_2^2 - x_3 \geq 0, \quad
+         100 - x_5^2       \geq 0.
+
+We won't implement the rosenbrock function and its derivatives here, since
+all three can be imported from ``scipy.optimize``. The constraint function 
+:math:`c` and the jacobian :math:`J_c` are given by 
+
+.. math::
+    c(x) &= \begin{pmatrix} c_1(x) \\ c_2(x) \end{pmatrix} = \begin{pmatrix} 10 - x_1^2 + x^3 \\ 100 - x_5^2 \end{pmatrix} \geq 0 \\
+    J_c(x) &= \begin{pmatrix} 0 & -2x_2 & - 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & -2x_5 \end{pmatrix}
+
+and we can implement the constraint and the sparse jacobian 
+by means of an ``scipy.sparse.coo_array`` like this::
+
+    from scipy.sparse import coo_array
+
+    def con(x):
+        return np.array([ 10 -x[1]**2 - x[2], 100.0 - x[4]**2 ])
+
+    def con_jac(x):
+        # Dense Jacobian:
+        # J = (0  -2*x[1]   -1   0     0     )
+        #	  (0   0         0   0   -2*x[4] )
+        # Sparse Jacobian (COO)
+        rows = np.array([0, 0, 1])
+        cols = np.array(([1, 2, 4]))
+        data = np.array([-2*x[1], -1, -2*x[4]])
+        return coo_array((data, (rows, cols)))
+
+In addition, we would like to pass the hessian of the objective and the constraints.
+Note that Ipopt expects the hessian :math:`\nabla^2_x L` of the lagrangian function
+
+.. math::
+    L(x, \lambda) = f(x) + \lambda^\top c(x) = f(x) + \sum_{j=1}^{2} \lambda_j c_j(x), 
+
+which is given by
+
+.. math::
+    \nabla^2_x L(x, \lambda) = \nabla^2 f(x) + \sum_{j=1}^2 \lambda_j \nabla^2 c_j(x). 
+
+Hence, we need to pass the hessian-vector-product of the constraint hessians
+:math:`\nabla^2 c_1(x)` and :math:`\nabla^2 c_2(x)` and the lagrangian multipliers 
+:math:`\lambda` (also known as dual variables). In code: ::
+
+    def con_hess(x, _lambda):
+        H1 = np.array([
+            [0,  0, 0, 0, 0],
+            [0, -2, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ],
+            [0,  0, 0, 0, 0 ]
+        ])
+        
+        H2 = np.array([
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0,  0],
+            [0, 0, 0, 0, -2]
+        ])
+        return _lambda[0] * H1 + _lambda[1] * H2
+
+Ipopt only uses the lower triangle of the hessian-vector-product 
+under the hood, due to the symmetry of the hessians. Similar to sparse jacobians, 
+it also supports sparse hessians, but this isn't supported by the scipy interface yet. 
+However, you can use cyipopt's problem interface in case you need to pass sparse hessians.
+
+Finally, after defining the constraint and the initial guess, we can solve the 
+problem::
+    
+    from scipy.optimize import rosen, rosen_der, rosen_hess
+
+    constr = {'type': 'ineq', 'fun': con, 'jac': con_jac, 'hess': con_hess}
+
+    # initial guess
+    x0 = np.array([1.1, 1.1, 1.1, 1.1, 1.1])
+
+    # solve the problem
+    res = minimize_ipopt(rosen, jac=rosen_der, hess=rosen_hess, x0=x0, constraints=constr)
+
+
 Algorithmic Differentation
 --------------------------
 
@@ -72,7 +165,7 @@ We start by importing all required libraries::
    config.update('jax_platform_name', 'cpu')
 
    import jax.numpy as np
-   from jax import jit, grad, jacfwd
+   from jax import jit, grad, jacfwd, jacrev
    from cyipopt import minimize_ipopt
 
 
@@ -160,15 +253,18 @@ methods should return the non-zero values of the respective matrices as
 flattened arrays. The hessian should return a flattened lower triangular
 matrix.
 
-The Jacobian and Hessian can be dense or sparse. If sparse, you must also
-define:
+The Jacobian and Hessian can be dense or sparse. If sparse,
+:func:`cyipopt.Problem.jacobian` and :func:`cyipopt.Problem.hessian` methods
+should return only the non-zero values of the respective matrices and you must
+also define:
 
 - :func:`cyipopt.Problem.jacobianstructure`
 - :func:`cyipopt.Problem.hessianstructure`
 
-which should return a tuple of indices that indicate the location of the
-non-zero values of the Jacobian and Hessian matrices, respectively. If not
-defined then these matrices are assumed to be dense.
+which should return a tuple of indices (row indices, column indices) that
+indicate the location of the non-zero values of the Jacobian and Hessian
+matrices, respectively. If not defined then these matrices are assumed to be
+dense.
 
 The :func:`cyipopt.Problem.intermediate` method is called every Ipopt iteration
 algorithm and can be used to perform any needed computation at each iteration.
@@ -296,6 +392,137 @@ parameter::
 The method returns the optimal solution and an info dictionary that contains
 the status of the algorithm, the value of the constraints multipliers at the
 solution, and more.
+
+Accessing iterate and infeasibility vectors in an intermediate callback
+=======================================================================
+
+When debugging an Ipopt solve that converges slowly or not at all, it can be
+very useful to track the primal/dual iterate and infeasibility vectors
+to get a sense for the variable and constraint coordinates that are causing
+a problem. This can be done with Ipopt's ``GetCurrentIterate`` and
+``GetCurrentViolations`` functions, which were added to Ipopt's C interface in
+Ipopt version 3.14.0. These functions are accessed in CyIpopt via the
+``get_current_iterate`` and ``get_current_violations`` methods of
+``cyipopt.Problem``.
+These methods should only be called during an intermediate callback.
+To access them, we define our problem as a subclass of ``cyipopt.Problem``
+and access the ``get_current_iterate`` and ``get_current_violations`` methods
+on ``self``.
+
+In contrast to the previous example, we now define the HS071 problem as a
+subclass of ``cyipopt.Problem``::
+
+    import cyipopt
+    import numpy as np
+
+    class HS071(cyipopt.Problem):
+
+        def objective(self, x):
+            """Returns the scalar value of the objective given x."""
+            return x[0] * x[3] * np.sum(x[0:3]) + x[2]
+
+        def gradient(self, x):
+            """Returns the gradient of the objective with respect to x."""
+            return np.array([
+                x[0]*x[3] + x[3]*np.sum(x[0:3]),
+                x[0]*x[3],
+                x[0]*x[3] + 1.0,
+                x[0]*np.sum(x[0:3])
+            ])
+
+        def constraints(self, x):
+            """Returns the constraints."""
+            return np.array((np.prod(x), np.dot(x, x)))
+
+        def jacobian(self, x):
+            """Returns the Jacobian of the constraints with respect to x."""
+            return np.concatenate((np.prod(x)/x, 2*x))
+
+        def hessianstructure(self):
+            """Returns the row and column indices for non-zero vales of the
+            Hessian."""
+
+            # NOTE: The default hessian structure is of a lower triangular matrix,
+            # therefore this function is redundant. It is included as an example
+            # for structure callback.
+
+            return np.nonzero(np.tril(np.ones((4, 4))))
+
+        def hessian(self, x, lagrange, obj_factor):
+            """Returns the non-zero values of the Hessian."""
+
+            H = obj_factor*np.array((
+                (2*x[3], 0, 0, 0),
+                (x[3],   0, 0, 0),
+                (x[3],   0, 0, 0),
+                (2*x[0]+x[1]+x[2], x[0], x[0], 0)))
+
+            H += lagrange[0]*np.array((
+                (0, 0, 0, 0),
+                (x[2]*x[3], 0, 0, 0),
+                (x[1]*x[3], x[0]*x[3], 0, 0),
+                (x[1]*x[2], x[0]*x[2], x[0]*x[1], 0)))
+
+            H += lagrange[1]*2*np.eye(4)
+
+            row, col = self.hessianstructure()
+
+            return H[row, col]
+
+        def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
+                         d_norm, regularization_size, alpha_du, alpha_pr,
+                         ls_trials):
+            """Prints information at every Ipopt iteration."""
+            iterate = self.get_current_iterate()
+            infeas = self.get_current_violations()
+            primal = iterate["x"]
+            jac = self.jacobian(primal)
+
+            print("Iteration:", iter_count)
+            print("Primal iterate:", primal)
+            print("Flattened Jacobian:", jac)
+            print("Dual infeasibility:", infeas["grad_lag_x"])
+
+
+Now, in the ``intermediate`` method of ``HS071``, we call
+``self.get_current_iterate`` and ``self.get_current_violations``.
+These are implemented on ``cyipopt.Problem``. These methods return dicts
+that contain each component of the Ipopt iterate and infeasibility
+vectors. The primal iterate and constraint dual iterate can be accessed
+with ``iterate["x"]`` and ``iterate["mult_g"]``, while the primal and
+dual infeasibilities can be accessed with ``infeas["g_violation"]``
+and ``infeas["grad_lag_x"]``. A full list of keys present in these
+dictionaries can be found in the ``cyipopt.Problem`` documentation.
+
+We can now set up and solve the optimization problem.
+Note that now we instantiate the ``HS071`` class and provide it the arguments
+that are required by ``cyipopt.Problem``.
+When we solve, we will see the primal iterate and dual infeasibility vectors
+printed every iteration::
+
+    lb = [1.0, 1.0, 1.0, 1.0]
+    ub = [5.0, 5.0, 5.0, 5.0]
+
+    cl = [25.0, 40.0]
+    cu = [2.0e19, 40.0]
+
+    x0 = [1.0, 5.0, 5.0, 1.0]
+
+    nlp = HS071(
+        n=len(x0),
+        m=len(cl),
+        lb=lb,
+        ub=ub,
+        cl=cl,
+        cu=cu,
+    )
+
+    x, info = nlp.solve(x0)
+
+While here we have implemented a very basic callback, much more sophisticated
+analysis is possible. For example, we could compute the condition number or
+rank of the constraint Jacobian to identify when constraint qualifications
+are close to being violated.
 
 Where to go from here
 =====================

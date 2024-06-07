@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -52,7 +53,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'cyipopt'
-copyright = u'2022, cyipopt developers'
+copyright = u'2024, cyipopt developers'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -255,3 +256,11 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# -----------------------------------------------------------------------------
+# Intersphinx configuration
+# -----------------------------------------------------------------------------
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/dev', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+}

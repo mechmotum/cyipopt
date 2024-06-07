@@ -1,2 +1,2 @@
-numpydoc>=0.7
-sphinx>=1.6.7
+numpydoc>=1.2
+sphinx>=4.3.2

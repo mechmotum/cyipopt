@@ -4,12 +4,83 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2021 cyipopt developers
+Copyright (C) 2017-2023 cyipopt developers
 
-License: EPL 1.0
+License: EPL 2.0
 """
 
+cdef extern from "IpoptConfig.h":
+
+    int IPOPT_VERSION_MAJOR
+    
+    int IPOPT_VERSION_MINOR
+
+    int IPOPT_VERSION_RELEASE
+
+
 cdef extern from "IpStdCInterface.h":
+    """
+    #define VERSION_LT_3_14_0\
+        (IPOPT_VERSION_MAJOR < 3\
+            || (IPOPT_VERSION_MAJOR == 3 && IPOPT_VERSION_MINOR < 14))
+
+    #if VERSION_LT_3_14_0
+        // If not defined, define dummy versions of these functions
+        Bool GetIpoptCurrentIterate(
+                        IpoptProblem ipopt_problem,
+                        Bool scaled,
+                        Index n,
+                        Number* x,
+                        Number* z_L,
+                        Number* z_U,
+                        Index m,
+                        Number* g,
+                        Number* lambd
+                        ){
+            return 0;
+        }
+        Bool GetIpoptCurrentViolations(
+                        IpoptProblem ipopt_problem,
+                        Bool scaled,
+                        Index n,
+                        Number* x_L_violation,
+                        Number* x_U_violation,
+                        Number* compl_x_L,
+                        Number* compl_x_U,
+                        Number* grad_lag_x,
+                        Index m,
+                        Number* nlp_constraint_violation,
+                        Number* compl_g
+                        ){
+            return 0;
+        }
+        #define _ip_get_iter(\
+                problem, scaled, n, x, z_L, z_U, m, g, lambd\
+            )\
+            GetIpoptCurrentIterate(\
+                problem, scaled, n, x, z_L, z_U, m, g, lambd\
+            )
+        #define _ip_get_viol(\
+                problem, scaled, n, xL, xU, complxL, complxU, glx, m, cviol, complg\
+            )\
+            GetIpoptCurrentViolations(\
+                problem, scaled, n, xL, xU, complxL, complxU, glx, m, cviol, complg\
+            )
+    #else
+        #define _ip_get_iter(\
+                problem, scaled, n, x, z_L, z_U, m, g, lambd\
+            )\
+            GetIpoptCurrentIterate(\
+                problem, scaled, n, x, z_L, z_U, m, g, lambd\
+            )
+        #define _ip_get_viol(\
+                problem, scaled, n, xL, xU, complxL, complxU, glx, m, cviol, complg\
+            )\
+            GetIpoptCurrentViolations(\
+                problem, scaled, n, xL, xU, complxL, complxU, glx, m, cviol, complg\
+            )
+    #endif
+    """
 
     ctypedef double Number
 
@@ -166,4 +237,34 @@ cdef extern from "IpStdCInterface.h":
                     Number* mult_x_L,
                     Number* mult_x_U,
                     UserDataPtr user_data
+                    )
+
+    # Wrapper around GetIpoptCurrentIterate with a dummy implementation in
+    # case it is not defined (i.e. Ipopt < 3.14.0)
+    Bool CyGetCurrentIterate "_ip_get_iter" (
+                    IpoptProblem ipopt_problem,
+                    Bool scaled,
+                    Index n,
+                    Number* x,
+                    Number* z_L,
+                    Number* z_U,
+                    Index m,
+                    Number* g,
+                    Number* lambd
+                    )
+
+    # Wrapper around GetIpoptCurrentViolations with a dummy implementation in
+    # case it is not defined (i.e. Ipopt < 3.14.0)
+    Bool CyGetCurrentViolations "_ip_get_viol" (
+                    IpoptProblem ipopt_problem,
+                    Bool scaled,
+                    Index n,
+                    Number* x_L_violation,
+                    Number* x_U_violation,
+                    Number* compl_x_L,
+                    Number* compl_x_U,
+                    Number* grad_lag_x,
+                    Index m,
+                    Number* nlp_constraint_violation,
+                    Number* compl_g
                     )

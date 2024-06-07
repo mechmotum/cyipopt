@@ -2,13 +2,14 @@ name: cyipopt-dev
 channels:
   - conda-forge
 dependencies:
-  - cython
-  - ipopt
+  - cython >=0.29.28
+  - ipopt >=3.12
   - libblas * *netlib
-  - numpy
-  - pkg-config
-  - pytest
+  - numpy >=1.21.5
+  - numpydoc >=1.2
+  - pkg-config >=0.29.2
+  - pytest >=6.2.5
   - python >=3.6
-  - scipy
-  - setuptools
-  - sphinx
+  - scipy >=1.8
+  - setuptools >=44.1.1
+  - sphinx >=4.3.2

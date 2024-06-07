@@ -28,12 +28,12 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
-  * Ipopt [>= 3.13 on Windows]
-  * Python 3.6+
-  * setuptools
-  * cython
-  * numpy
-  * scipy [optional]
+  * Ipopt >=3.12 [>= 3.13 on Windows]
+  * Python 3.8+
+  * setuptools >=44.1.1
+  * cython >=0.29.28
+  * NumPy >=1.21.5
+  * SciPy >=1.8 [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled
@@ -44,12 +44,13 @@ On Linux and Mac
 ~~~~~~~~~~~~~~~~
 
 For Linux and Mac, the ``ipopt`` executable should be in your path and
-discoverable by pkg-config, i.e. this command should return a valid result::
+discoverable by ``pkg-config``, i.e. this command should return a valid
+result::
 
    $ pkg-config --libs --cflags ipopt
 
 You will need to install Ipopt in a system location or set ``LD_LIBRARY_PATH``
-if pkg-config does not find the executable.
+if ``pkg-config`` does not find the executable.
 
 Once all the dependencies are installed, execute::
 
@@ -107,6 +108,22 @@ Finally, execute::
 official python.org distribution. Even though it has been tested to work with the
 latest builds, it is well-known for causing issues. (see
 https://github.com/mechmotum/cyipopt/issues/52).
+
+On Ubuntu 22.04 Using APT Dependencies
+--------------------------------------
+
+All of the dependencies can be installed with Ubuntu's package manager::
+
+  $ apt install build-essential pkg-config python3-pip python3-dev cython3 python3-numpy coinor-libipopt1v5 coinor-libipopt-dev
+
+You can then install cyipopt from the PyPi release with::
+
+  $ python3 -m pip install cyipopt
+
+Or you use a local copy with::
+
+  $ cd /cyipopt/source/directory/
+  $ python3 setup.py install
 
 On Ubuntu 18.04 Using APT Dependencies
 --------------------------------------
@@ -319,6 +336,9 @@ descriptions::
 Conda Forge binaries with HSL
 -----------------------------
 
+On Linux
+-----------------------------
+
 It is possible to use the HSL linear solvers with cyipopt installed via Conda
 Forge. To do so, first download the HSL source code tarball. The following
 explanation uses ``coinhsl-2014.01.10.tar.gz`` with conda installed on Ubuntu
@@ -397,3 +417,38 @@ name must be specified because the default name ipopt looks for is
 ``libhsl.so``. Identify the shared library installed on your system and make
 sure the name provided for the ``hsllib`` option matches. For example, on macOS
 you may need ``problem.add_option('hsllib', 'libcoinhsl.dylib')``.
+
+
+On Windows
+-----------------------------
+On windows it could be possible to use HSL solvers with Conda version of cyipopt, 
+first install cyipopt via standard call::
+
+   $ conda create -n hsl-test -c conda-forge cyipopt
+   $ conda activate hsl-test
+
+Download HSL linear solvers, e.g. ``ma27, ma57, ma86`` from its
+official website <http://www.hsl.rl.ac.uk/ipopt/>. Download the ``windows`` binaries option, 
+in this example, we are using "CoinHSL Archive 2023.11.17 (windows binaries)" option. 
+This will download a zipped file that contains a folder ``bin``. Copy all the DLL files from
+that folder into your conda env\Library\bin folder 
+(This folder should also contain the an ipopt dll file installed with cyipopt (in our case it was called ``ipopt-3.dll``)::
+
+   <conda_location>\envs\<env_name>\Library\bin
+
+Once the DLL files are placed you should be able to access the HSL solvers using solver options::
+
+   problem.add_option('linear_solver', 'ma57')  
+
+If all works well, you should see the following when setting ``tee=True``::
+
+   ******************************************************************************
+   This program contains Ipopt, a library for large-scale nonlinear optimization.
+   Ipopt is released as open source code under the Eclipse Public License (EPL).
+            For more information visit https://github.com/coin-or/Ipopt
+   ******************************************************************************
+
+   This is Ipopt version 3.14.16, running with linear solver ma27.
+
+This was tested on Windows 11 x64 with Ipopt version 3.14.16. 
+

@@ -4,9 +4,9 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2022 cyipopt developers
+Copyright (C) 2017-2024 cyipopt developers
 
-License: EPL 1.0
+License: EPL 2.0
 """
 
 import sys
@@ -20,8 +20,9 @@ from setuptools.extension import Extension
 # install requirements before import
 from setuptools import dist
 SETUP_REQUIRES = [
-    "cython >= 0.26",
-    "numpy >= 1.15",
+    "cython>=0.29.28",
+    "numpy>=1.21.5",
+    "setuptools>=44.1.1",
 ]
 dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
 
@@ -48,21 +49,19 @@ AUTHOR = "Jason K. Moore"
 EMAIL = "moorepants@gmail.com"
 URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
-    "cython>=0.26",
-    "numpy>=1.15",
-    "setuptools>=39.0",
+    "numpy>=1.21.5",
 ]
-LICENSE = "EPL-1.0"
+LICENSE = "EPL-2.0"
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: Eclipse Public License 1.0 (EPL-1.0)",
+    "License :: OSI Approved :: Eclipse Public License 2.0 (EPL-2.0)",
     "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 
@@ -185,10 +184,18 @@ if __name__ == "__main__":
     # environment variable is set to USECONDAFORGEIPOPT then this setup will be
     # run.
     if sys.platform == "win32" and ipoptdir == "USECONDAFORGEIPOPT":
+        print('Using Conda Forge Ipopt on Windows.')
         ext_module_data = handle_ext_modules_win_32_conda_forge_ipopt()
     elif sys.platform == "win32" and ipoptdir:
+        print('Using Ipopt in {} directory on Windows.'.format(ipoptdir))
+        ext_module_data = handle_ext_modules_win_32_other_ipopt()
+    elif sys.platform == "win32" and not ipoptdir:
+        ipoptdir = os.path.abspath(os.path.dirname(__file__))
+        msg = 'Using Ipopt adjacent to setup.py in {} on Windows.'
+        print(msg.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
     else:
+        print('Using Ipopt found with pkg-config.')
         ext_module_data = handle_ext_modules_general_os()
     EXT_MODULES, DATA_FILES, include_package_data = ext_module_data
     # NOTE : The `name` kwarg here is the distribution name, i.e. the name that

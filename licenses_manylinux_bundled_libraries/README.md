@@ -1,0 +1,1 @@
+This folder contains licenses for all the libraries that are bundled in the `manylinux` wheels of `cyipopt`. These licenses are appended to `cyipopt`'s `LICENSE` file when building these wheels in `build_manylinux_wheel.sh`.

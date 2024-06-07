@@ -31,12 +31,6 @@ Status
      - .. image:: https://readthedocs.org/projects/cyipopt/badge/?version=latest
           :target: https://cyipopt.readthedocs.io/en/latest/?badge=latest
           :alt: Documentation Status
-   * - Travis CI
-     - .. image:: https://api.travis-ci.org/mechmotum/cyipopt.svg?branch=master
-          :target: https://travis-ci.org/mechmotum/cyipopt
-   * - Appveyor
-     - .. image:: https://ci.appveyor.com/api/projects/status/0o5yuogn3jx157ee?svg=true
-          :target: https://ci.appveyor.com/project/moorepants/cyipopt
 
 History
 =======
@@ -60,13 +54,30 @@ Other `installation options`_ are present in the documentation.
 
 .. _installation options: https://github.com/mechmotum/cyipopt/blob/master/docs/source/install.rst
 
+
+Building `manylinux` wheels
+===========================
+
+manylinux wheels can be built for a tagged version (GIT_TAG below) of cyipopt via docker by running (while in the root of this repo)::
+
+   docker run -v $(pwd):/wheels --rm --platform=linux/amd64 quay.io/pypa/manylinux_2_28_x86_64 bash /wheels/build_manylinux_wheels.sh GIT_TAG
+
+for linux/amd64 and::
+
+   docker run -v $(pwd):/wheels --rm --platform=linux/aarch64 quay.io/pypa/manylinux_2_28_aarch64 bash /wheels/build_manylinux_wheels.sh GIT_TAG
+
+for linux/aarch64 platforms. Built wheels appear at the folder the command was executed from.
+
+.. warning::
+    Docker supports emulating non-native platforms to e.g. produce ARM binaries from an AMD64 host. However this can be quite slow (~1h for our case).
+
 License
 =======
 
 cyipopt is open-source code released under the EPL_ license, see the
 ``LICENSE`` file.
 
-.. _EPL: http://www.eclipse.org/legal/epl-v10.html
+.. _EPL: https://www.eclipse.org/legal/epl-2.0/
 
 Contributing
 ============

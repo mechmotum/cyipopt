@@ -1,10 +1,6 @@
 name: tests
 
-on:
-  push:
-    branches: master
-  pull_request:
-    branches: master
+on: [push, pull_request]
 
 # cancels prior builds for this workflow when new commit is pushed
 concurrency:
@@ -19,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         ipopt-version: ['3.12', '3.13', '3.14']
         exclude:
           - os: windows-latest
@@ -29,22 +25,36 @@ jobs:
         shell: bash -l {0}
     steps:
       - name: Checkout CyIpopt
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          conda-build-version: '3.21.4'
-      - name: Install basic dependencies
-        run: conda install -q -y lapack "libblas=*=*netlib" cython>=0.26 "ipopt=${{ matrix.ipopt-version }}" numpy>=1.15 pkg-config>=0.29.2 setuptools>=39.0
+          miniforge-variant: Mambaforge
+      - name: Install basic dependencies against generic blas/lapack
+        run: |
+          mamba install -q -y lapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28"
+      - run: echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
       - name: Install CyIpopt
-        run: python -m pip install .
-      - name: Test with pytest
-        run:
+        run: |
+          rm pyproject.toml
+          python -m pip install .
+          mamba list
+      - name: Test with pytest using OS specific blas/lapack
+        run: |
           python -c "import cyipopt"
-          conda install -y -q pytest>=3.3.2
+          mamba remove lapack
+          mamba install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "pytest>=6.2.5" "cython=0.29.*"
+          mamba list
           pytest
-          conda install -y -q scipy>=0.19.1
+      - name: Test with pytest and scipy, new ipopt
+        # cyipopt can build with these dependencies, but it seems impossible to
+        # also install scipy into these environments likely due to SciPy and
+        # Ipopt needed different libfortrans.
+        if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
+        run: |
+          mamba install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.21.5" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython=0.29.*"
+          mamba list
           pytest

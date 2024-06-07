@@ -4,9 +4,9 @@ cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
 Copyright (C) 2012-2015 Amit Aides
 Copyright (C) 2015-2017 Matthias Kümmerer
-Copyright (C) 2017-2022 cyipopt developers
+Copyright (C) 2017-2024 cyipopt developers
 
-License: EPL 1.0
+License: EPL 2.0
 
 Usage::
 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     #
     n = 100
     e = 1
-    beta = np.array((0, 0, 2, -4, 0, 0, -1, 3), dtype=np.float).reshape((-1, 1))
+    beta = np.array((0, 0, 2, -4, 0, 0, -1, 3), dtype=np.float64).reshape((-1, 1))
 
     #
     # Set the random number generator seed.

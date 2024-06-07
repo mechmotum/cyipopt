@@ -22,7 +22,7 @@ def test_ipopt_import_deprecation():
         import ipopt
 
 
-def test_non_pep8_class_name_deprecation(hs071_defintion_instance_fixture,
+def test_non_pep8_class_name_deprecation(hs071_definition_instance_fixture,
                                          hs071_initial_guess_fixture,
                                          hs071_variable_lower_bounds_fixture,
                                          hs071_variable_upper_bounds_fixture,
@@ -36,7 +36,7 @@ def test_non_pep8_class_name_deprecation(hs071_defintion_instance_fixture,
     with pytest.warns(FutureWarning, match=expected_warning_msg):
         _ = cyipopt.problem(n=len(hs071_initial_guess_fixture),
                             m=len(hs071_constraint_lower_bounds_fixture),
-                            problem_obj=hs071_defintion_instance_fixture,
+                            problem_obj=hs071_definition_instance_fixture,
                             lb=hs071_variable_lower_bounds_fixture,
                             ub=hs071_variable_upper_bounds_fixture,
                             cl=hs071_constraint_lower_bounds_fixture,
