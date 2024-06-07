@@ -400,12 +400,12 @@ def test_minimize_ipopt_sparse_jac_if_scipy():
     con_eq = {
         "type": "eq",
         "fun": lambda x: np.sum(x**2) - 40,
-        "jac": lambda x: coo_array(2 * x)
+        "jac": lambda x: coo_array([2 * x])
     }
     con_ineq = {
         "type": "ineq",
         "fun": lambda x: np.prod(x) - 25,
-        "jac": lambda x: coo_array(np.prod(x) / x),
+        "jac": lambda x: coo_array([np.prod(x) / x]),
     }
     constrs = (con_eq, con_ineq)
 
@@ -460,7 +460,7 @@ def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
     con_ineq_sparse = {
         "type": "ineq",
         "fun": lambda x: np.prod(x) - 25,
-        "jac": lambda x: coo_array(np.prod(x) / x),
+        "jac": lambda x: coo_array([np.prod(x) / x]),
     }
     constrs = (con_eq_dense, con_ineq_sparse)
 
