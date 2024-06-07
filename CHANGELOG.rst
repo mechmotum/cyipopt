@@ -36,8 +36,34 @@ Include sections:
 Version History
 ---------------
 
-[1.4.0.dev0] - XXXX-XX-XX
+[1.5.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[1.4.1] - 2024-04-02
+~~~~~~~~~~~~~~~~~~~~
+
+Fixed
++++++
+
+- Addressed regression in return value of ``intermediate_cb``. #250
+
+[1.4.0] - 2024-04-01
+~~~~~~~~~~~~~~~~~~~~
+
+Added
++++++
+
+- Support for building with Cython 3. #227, #240
+- Exposed the ``eps`` kwarg in the SciPy interface. #228
+- Added the examples to the source tarball. #242
+- Documentation improvements on specifics of Jacobian and Hessian inputs.  #247
+- Support for Python 3.12.
+
+Fixed
++++++
+
+- Ensure ``tol`` is always a float in the SciPy interface. #236
+- ``print_level`` allows integers other than 0 or 1. #244
 
 [1.3.0] - 2023-09-23
 ~~~~~~~~~~~~~~~~~~~~
