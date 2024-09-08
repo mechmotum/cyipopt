@@ -39,6 +39,11 @@ Version History
 [1.5.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Added
++++++
+
+- Added instructions for using the HSL solvers on Windows.
+
 Changed
 +++++++
 

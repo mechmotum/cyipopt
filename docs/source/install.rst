@@ -337,7 +337,7 @@ Conda Forge binaries with HSL
 -----------------------------
 
 On Linux
------------------------------
+~~~~~~~~
 
 It is possible to use the HSL linear solvers with cyipopt installed via Conda
 Forge. To do so, first download the HSL source code tarball. The following
@@ -420,25 +420,28 @@ you may need ``problem.add_option('hsllib', 'libcoinhsl.dylib')``.
 
 
 On Windows
------------------------------
-On windows it could be possible to use HSL solvers with Conda version of cyipopt, 
-first install cyipopt via standard call::
+~~~~~~~~~~
+
+On windows it could be possible to use HSL solvers with Conda version of
+cyipopt, first install cyipopt via standard call::
 
    $ conda create -n hsl-test -c conda-forge cyipopt
    $ conda activate hsl-test
 
-Download HSL linear solvers, e.g. ``ma27, ma57, ma86`` from its
-official website <http://www.hsl.rl.ac.uk/ipopt/>. Download the ``windows`` binaries option, 
-in this example, we are using "CoinHSL Archive 2023.11.17 (windows binaries)" option. 
-This will download a zipped file that contains a folder ``bin``. Copy all the DLL files from
-that folder into your conda env\Library\bin folder 
-(This folder should also contain the an ipopt dll file installed with cyipopt (in our case it was called ``ipopt-3.dll``)::
+Download HSL linear solvers, e.g. ``ma27, ma57, ma86`` from its official
+website <http://www.hsl.rl.ac.uk/ipopt/>. Download the ``windows`` binaries
+option, in this example, we are using "CoinHSL Archive 2023.11.17 (windows
+binaries)" option.  This will download a zipped file that contains a folder
+``bin``. Copy all the DLL files from that folder into your conda
+``env\Library\bin`` folder (This folder should also contain the an ipopt dll
+file installed with cyipopt (in our case it was called ``ipopt-3.dll``)::
 
    <conda_location>\envs\<env_name>\Library\bin
 
-Once the DLL files are placed you should be able to access the HSL solvers using solver options::
+Once the DLL files are placed you should be able to access the HSL solvers
+using solver options::
 
-   problem.add_option('linear_solver', 'ma57')  
+   problem.add_option('linear_solver', 'ma57')
 
 If all works well, you should see the following when setting ``tee=True``::
 
@@ -450,5 +453,4 @@ If all works well, you should see the following when setting ``tee=True``::
 
    This is Ipopt version 3.14.16, running with linear solver ma27.
 
-This was tested on Windows 11 x64 with Ipopt version 3.14.16. 
-
+This was tested on Windows 11 x64 with Ipopt version 3.14.16.
