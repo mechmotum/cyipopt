@@ -18,6 +18,11 @@ from setuptools import setup
 from setuptools.extension import Extension
 
 # install requirements before import
+# NOTE : NumPy 1.25 is the first release of NumPy that you can link to the
+# NumPy C-API and it will be guaranteed to be backward compatible back to NumPy
+# 1.19, thus we set the minimum NumPy build version to 1.25. See:
+# https://numpy.org/doc/stable/dev/depending_on_numpy.html#adding-a-dependency-on-numpy
+# for more information.
 from setuptools import dist
 SETUP_REQUIRES = [
     "cython>=0.29.28",
