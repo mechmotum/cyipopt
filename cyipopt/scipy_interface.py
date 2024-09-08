@@ -386,7 +386,7 @@ def minimize_ipopt(fun,
                    tol=None,
                    callback=None,
                    options=None):
-    """
+    r"""
     Minimization using Ipopt with an interface like
     :py:func:`scipy.optimize.minimize`.
 
