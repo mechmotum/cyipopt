@@ -29,10 +29,10 @@ dependencies:
   * C/C++ compiler
   * pkg-config [only for Linux and Mac]
   * Ipopt >=3.12 [>= 3.13 on Windows]
-  * Python 3.8+
+  * Python 3.9+
   * setuptools >=44.1.1
   * cython >=0.29.28
-  * NumPy >=1.21.5
+  * NumPy >=1.25
   * SciPy >=1.8 [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
