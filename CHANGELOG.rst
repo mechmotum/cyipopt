@@ -4,7 +4,7 @@ CyIpopt Changelog
 
 :Info: Change log for CyIpopt releases.
 :Date: XXXX-XX-XX
-:Version: 1.3.0.dev0
+:Version: 1.6.0.dev0
 
 GitHub holds releases, too
 --------------------------
@@ -16,9 +16,8 @@ About this Changelog
 --------------------
 
 All notable changes to this project will be documented in this file. The format
-is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
-project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-Dates should be (year-month-day) to conform with [ISO
+is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Dates
+should be (year-month-day) to conform with [ISO
 8601](https://www.iso.org/iso-8601-date-and-time-format.html).
 
 Formatting a New Version
@@ -35,6 +34,9 @@ Include sections:
 
 Version History
 ---------------
+
+[1.6.0.dev0] - XXXX-XX-XX
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [1.5.0] - 2024-09-08
 ~~~~~~~~~~~~~~~~~~~~
