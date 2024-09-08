@@ -49,6 +49,8 @@ jobs:
           mamba install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "pytest>=6.2.5" "cython=0.29.*"
           mamba list
           pytest
+          python examples/hs071.py
+          python examples/exception_handling.py
       - name: Test with pytest and scipy, new ipopt
         # cyipopt can build with these dependencies, but it seems impossible to
         # also install scipy into these environments likely due to SciPy and
