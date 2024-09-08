@@ -39,6 +39,12 @@ Version History
 [1.5.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Changed
++++++++
+
+- Dropped support for Python 3.8. #263
+- Dropped support for building the package with NumPy < 1.25. #263
+
 [1.4.1] - 2024-04-02
 ~~~~~~~~~~~~~~~~~~~~
 
