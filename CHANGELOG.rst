@@ -36,13 +36,13 @@ Include sections:
 Version History
 ---------------
 
-[1.5.0.dev0] - XXXX-XX-XX
-~~~~~~~~~~~~~~~~~~~~~~~~~
+[1.5.0] - 2024-09-08
+~~~~~~~~~~~~~~~~~~~~
 
 Added
 +++++
 
-- Added instructions for using the HSL solvers on Windows.
+- Added instructions for using the HSL solvers on Windows. #254
 
 Changed
 +++++++
