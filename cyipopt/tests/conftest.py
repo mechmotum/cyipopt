@@ -102,9 +102,9 @@ def hs071_hessian_structure_fixture():
 def hs071_intermediate_fixture():
     """Return a function for a default intermediate function."""
     def intermediate(*args):
-        iter_count = args[2]
-        obj_value = args[3]
-        msg = f"Objective value at iteration #{iter_count} is - {obj_value}"
+        iter_count = args[1]
+        obj_value = args[2]
+        msg = f"Objective value at iteration #{iter_count} is {obj_value}"
         print(msg)
 
     return intermediate
@@ -112,14 +112,14 @@ def hs071_intermediate_fixture():
 
 @pytest.fixture()
 def hs071_definition_instance_fixture(hs071_objective_fixture,
-                                     hs071_gradient_fixture,
-                                     hs071_constraints_fixture,
-                                     hs071_jacobian_fixture,
-                                     hs071_jacobian_structure_fixture,
-                                     hs071_hessian_fixture,
-                                     hs071_hessian_structure_fixture,
-                                     hs071_intermediate_fixture,
-                                     ):
+                                      hs071_gradient_fixture,
+                                      hs071_constraints_fixture,
+                                      hs071_jacobian_fixture,
+                                      hs071_jacobian_structure_fixture,
+                                      hs071_hessian_fixture,
+                                      hs071_hessian_structure_fixture,
+                                      hs071_intermediate_fixture,
+                                      ):
     """Return a default implementation of the hs071 test problem."""
 
     class hs071:
@@ -144,6 +144,14 @@ def hs071_initial_guess_fixture():
     """Return a default initial guess for the hs071 test problem."""
     x0 = [1.0, 5.0, 5.0, 1.0]
     return x0
+
+
+@pytest.fixture()
+def hs071_optimal_solution_fixture():
+    """Return the optimal solution for the hs071 test problem."""
+    x_opt = [1.0, 4.74299964, 3.82114998, 1.37940829]
+    f_opt = 17.01401714021362
+    return x_opt, f_opt
 
 
 @pytest.fixture()
