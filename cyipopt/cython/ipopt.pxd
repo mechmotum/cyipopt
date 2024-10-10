@@ -12,7 +12,7 @@ License: EPL 2.0
 cdef extern from "IpoptConfig.h":
 
     int IPOPT_VERSION_MAJOR
-    
+
     int IPOPT_VERSION_MINOR
 
     int IPOPT_VERSION_RELEASE
@@ -109,6 +109,7 @@ cdef extern from "IpStdCInterface.h":
         Restoration_Failed=-2
         Error_In_Step_Computation=-3
         Maximum_CpuTime_Exceeded=-4
+        Maximum_WallTime_Exceeded=-5  # Added in Ipopt 3.14
         Not_Enough_Degrees_Of_Freedom=-10
         Invalid_Problem_Definition=-11
         Invalid_Option=-12
