@@ -40,7 +40,7 @@ jobs:
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
-          python -m pip --no-deps --no-build-isolation install .
+          python -m pip install --no-deps --no-build-isolation .
           mamba list
       - name: Test with pytest using OS specific blas/lapack
         run: |
