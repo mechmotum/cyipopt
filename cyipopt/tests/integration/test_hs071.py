@@ -18,6 +18,39 @@ def test_hs071_solve(hs071_initial_guess_fixture,
 	np.testing.assert_allclose(x, expected_x)
 
 
+def test_hs071_warm_start(hs071_initial_guess_fixture,
+                          hs071_optimal_solution_fixture,
+                          hs071_problem_instance_fixture):
+    x0 = hs071_initial_guess_fixture
+    nlp = hs071_problem_instance_fixture
+
+    _, info = nlp.solve(x0)
+
+    x_opt, _ = hs071_optimal_solution_fixture
+    np.testing.assert_allclose(info['x'], x_opt)
+
+    x_init = info['x']
+    lagrange = info['mult_g']
+    zl = info['mult_x_L']
+    zu = info['mult_x_U']
+
+    # Set parameters to avoid push the solution
+    # away from the variable bounds
+    nlp.add_option('warm_start_init_point', 'yes')
+    nlp.add_option("warm_start_bound_frac", 1e-6)
+    nlp.add_option("warm_start_bound_push", 1e-6)
+    nlp.add_option("warm_start_slack_bound_frac", 1e-6)
+    nlp.add_option("warm_start_slack_bound_push", 1e-6)
+    nlp.add_option("warm_start_mult_bound_push", 1e-6)
+
+    _, info = nlp.solve(x_init,
+                        lagrange=lagrange,
+                        zl=zl,
+                        zu=zu)
+
+    np.testing.assert_allclose(info['x'], x_opt)
+
+
 def _make_problem(definition, lb, ub, cl, cu):
     n = len(lb)
     m = len(cl)
