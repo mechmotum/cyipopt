@@ -29,6 +29,7 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
+          miniforge-version: "latest"
       - name: Install basic dependencies against generic blas/lapack
         run: |
           conda install -q -y liblapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28"
