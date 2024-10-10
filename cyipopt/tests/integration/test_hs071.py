@@ -4,16 +4,17 @@ import pytest
 import cyipopt
 
 
-def test_hs071_solve(hs071_initial_guess_fixture, hs071_problem_instance_fixture):
+def test_hs071_solve(hs071_initial_guess_fixture,
+                     hs071_optimal_solution_fixture,
+                     hs071_problem_instance_fixture):
 	"""Test hs071 test problem solves to the correct solution."""
 	x0 = hs071_initial_guess_fixture
 	nlp = hs071_problem_instance_fixture
 	x, info = nlp.solve(x0)
 
-	expected_J = 17.01401714021362
-	np.testing.assert_almost_equal(info["obj_val"], expected_J)
+	expected_x, expected_J = hs071_optimal_solution_fixture
 
-	expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
+	np.testing.assert_almost_equal(info["obj_val"], expected_J)
 	np.testing.assert_allclose(x, expected_x)
 
 
@@ -25,9 +26,10 @@ def _make_problem(definition, lb, ub, cl, cu):
     )
 
 
-def _solve_and_assert_correct(problem, x0):
+def _solve_and_assert_correct(problem, x0, opt_sol):
     x, info = problem.solve(x0)
-    expected_x = np.array([1.0, 4.74299964, 3.82114998, 1.37940829])
+    expected_x, _ = opt_sol
+    expected_x = np.array(expected_x)
     assert info["status"] == 0
     np.testing.assert_allclose(x, expected_x)
 
@@ -40,6 +42,7 @@ def _assert_solve_fails(problem, x0):
 
 def test_hs071_objective_eval_error(
     hs071_initial_guess_fixture,
+    hs071_optimal_solution_fixture,
     hs071_problem_instance_fixture,
     hs071_definition_instance_fixture,
     hs071_variable_lower_bounds_fixture,
@@ -60,6 +63,7 @@ def test_hs071_objective_eval_error(
     objective_with_error = ObjectiveWithError()
 
     x0 = hs071_initial_guess_fixture
+    opt = hs071_optimal_solution_fixture
     definition = hs071_definition_instance_fixture
     definition.objective = objective_with_error
     definition.intermediate = None
@@ -77,7 +81,7 @@ def test_hs071_objective_eval_error(
     # fail. We will need to (a) update these tests and (b) update the
     # CyIpoptEvaluationError documentation, possibly with Ipopt version-specific
     # behavior.
-    _solve_and_assert_correct(problem, x0)
+    _solve_and_assert_correct(problem, x0, opt)
 
     assert objective_with_error.n_eval_error > 0
 
@@ -129,6 +133,7 @@ def test_hs071_grad_obj_eval_error(
 
 def test_hs071_constraints_eval_error(
     hs071_initial_guess_fixture,
+    hs071_optimal_solution_fixture,
     hs071_problem_instance_fixture,
     hs071_definition_instance_fixture,
     hs071_variable_lower_bounds_fixture,
@@ -149,6 +154,7 @@ def test_hs071_constraints_eval_error(
     constraints_with_error = ConstraintsWithError()
 
     x0 = hs071_initial_guess_fixture
+    opt = hs071_optimal_solution_fixture
     definition = hs071_definition_instance_fixture
     definition.constraints = constraints_with_error
     definition.intermediate = None
@@ -159,7 +165,7 @@ def test_hs071_constraints_eval_error(
     cu = hs071_constraint_upper_bounds_fixture
 
     problem = _make_problem(definition, lb, ub, cl, cu)
-    _solve_and_assert_correct(problem, x0)
+    _solve_and_assert_correct(problem, x0, opt)
 
     assert constraints_with_error.n_eval_error > 0
 
