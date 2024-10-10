@@ -102,9 +102,9 @@ def hs071_hessian_structure_fixture():
 def hs071_intermediate_fixture():
     """Return a function for a default intermediate function."""
     def intermediate(*args):
-        iter_count = args[2]
-        obj_value = args[3]
-        msg = f"Objective value at iteration #{iter_count} is - {obj_value}"
+        iter_count = args[1]
+        obj_value = args[2]
+        msg = f"Objective value at iteration #{iter_count} is {obj_value}"
         print(msg)
 
     return intermediate
