@@ -1260,7 +1260,7 @@ cdef Bool intermediate_cb(Index alg_mod,
             return True
 
         ret_val = self.__intermediate(alg_mod,
-                                  iter_count,
+                                      iter_count,
                                       obj_value,
                                       inf_pr,
                                       inf_du,
