@@ -29,27 +29,26 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          miniforge-variant: Mambaforge
       - name: Install basic dependencies against generic blas/lapack
         run: |
-          mamba install -q -y liblapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28"
+          conda install -q -y liblapack "libblas=*=*netlib" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28"
       - run: echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
           python -m pip install --no-deps --no-build-isolation .
-          mamba list
+          conda list
       - name: Test with pytest using OS specific blas/lapack
         run: |
           python -c "import cyipopt"
-          mamba remove liblapack
-          mamba install -q -y "libblas=*=*openblas" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "pytest>=6.2.5" "cython=0.29.*"
-          mamba list
+          conda remove liblapack
+          conda install -q -y "libblas=*=*openblas" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "pytest>=6.2.5" "cython=0.29.*"
+          conda list
           pytest
           python examples/hs071.py
           python examples/exception_handling.py
       - name: Test with pytest and scipy, new ipopt
         run: |
-          mamba install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython=0.29.*"
-          mamba list
+          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython=0.29.*"
+          conda list
           pytest
