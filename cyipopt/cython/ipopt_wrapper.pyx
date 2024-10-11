@@ -592,6 +592,15 @@ cdef class Problem:
         x : array-like, shape(n, )
             Initial guess.
 
+        lagrange : array-like, shape(m, ), optional (default=[])
+            Initial values for the constraint multipliers (only if warm start option is chosen).
+
+        zl : array-like, shape(n, ), optional (default=[])
+            Initial values for the multipliers for lower variable bounds (only if warm start option is chosen).
+
+        zu : array-like, shape(n, ), optional (default=[])
+            Initial values for the multipliers for upper variable bounds (only if warm start option is chosen).
+
         Returns
         -------
         x : array, shape(n, )
@@ -625,14 +634,27 @@ cdef class Problem:
         cdef ApplicationReturnStatus stat
         cdef np.ndarray[DTYPEd_t, ndim=1] g = np.zeros((self.__m,), dtype=DTYPEd)
 
-        if lagrange == []:
+        lagrange = np.atleast_1d(lagrange)
+        zl = np.atleast_1d(zl)
+        zu = np.atleast_1d(zu)
+
+        if len(lagrange) == 0:
             lagrange = np.zeros((self.__m,), dtype=DTYPEd)
+        elif self.__m != len(lagrange):
+            raise ValueError("Wrong length of lagrange.")
+
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_g = np.array(lagrange, dtype=DTYPEd).flatten()
 
-        if zl == []:
+        if len(zl) == 0:
             zl = np.zeros((self.__n,), dtype=DTYPEd)
-        if zu == []:
+        elif self.__n != len(zl):
+            raise ValueError("Wrong length of zl.")
+
+        if len(zu) == 0:
             zu = np.zeros((self.__n,), dtype=DTYPEd)
+        elif self.__n != len(zu):
+            raise ValueError("Wrong length of zu.")
+
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.array(zl, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.array(zu, dtype=DTYPEd).flatten()
 
@@ -1260,7 +1282,7 @@ cdef Bool intermediate_cb(Index alg_mod,
             return True
 
         ret_val = self.__intermediate(alg_mod,
-                                  iter_count,
+                                      iter_count,
                                       obj_value,
                                       inf_pr,
                                       inf_du,
