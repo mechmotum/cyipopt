@@ -165,58 +165,152 @@ cdef class Problem:
     m : :py:class:`int`
         Number of constraints.
     problem_obj: :py:class:`object`, optional (default=None)
-        An object holding the problem's callbacks. If None, cyipopt will use
+        An object holding the problem's callbacks. If `None`, cyipopt will use
         ``self``, this is useful when subclassing ``Problem``. The object is
         required to have the following attributes and methods (some are
         optional):
 
-            - ``objective`` : function pointer
-                Callback function for evaluating objective function. The
-                callback functions accepts one parameter: x (value of the
-                optimization variables at which the objective is to be
-                evaluated). The function should return the objective function
-                value at the point x.
-            - ``constraints`` : function pointer
-                Callback function for evaluating constraint functions. The
-                callback functions accepts one parameter: x (value of the
-                optimization variables at which the constraints are to be
-                evaluated). The function should return the constraints values
-                at the point x.
-            - ``gradient`` : function pointer
-                Callback function for evaluating gradient of objective
-                function. The callback functions accepts one parameter: x
-                (value of the optimization variables at which the gradient is
-                to be evaluated). The function should return the gradient of
-                the objective function at the point x.
-            - ``jacobian`` : function pointer
-                Callback function for evaluating Jacobian of constraint
-                functions. The callback functions accepts one parameter: x
-                (value of the optimization variables at which the Jacobian is
-                to be evaluated). The function should return the values of the
-                Jacobian as calculated using x. The values should be returned
+            - .. py:function:: objective(x)
+
+                Callback function for evaluating objective function
+                at the given point `x`.
+
+                Parameters
+                ----------
+                x : :py:class:`numpy.ndarray`, shape `(n, )`
+                    Value of the optimization variables at which the objective
+                    is to be evaluated.
+
+                Returns
+                -------
+                :py:class:`float`
+                    Objective function value at the point x.
+
+            - .. py:function:: constraints(x)
+
+                Callback function for evaluating constraint functions at the
+                given point `x`.
+
+                Parameters
+                ----------
+                x : :py:class:`numpy.ndarray`, shape `(n, )`
+                    Value of the optimization variables at which the constraints
+                    are to be evaluated.
+
+                Returns
+                -------
+                :py:class:`numpy.ndarray`, shape `(m, )`
+                    Constraint values at the point x.
+
+            - .. py:function:: gradient(x)
+
+                Callback function for evaluating gradient of objective function
+                at the given point `x`.
+
+                Parameters
+                ----------
+                x : :py:class:`numpy.ndarray`, shape `(n, )`
+                    Value of the optimization variables at which the gradient
+                    is to be evaluated.
+
+                Returns
+                -------
+                :py:class:`numpy.ndarray`, shape `(n, )`
+                    Gradient of the objective function at the point x.
+
+            - .. py:function:: jacobian(x)
+
+                Callback function for evaluating Jacobian of constraint functions
+                at the given point `x`. The values should be returned
                 as a 1-dim numpy array (using the same order as you used when
                 specifying the sparsity structure)
-            - ``jacobianstructure`` : function pointer, optional (default=None)
-                Callback function that accepts no parameters and returns the
-                sparsity structure of the Jacobian (the row and column indices
-                only). If None, the Jacobian is assumed to be dense.
-            - ``hessian`` : function pointer, optional (default=None)
-                Callback function for evaluating Hessian of the Lagrangian
-                function. The callback functions accepts three parameters x
-                (value of the optimization variables at which the Hessian is to
-                be evaluated), lambda (values for the constraint multipliers at
-                which the Hessian is to be evaluated) objective_factor the
-                factor in front of the objective term in the Hessian. The
+
+                Parameters
+                ----------
+                x : :py:class:`numpy.ndarray`, shape `(n, )`
+                    Value of the optimization variables at which the Jacobian is
+                    to be evaluated.
+
+                Returns
+                -------
+                :py:class:`numpy.ndarray`, shape `(jac_nnz, )`
+                    Jacobian of the constraint functions at the point x.
+
+            - .. py:function:: jacobianstructure()
+
+                Optional callback function that returns the sparsity structure of the
+                Jacobian of the constraints. The function should return a tuple
+                of two :py:class:`numpy.ndarray`\ s of integers,
+                the first array contains the row indices
+                and the second array contains the column indices of the non-zero
+                elements of the Jacobian. Both arrays should have the same
+                length of `jac_nnz`, and indexing is zero-based.
+
+                If this callback is not provided, the Jacobian is assumed
+                to be dense (`jac_nnz` = `m` * `n`) using row-major (C-style) order.
+
+                Returns
+                -------
+                :py:class:`tuple`
+                    Tuple containing two numpy arrays, the first array contains
+                    the row indices and the second array contains the column
+                    indices of the non-zero elements of the Jacobian.
+
+            - .. py:function:: hessian(x, lambda, objective_factor)
+
+                Optional callback function for evaluating the Hessian of the Lagrangian
+                function with respect to the primal variables :math:`x`. The Lagrangian
+                is given by
+
+                .. math:: \mathcal{L}(x, \lambda) = \lambda_0 f(x) + \sum_{i=1}^{m} \lambda_i g_i(x)
+
+                where :math:`\lambda_1, \ldots, \lambda_m` are the Lagrange multipliers
+                and :math:`\lambda_0` is the objective factor. The
                 function should return the values of the Hessian as calculated
-                using x, lambda and objective_factor. The values should be
-                returned as a 1-dim numpy array (using the same order as you
-                used when specifying the sparsity structure). If ``None``, the
-                Hessian is calculated numerically.
-            - ``hessianstructure`` : function pointer, optional (default=None)
-                Callback function that accepts no parameters and returns the
-                sparsity structure of the Hessian of the lagrangian (the row
-                and column indices only). If ``None``, the Hessian is assumed
-                to be dense.
+                using `x`, `lambda` and `objective_factor`. The values should be
+                returned as a 1-dimensional array-like structure (using the same order as you
+                used when specifying the sparsity structure).
+
+                If this callback is not provided, the Hessian is calculated numerically.
+
+                Parameters
+                ----------
+
+                x : :py:class:`numpy.ndarray`, shape `(n, )`
+                    Value of the optimization variables at which the Hessian is
+                    to be evaluated.
+                lambda : :py:class:`numpy.ndarray`, shape `(m, )`
+                    Values for the Lagrange multipliers.
+                objective_factor : :py:class:`float`
+                    Factor for the objective term of the Hessian (usually 1).
+
+                Returns
+                -------
+                :py:class:`numpy.ndarray`, shape `(hess_nnz, )`
+                    Hessian of the Lagrangian function at the point x.
+
+            - .. py:function:: hessianstructure()
+
+                Optional callback function that returns the sparsity structure of the
+                Hessian of the Lagrangian. The function should return a tuple
+                of two :py:class:`numpy.ndarray`\ s, the first array contains the row indices
+                and the second array contains the column indices of the non-zero
+                elements of the Hessian. Both arrays should have the same
+                length of `hess_nnz`, and indexing is zero-based. Furthermore,
+                since the Hessian is symmetric, the indices must only correspond
+                to the lower triangular part of the Hessian (i.e., `row >= col`).
+
+                If this callback is not provided, the Hessian is assumed
+                to be dense (`hess_nnz` = `n` * (`n` + 1) / 2) using row-major
+                (C-style) order.
+
+                Returns
+                -------
+                :py:class:`tuple`
+                    Tuple containing two numpy arrays, the first array contains
+                    the row indices and the second array contains the column
+                    indices of the non-zero elements of the Hessian.
+
             - ``intermediate`` : function pointer, optional (default=None)
                 Optional. Callback function that is called once per iteration
                 (during the convergence check), and can be used to obtain
