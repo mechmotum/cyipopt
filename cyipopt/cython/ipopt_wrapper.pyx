@@ -160,11 +160,11 @@ cdef class Problem:
 
     Parameters
     ----------
-    n : integer
+    n : :py:class:`int`
         Number of primal variables.
-    m : integer
+    m : :py:class:`int`
         Number of constraints.
-    problem_obj: object, optional (default=None)
+    problem_obj: :py:class:`object`, optional (default=None)
         An object holding the problem's callbacks. If None, cyipopt will use
         ``self``, this is useful when subclassing ``Problem``. The object is
         required to have the following attributes and methods (some are
@@ -605,13 +605,13 @@ cdef class Problem:
         -------
         x : :py:class:`numpy.ndarray`, shape `(n, )`
             Optimal solution.
-        info: dictionary
+        info: :py:class:`dict` with the following entries
 
             ``x``: :py:class:`numpy.ndarray`, shape `(n, )`
                 optimal solution
             ``g``: :py:class:`numpy.ndarray`, shape `(m, )`
                 constraints at the optimal solution
-            ``obj_val``: float
+            ``obj_val``: :py:class:`float`
                 objective value at optimal solution
             ``mult_g``: :py:class:`numpy.ndarray`, shape `(m, )`
                 final values of the constraint multipliers
@@ -619,9 +619,9 @@ cdef class Problem:
                 bound multipliers at the solution
             ``mult_x_U``: :py:class:`numpy.ndarray`, shape `(n, )`
                 bound multipliers at the solution
-            ``status``: integer
+            ``status``: :py:class:`int`
                 gives the status of the algorithm
-            ``status_msg``: string
+            ``status_msg``: :py:class:`str`
                 gives the status of the algorithm as a message
 
         """
@@ -705,12 +705,12 @@ cdef class Problem:
 
         Parameters
         ----------
-        scaled: Bool
+        scaled: :py:class:`bool`
             Whether the scaled iterate vectors should be returned
 
         Returns
         -------
-        dict or None
+        :py:class:`dict` or `None`
             A dict containing the iterate vector with keys ``"x"``,
             ``"mult_x_L"``, ``"mult_x_U"``, ``"g"``, and ``"mult_g"``.
             If iterate vectors cannot be obtained, ``None`` is returned.
@@ -790,12 +790,12 @@ cdef class Problem:
 
         Parameters
         ----------
-        scaled: Bool
+        scaled: :py:class:`bool`
             Whether to scale the returned violations
 
         Returns
         -------
-        dict or None
+        :py:class:`dict` or `None`
             A dict containing the violation vector with keys
             ``"x_L_violation"``, ``"x_U_violation"``, ``"compl_x_L"``,
             ``"compl_x_U"``, ``"grad_lag_x"``, ``"g_violation"``,
