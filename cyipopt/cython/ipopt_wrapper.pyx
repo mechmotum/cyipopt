@@ -603,21 +603,21 @@ cdef class Problem:
 
         Returns
         -------
-        x : array, shape(n, )
+        x : :py:class:`numpy.ndarray`, shape `(n, )`
             Optimal solution.
         info: dictionary
 
-            ``x``: ndarray, shape(n, )
+            ``x``: :py:class:`numpy.ndarray`, shape `(n, )`
                 optimal solution
-            ``g``: ndarray, shape(m, )
+            ``g``: :py:class:`numpy.ndarray`, shape `(m, )`
                 constraints at the optimal solution
             ``obj_val``: float
                 objective value at optimal solution
-            ``mult_g``: ndarray, shape(m, )
+            ``mult_g``: :py:class:`numpy.ndarray`, shape `(m, )`
                 final values of the constraint multipliers
-            ``mult_x_L``: ndarray, shape(n, )
+            ``mult_x_L``: :py:class:`numpy.ndarray`, shape `(n, )`
                 bound multipliers at the solution
-            ``mult_x_U``: ndarray, shape(n, )
+            ``mult_x_U``: :py:class:`numpy.ndarray`, shape `(n, )`
                 bound multipliers at the solution
             ``status``: integer
                 gives the status of the algorithm
