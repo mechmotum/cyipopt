@@ -175,14 +175,14 @@ cdef class Problem:
                 Callback function for evaluating objective function
                 at the given point `x`.
 
-                Parameters
-                ----------
+                **Parameters**
+
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
                     Value of the optimization variables at which the objective
                     is to be evaluated.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`float`
                     Objective function value at the point x.
 
@@ -191,14 +191,14 @@ cdef class Problem:
                 Callback function for evaluating constraint functions at the
                 given point `x`.
 
-                Parameters
-                ----------
+                **Parameters**
+
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
                     Value of the optimization variables at which the constraints
                     are to be evaluated.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`numpy.ndarray`, shape `(m, )`
                     Constraint values at the point x.
 
@@ -207,14 +207,14 @@ cdef class Problem:
                 Callback function for evaluating gradient of objective function
                 at the given point `x`.
 
-                Parameters
-                ----------
+                **Parameters**
+
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
                     Value of the optimization variables at which the gradient
                     is to be evaluated.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`numpy.ndarray`, shape `(n, )`
                     Gradient of the objective function at the point x.
 
@@ -225,14 +225,14 @@ cdef class Problem:
                 as a 1-dim numpy array (using the same order as you used when
                 specifying the sparsity structure)
 
-                Parameters
-                ----------
+                **Parameters**
+
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
                     Value of the optimization variables at which the Jacobian is
                     to be evaluated.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`numpy.ndarray`, shape `(jac_nnz, )`
                     Jacobian of the constraint functions at the point x.
 
@@ -249,8 +249,8 @@ cdef class Problem:
                 If this callback is not provided, the Jacobian is assumed
                 to be dense (`jac_nnz` = `m` * `n`) using row-major (C-style) order.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`tuple`
                     Tuple containing two numpy arrays, the first array contains
                     the row indices and the second array contains the column
@@ -273,8 +273,8 @@ cdef class Problem:
 
                 If this callback is not provided, the Hessian is calculated numerically.
 
-                Parameters
-                ----------
+
+                **Parameters**
 
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
                     Value of the optimization variables at which the Hessian is
@@ -284,8 +284,8 @@ cdef class Problem:
                 objective_factor : :py:class:`float`
                     Factor for the objective term of the Hessian (usually 1).
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`numpy.ndarray`, shape `(hess_nnz, )`
                     Hessian of the Lagrangian function at the point x.
 
@@ -304,8 +304,8 @@ cdef class Problem:
                 to be dense (`hess_nnz` = `n` * (`n` + 1) / 2) using row-major
                 (C-style) order.
 
-                Returns
-                -------
+                **Returns**
+
                 :py:class:`tuple`
                     Tuple containing two numpy arrays, the first array contains
                     the row indices and the second array contains the column
