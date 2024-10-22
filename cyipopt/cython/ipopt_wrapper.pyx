@@ -273,7 +273,6 @@ cdef class Problem:
 
                 If this callback is not provided, the Hessian is calculated numerically.
 
-
                 **Parameters**
 
                 x : :py:class:`numpy.ndarray`, shape `(n, )`
