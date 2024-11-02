@@ -18,7 +18,6 @@ import numpy as np
 cimport numpy as np
 
 from cyipopt.exceptions import CyIpoptEvaluationError
-from cyipopt.utils import deprecated_warning, generate_deprecation_warning_msg
 from ipopt cimport *
 
 __all__ = [
@@ -55,25 +54,6 @@ def set_logging_level(level=None):
         verbosity = logger.getEffectiveLevel()
     else:
         verbosity = level
-
-
-@deprecated_warning("set_logging_level")
-def setLoggingLevel(level=None):
-    """Function to continue support for old API.
-
-    .. deprecated:: 1.0.0
-      :func:`setLoggingLevel` will be removed in CyIpopt 1.1.0, it is replaced
-      by :func:`set_logging_level` because the latter complies with PEP8.
-
-    For full documentation of this function please see
-    :func:`set_logging_level`.
-
-    This function acts as a wrapper to the new :func:`set_logging_level`
-    function. It simply issues a :exc:`FutureWarning` to the user before
-    passing all args and kwargs through to :func:`set_logging_level`.
-
-    """
-    set_logging_level(level)
 
 
 set_logging_level()
@@ -555,17 +535,6 @@ cdef class Problem:
 
         self.__nlp = NULL
 
-    @deprecated_warning("add_option")
-    def addOption(self, *args, **kwargs):
-        """Add a keyword/value option pair to the problem.
-
-        .. deprecated:: 1.0.0
-           :meth:`addOption` will be removed in CyIpopt 1.1.0, it is replaced
-           by :meth:`add_option` because the latter complies with PEP8.
-
-        """
-        return self.add_option(*args, **kwargs)
-
     def add_option(self, keyword, val):
         """Add a keyword/value option pair to the problem.
 
@@ -597,18 +566,6 @@ cdef class Problem:
 
         if not ret_val:
             raise TypeError("Error while assigning an option")
-
-    @deprecated_warning("set_problem_scaling")
-    def setProblemScaling(self, *args, **kwargs):
-        """Optional function for setting scaling parameters for the problem.
-
-        .. deprecated:: 1.0.0
-           :meth:`setProblemScaling` will be removed in CyIpopt 1.1.0, it is
-           replaced by :meth:`set_problem_scaling` because the latter complies
-           with PEP8.
-
-        """
-        return self.set_problem_scaling(*args, **kwargs)
 
     def set_problem_scaling(self, obj_scaling=1.0, x_scaling=None,
                             g_scaling=None):
@@ -1394,30 +1351,3 @@ cdef Bool intermediate_cb(Index alg_mod,
         return True
 
     return ret_val
-
-
-class problem(Problem):
-    """Class to continue support for old API.
-
-    .. deprecated:: 1.0.0
-       :class:`problem` will be removed in CyIpopt 1.1.0, it is replaced by
-       :class:`Problem` because the latter complies with PEP8.
-
-    For full documentation of this class including its attributes and methods
-    please see :class:`Problem`.
-
-    This class acts as a wrapper to the new :class:`Problem` class. It simply
-    issues a :exc:`FutureWarning` to the user before passing all args and
-    kwargs through to :class:`Problem`.
-
-    Returns
-    -------
-    :obj:`Problem`
-            Instance created with the `args` and `kwargs` parameters.
-
-    """
-
-    def __new__(cls, *args, **kwargs):
-        msg = generate_deprecation_warning_msg("class", "problem", "Problem")
-        warnings.warn(msg, FutureWarning)
-        return super(problem, cls).__new__(cls, *args, **kwargs)
