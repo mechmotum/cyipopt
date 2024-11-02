@@ -21,7 +21,7 @@ from cyipopt.exceptions import CyIpoptEvaluationError
 from ipopt cimport *
 
 __all__ = [
-    "set_logging_level", "setLoggingLevel", "Problem", "problem", "IPOPT_VERSION"
+    "set_logging_level", "Problem", "IPOPT_VERSION"
 ]
 
 IPOPT_VERSION = (IPOPT_VERSION_MAJOR, IPOPT_VERSION_MINOR, IPOPT_VERSION_RELEASE)
