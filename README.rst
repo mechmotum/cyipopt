@@ -84,3 +84,8 @@ Contributing
 
 For bug reports, feature requests, comments, patches use the GitHub issue
 tracker and/or pull request system.
+
+Contributors (made with `contrib.rocks <https://contrib.rocks>`_):
+
+.. image:: https://contrib.rocks/image?repo=mechmotum/cyipopt
+   :target: https://github.com/mechmotum/cyipopt/graphs/contributors
