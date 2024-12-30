@@ -22,19 +22,20 @@ jobs:
     steps:
       - name: Checkout CyIpopt
         uses: actions/checkout@v3
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
-          miniforge-variant: Mambaforge
+          conda-remove-defaults: "true"
+          miniforge-version: latest
       - name: Install basic dependencies
-        run: mamba install -y -v lapack "libblas=*=*netlib" "cython>=0.29.28" "ipopt=${{ matrix.ipopt-version }}" numpy>=1.25 pkg-config>=0.29.2 setuptools>=44.1.1 --file docs/requirements.txt
+        run: conda install -y -v lapack "libblas=*=*netlib" "cython>=0.29.28" "ipopt=${{ matrix.ipopt-version }}" numpy>=1.25 pkg-config>=0.29.2 setuptools>=44.1.1 --file docs/requirements.txt
       - name: Install CyIpopt
         run: |
           rm pyproject.toml
           python -m pip install .
-          mamba list
+          conda list
       - name: Test building documentation
         run: cd docs && make clean && make html && cd ..
