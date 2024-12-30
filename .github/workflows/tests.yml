@@ -34,6 +34,7 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
+          conda-remove-defaults: "true"
           miniforge-version: latest
       - name: Install basic dependencies against generic blas/lapack
         run: |

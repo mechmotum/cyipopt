@@ -28,6 +28,7 @@ jobs:
           activate-environment: test-environment
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
+          conda-remove-defaults: "true"
           miniforge-version: latest
       - name: Install basic dependencies
         run: conda install -y -v lapack "libblas=*=*netlib" "cython>=0.29.28" "ipopt=${{ matrix.ipopt-version }}" numpy>=1.25 pkg-config>=0.29.2 setuptools>=44.1.1 --file docs/requirements.txt
