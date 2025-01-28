@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 cyipopt: Python wrapper for the Ipopt optimization package, written in Cython.
 
@@ -328,10 +327,10 @@ cdef class Problem:
 
     lb : array-like, shape(n, )
         Lower bounds on variables, where n is the dimension of x. To assume no
-        lower bounds pass values lower then ``10^-19``.
+        lower bounds pass values greater than ``10**19``.
     ub : array-like, shape(n, )
         Upper bounds on variables, where n is the dimension of x. To assume no
-        upper bounds pass values higher then ``10^-19``.
+        upper bounds pass values less than ``-10**19``.
     cl : array-like, shape(m, )
         Lower bounds on constraints, where m is the number of constraints.
         Equality constraints can be specified by setting ``cl[i] = cu[i]``.
@@ -355,6 +354,11 @@ cdef class Problem:
 
     cdef public object __exception
     cdef Bool __in_ipopt_solve
+    cdef public object __jac_iRow
+    cdef public object __jac_jCol
+    cdef public object __hes_iRow
+    cdef public object __hes_jCol
+    cdef public object info
 
     def __init__(self, n, m, problem_obj=None, lb=None, ub=None, cl=None,
                  cu=None):
@@ -407,6 +411,8 @@ cdef class Problem:
 
         self.__m = m
 
+        self.info = None
+
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cl = np.array(cl, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_cu = np.array(cu, dtype=DTYPEd).flatten()
 
@@ -447,20 +453,98 @@ cdef class Problem:
 
         if self.__jacobianstructure:
             ret_val = self.__jacobianstructure()
-            nele_jac = len(ret_val[0])
 
-        if self.__hessianstructure:
-            ret_val = self.__hessianstructure()
-            nele_hess = len(ret_val[0])
+            np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
+            np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
+            nele_jac = len(np_iRow)
+
+            if np_iRow.size != np_jCol.size:
+                msg = ("Number of row indices and number of column indices returned from "
+                       "jacobianstructure must be equal")
+                raise ValueError(msg)
+
+            if (np_iRow < 0).any() or (np_iRow >= m).any():
+                msg = "All row indices must be non-negative and less than m"
+                raise ValueError(msg)
+
+            if (np_jCol < 0).any() or (np_jCol >= n).any():
+                msg = "All column indices must be non-negative and less than n"
+                raise ValueError(msg)
+
         else:
-            if self.__hessian is None:
+
+            msg = b"Jacobian callback not defined. assuming a dense jacobian"
+            log(msg, logging.INFO)
+
+            #
+            # Assuming a dense Jacobian
+            #
+            s = np.unravel_index(np.arange(self.__m * self.__n),
+                                 (self.__m, self.__n))
+            np_iRow = np.array(s[0], dtype=DTYPEi)
+            np_jCol = np.array(s[1], dtype=DTYPEi)
+
+        self.__jac_iRow = np_iRow
+        self.__jac_jCol = np_jCol
+
+        #
+        # Validate Hessian
+        #
+        if self.__hessian is None:
+
                 msg = b"Hessian callback not given, setting nele_hess to 0"
                 log(msg, logging.INFO)
                 nele_hess = 0
-            elif self.__n > 2**16:
-                msg = ("Number of varialbes is too large for using dense "
-                       "Hessian")
+
+        elif self.__hessianstructure:
+            #
+            # Sparse Hessian
+            #
+            ret_val = self.__hessianstructure()
+            np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
+            np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
+            nele_hess = len(np_iRow)
+
+            if np_jCol.size != nele_hess:
+                msg = ("Number of row indices and number of column indices returned from "
+                       "hessianstructure must be equal")
                 raise ValueError(msg)
+
+            if (np_jCol < 0).any() or (np_jCol >= n).any():
+                msg = "All column indices must be non-negative and less than n"
+                raise ValueError(msg)
+
+            if (np_iRow < 0).any() or (np_iRow >= n).any():
+                msg = "All row indices must be non-negative and less than n"
+                raise ValueError(msg)
+
+            if not (np_iRow >= np_jCol).all():
+                msg = "Indices are not lower triangular in hessianstructure"
+                raise ValueError(msg)
+
+            # self.__hes_iRow = np_iRow
+            # self.__hes_jCol = np_jCol
+
+        elif self.__n > 2**16:
+            msg = "Number of variables is too large for using dense Hessian"
+            raise ValueError(msg)
+
+        else:
+            msg = b"Hessian callback not defined. assuming a lower triangle Hessian"
+            log(msg, logging.INFO)
+
+            #
+            # Assuming a lower triangle Hessian
+            # Note:
+            # There is a need to reconvert the s.col and s.row to arrays
+            # because they have the wrong stride
+            #
+            row, col = np.nonzero(np.tril(np.ones((self.__n, self.__n))))
+            np_iRow = np.array(col, dtype=DTYPEi)
+            np_jCol = np.array(row, dtype=DTYPEi)
+
+        self.__hes_iRow = np_iRow
+        self.__hes_jCol = np_jCol
 
         #
         # Some input checking
@@ -587,7 +671,7 @@ cdef class Problem:
             The scaling factors for the variables. If ``None``, no scaling is
             done.
         g_scaling : array-like, shape(m, )
-            The scaling factors for the constrains. If ``None``, no scaling is
+            The scaling factors for the constraints. If ``None``, no scaling is
             done.
 
         """
@@ -705,6 +789,8 @@ cdef class Problem:
         elif self.__n != len(zu):
             raise ValueError("Wrong length of zu.")
 
+        self.info = None
+
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_L = np.array(zl, dtype=DTYPEd).flatten()
         cdef np.ndarray[DTYPEd_t, ndim=1] mult_x_U = np.array(zu, dtype=DTYPEd).flatten()
 
@@ -726,11 +812,7 @@ cdef class Problem:
         # Unset flag
         self.__in_ipopt_solve = False
 
-        if self.__exception:
-            raise self.__exception[0], self.__exception[1], self.__exception[2]
-
-
-        info = {"x": np_x,
+        self.info = info = {"x": np_x,
                 "g": g,
                 "obj_val": obj_val,
                 "mult_g": mult_g,
@@ -739,6 +821,9 @@ cdef class Problem:
                 "status": stat,
                 "status_msg": STATUS_MESSAGES.get(stat, b"Unknown status")
                 }
+
+        if self.__exception:
+            raise self.__exception[1].with_traceback(self.__exception[2])
 
         return np_x, info
 
@@ -1025,59 +1110,6 @@ cdef Bool constraints_cb(Index n,
         return False
     except:
         self.__exception = sys.exc_info()
-        return True
-
-    return True
-
-
-cdef Bool jacobian_struct_cb(Index n,
-                             Index m,
-                             Index nele_jac,
-                             Index *iRow,
-                             Index *jCol,
-                             UserDataPtr user_data):
-    cdef Problem self = <Problem>user_data
-    cdef Index i
-
-    if not self.__jacobianstructure:
-        msg = b"Jacobian callback not defined. assuming a dense jacobian"
-        log(msg, logging.INFO)
-
-        #
-        # Assuming a dense Jacobian
-        #
-        s = np.unravel_index(np.arange(self.__m * self.__n),
-                             (self.__m, self.__n))
-        np_iRow = np.array(s[0], dtype=DTYPEi)
-        np_jCol = np.array(s[1], dtype=DTYPEi)
-    else:
-        #
-        # Sparse Jacobian
-        #
-        ret_val = self.__jacobianstructure()
-
-        np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
-        np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
-
-        if (np_iRow.size != nele_jac) or (np_jCol.size != nele_jac):
-            msg = b"Invalid number of indices returned from jacobianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-        if (np_iRow < 0).any() or (np_iRow >= m).any():
-            msg = b"Invalid row indices returned from jacobianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-        if (np_jCol < 0).any() or (np_jCol >= n).any():
-            msg = b"Invalid column indices returned from jacobianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-    for i in range(nele_jac):
-        iRow[i] = np_iRow[i]
-        jCol[i] = np_jCol[i]
-
     return True
 
 
@@ -1103,14 +1135,13 @@ cdef Bool jacobian_value_cb(Index n,
     try:
         ret_val = self.__jacobian(_x)
     except CyIpoptEvaluationError:
-            return False
+        return False
 
     np_jac_g = np.array(ret_val, dtype=DTYPEd).flatten()
 
     if (np_jac_g.size != nele_jac):
-        msg = b"Invalid number of indices returned from jacobian"
-        log(msg, logging.ERROR)
-        return False
+        msg = "Invalid number of indices returned from jacobian"
+        raise ValueError(msg)
 
     for i in range(nele_jac):
         values[i] = np_jac_g[i]
@@ -1128,89 +1159,29 @@ cdef Bool jacobian_cb(Index n,
                       Number *values,
                       UserDataPtr user_data
                       ) noexcept:
-    cdef Problem self
+    cdef Problem self = <Problem>user_data
     cdef object ret_val
+    cdef Index i
+
+    log(b"jacobian_cb", logging.INFO)
+
+    if values == NULL:
+
+        for i in range(nele_jac):
+            iRow[i] = self.__jac_iRow[i]
+            jCol[i] = self.__jac_jCol[i]
+        return True
 
     try:
         log(b"jacobian_cb", logging.INFO)
         ret_val = True
-        self = <Problem>user_data
-        if values == NULL:
-            log(b"Querying for iRow/jCol indices of the jacobian", logging.INFO)
-            ret_val = jacobian_struct_cb(n, m, nele_jac, iRow, jCol, user_data)
-        else:
-            log(b"Querying for jacobian", logging.INFO)
-            ret_val = jacobian_value_cb(n, x, new_x, m, nele_jac, values, user_data)
+        ret_val = jacobian_value_cb(n, x, new_x, m, nele_jac, values, user_data)
 
     except:
         self.__exception = sys.exc_info()
-    finally:
-        return ret_val
+        return True
 
-
-cdef Bool hessian_struct_cb(Index n,
-                            Index m,
-                            Index nele_hess,
-                            Index *iRow,
-                            Index *jCol,
-                            UserDataPtr user_data
-                            ):
-    cdef Problem self = <Problem>user_data
-    cdef Index i
-    cdef np.ndarray[DTYPEi_t, ndim=1] np_iRow
-    cdef np.ndarray[DTYPEi_t, ndim=1] np_jCol
-
-    msg = b"Querying for iRow/jCol indices of the Hessian"
-    log(msg, logging.INFO)
-
-    if not self.__hessianstructure:
-        msg = (b"Hessian callback not defined. assuming a lower triangle "
-               b"Hessian")
-        log(msg, logging.INFO)
-
-        #
-        # Assuming a lower triangle Hessian
-        # Note:
-        # There is a need to reconvert the s.col and s.row to arrays
-        # because they have the wrong stride
-        #
-        row, col = np.nonzero(np.tril(np.ones((self.__n, self.__n))))
-        np_iRow = np.array(col, dtype=DTYPEi)
-        np_jCol = np.array(row, dtype=DTYPEi)
-    else:
-        #
-        # Sparse Hessian
-        #
-        ret_val = self.__hessianstructure()
-
-        np_iRow = np.array(ret_val[0], dtype=DTYPEi).flatten()
-        np_jCol = np.array(ret_val[1], dtype=DTYPEi).flatten()
-
-        if (np_iRow.size != nele_hess) or (np_jCol.size != nele_hess):
-            msg = b"Invalid number of indices returned from hessianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-        if not(np_iRow >= np_jCol).all():
-            msg = b"Indices are not lower triangular in hessianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-        if (np_jCol < 0).any():
-            msg = b"Invalid column indices returned from hessianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-        if (np_iRow >= n).any():
-            msg = b"Invalid row indices returned from hessianstructure"
-            log(msg, logging.ERROR)
-            return False
-
-    for i in range(nele_hess):
-        iRow[i] = np_iRow[i]
-        jCol[i] = np_jCol[i]
-
-    return True
+    return ret_val
 
 
 cdef Bool hessian_value_cb(Index n,
@@ -1230,10 +1201,8 @@ cdef Bool hessian_value_cb(Index n,
     cdef np.ndarray[DTYPEd_t, ndim=1] _lambda = np.zeros((m,), dtype=DTYPEd)
 
     if not self.__hessian:
-        msg = (b"Hessian callback not defined but called by the Ipopt "
-               b"algorithm")
-        log(msg, logging.ERROR)
-        return False
+        msg = "Hessian callback not defined but called by the Ipopt algorithm"
+        raise ValueError(msg)
 
     for i in range(n):
         _x[i] = x[i]
@@ -1249,9 +1218,9 @@ cdef Bool hessian_value_cb(Index n,
     np_h = np.array(ret_val, dtype=DTYPEd).flatten()
 
     if (np_h.size != nele_hess):
-        msg = b"Invalid number of indices returned from hessian"
-        log(msg, logging.ERROR)
-        return False
+        msg = ("Number of indices returned from hessianstructure and number of values "
+               "returned from hessian are not equal")
+        raise ValueError(msg)
 
     for i in range(nele_hess):
         values[i] = np_h[i]
@@ -1272,37 +1241,37 @@ cdef Bool hessian_cb(Index n,
                      Number *values,
                      UserDataPtr user_data
                      ) noexcept:
-    cdef object self
+    cdef Problem self = <Problem>user_data
     cdef object ret_val
+    cdef Index i
+
+    log(b"hessian_cb", logging.INFO)
+
+    if values == NULL:
+
+        for i in range(nele_hess):
+            iRow[i] = self.__hes_iRow[i]
+            jCol[i] = self.__hes_jCol[i]
+
+        return True
 
     try:
-        log(b"hessian_cb", logging.INFO)
         ret_val = True
-        self = <object>user_data
-
-        if values == NULL:
-            ret_val = hessian_struct_cb(n,
-                                        m,
-                                        nele_hess,
-                                        iRow,
-                                        jCol,
-                                        user_data)
-
-        else:
-            ret_val = hessian_value_cb(n,
-                                       x,
-                                       new_x,
-                                       obj_factor,
-                                       m,
-                                       lambd,
-                                       new_lambda,
-                                       nele_hess,
-                                       values,
-                                       user_data)
+        ret_val = hessian_value_cb(n,
+                                   x,
+                                   new_x,
+                                   obj_factor,
+                                   m,
+                                   lambd,
+                                   new_lambda,
+                                   nele_hess,
+                                   values,
+                                   user_data)
     except:
         self.__exception = sys.exc_info()
-    finally:
-        return ret_val
+        return True
+
+    return ret_val
 
 
 cdef Bool intermediate_cb(Index alg_mod,
