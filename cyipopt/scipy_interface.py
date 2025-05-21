@@ -207,8 +207,8 @@ class IpoptProblemWrapper(cyipopt.Problem):
             all(param is not None for param in required_params)):
             raise ValueError('If any of n, m, lb, ub, cl, cu are provided, they all must be')
         
-        if all(param is None for param in required_params):
-            super(IpoptProblemWrapper, self).__init__(n=n, m=m, problem_obj=self, lb=lb, ub=ub, cl=cl, cu=cu)
+        if all(param is not None for param in required_params):
+            super(IpoptProblemWrapper, self).__init__(n=n, m=m, lb=lb, ub=ub, cl=cl, cu=cu)
 
     def evaluate_fun_with_grad(self, x):
         """ For backwards compatibility. """
