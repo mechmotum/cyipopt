@@ -54,7 +54,7 @@ class IpoptProblemWrapper(cyipopt.Problem):
     args : tuple, optional
         Extra arguments passed to the objective function and its derivatives
         (``fun``, ``jac``, ``hess``).
-    kwargs : dictionary, optional
+    kwargs : :py:class:`dict`, optional
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
     jac : callable, optional
@@ -67,7 +67,7 @@ class IpoptProblemWrapper(cyipopt.Problem):
     hessp : callable, optional
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
         Explicitly defined Hessians are not yet supported for this class.
-    constraints : {Constraint, dict} or List of {Constraint, dict}, optional
+    constraints : {Constraint, :py:class:`dict`} or List of {Constraint, :py:class:`dict`}, optional
         See :py:func:`scipy.optimize.minimize` for more information. Note that
         the jacobian of each constraint corresponds to the `'jac'` key and must
         be a callable function with signature ``jac(x) -> {ndarray,
@@ -449,10 +449,10 @@ def minimize_ipopt(fun,
     args : tuple, optional
         Extra arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, and ``hess``).
-    kwargs : dictionary, optional
+    kwargs : :py:class:`dict`, optional
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
-    method : str, optional
+    method : :py:class:`str`, optional
         If unspecified (default), Ipopt is used.
         :py:func:`scipy.optimize.minimize` methods can also be used.
     jac : callable, optional
@@ -467,7 +467,7 @@ def minimize_ipopt(fun,
         If `method` is one of the SciPy methods, this is a callable that
         produces the inner product of the Hessian and a vector. Otherwise, an
         error will be raised if a value other than ``None`` is provided.
-    bounds :  sequence of shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
+    bounds : sequence of `array-like` shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
         Simple bounds on decision variables. There are two ways to specify the
         bounds:
 
@@ -486,10 +486,10 @@ def minimize_ipopt(fun,
         constraint function ``fun`` must return a tuple ``(con_val, con_jac)``
         consisting of the evaluated constraint ``con_val`` and the evaluated
         Jacobian ``con_jac``.
-    tol : float, optional (default=1e-8)
+    tol : :py:class:`float`, optional (default=1e-8)
         The desired relative convergence tolerance, passed as an option to
         Ipopt. See [1]_ for details.
-    options : dict, optional
+    options : :py:class:`dict`, optional
         A dictionary of solver options.
 
         When `method` is unspecified (default: Ipopt), the options
