@@ -96,12 +96,6 @@ class IpoptProblemWrapper(cyipopt.Problem):
     """
 
     def __init__(self,
-                 n,
-                 m,
-                 lb,
-                 ub,
-                 cl,
-                 cu,
                  fun,
                  args=(),
                  kwargs=None,
@@ -114,7 +108,14 @@ class IpoptProblemWrapper(cyipopt.Problem):
                  con_dims=(),
                  sparse_jacs=(),
                  jac_nnz_row=(),
-                 jac_nnz_col=()):
+                 jac_nnz_col=(),
+                 # The following arguments are passed to the base class
+                 n=None,
+                 m=None,
+                 lb=None,
+                 ub=None,
+                 cl=None,
+                 cu=None):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
@@ -200,8 +201,14 @@ class IpoptProblemWrapper(cyipopt.Problem):
         self.njev = 0
         self.nit = 0
 
-        super(IpoptProblemWrapper, self).__init__(n=n, m=m, lb=lb, ub=ub, cl=cl, cu=cu)
-
+        # If n is provided, ensure that all other required parameters are also provided
+        required_params = [n, m, lb, ub, cl, cu]
+        if (any(param is not None for param in required_params) and not 
+            all(param is not None for param in required_params)):
+            raise ValueError('If any of n, m, lb, ub, cl, cu are provided, they all must be')
+        
+        if all(param is None for param in required_params):
+            super(IpoptProblemWrapper, self).__init__(n=n, m=m, problem_obj=self, lb=lb, ub=ub, cl=cl, cu=cu)
 
     def evaluate_fun_with_grad(self, x):
         """ For backwards compatibility. """
@@ -257,8 +264,10 @@ class IpoptProblemWrapper(cyipopt.Problem):
                      d_norm, regularization_size, alpha_du, alpha_pr,
                      ls_trials):
         self.nit = iter_count
-        iterate = self.get_current_iterate()
-        self.callback(iterate["x"])
+
+        if self.callback is not None and hasattr(self, 'get_current_iterate'):
+            iterate = self.get_current_iterate()
+            self.callback(iterate["x"])
 
 
 def get_bounds(bounds):
