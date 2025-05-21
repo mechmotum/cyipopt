@@ -12,6 +12,7 @@ License: EPL 2.0
 import sys
 
 import numpy as np
+
 try:
     import scipy
 except ImportError:  # scipy is not installed
@@ -19,8 +20,8 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy import optimize
     import scipy.sparse
+    from scipy import optimize
     try:
         from scipy.optimize import OptimizeResult
     except ImportError:
@@ -42,7 +43,7 @@ else:
 import cyipopt
 
 
-class IpoptProblemWrapper(object):
+class IpoptProblemWrapper(cyipopt.Problem):
     """Class used to map a scipy minimize definition to a cyipopt problem.
 
     Parameters
@@ -53,7 +54,7 @@ class IpoptProblemWrapper(object):
     args : tuple, optional
         Extra arguments passed to the objective function and its derivatives
         (``fun``, ``jac``, ``hess``).
-    kwargs : :py:class:`dict`, optional
+    kwargs : dictionary, optional
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
     jac : callable, optional
@@ -66,7 +67,7 @@ class IpoptProblemWrapper(object):
     hessp : callable, optional
         If ``None``, the Hessian is computed using IPOPT's numerical methods.
         Explicitly defined Hessians are not yet supported for this class.
-    constraints : {Constraint, :py:class:`dict`} or List of {Constraint, :py:class:`dict`}, optional
+    constraints : {Constraint, dict} or List of {Constraint, dict}, optional
         See :py:func:`scipy.optimize.minimize` for more information. Note that
         the jacobian of each constraint corresponds to the `'jac'` key and must
         be a callable function with signature ``jac(x) -> {ndarray,
@@ -92,6 +93,12 @@ class IpoptProblemWrapper(object):
     """
 
     def __init__(self,
+                 n,
+                 m,
+                 lb,
+                 ub,
+                 cl,
+                 cu,
                  fun,
                  args=(),
                  kwargs=None,
@@ -99,6 +106,7 @@ class IpoptProblemWrapper(object):
                  hess=None,
                  hessp=None,
                  constraints=(),
+                 callback=(),
                  eps=1e-8,
                  con_dims=(),
                  sparse_jacs=(),
@@ -122,6 +130,8 @@ class IpoptProblemWrapper(object):
             raise ValueError('`jac` must be callable or boolean.')
         if hess is not None and not callable(hess):
             raise ValueError('`hess` must be callable.')
+        if callback is not None and not callable(callback):
+            raise ValueError('`callback` must be callable.')
         if hessp is not None:
             raise NotImplementedError(
                 '`hessp` is not yet supported by Ipopt.`')
@@ -142,6 +152,7 @@ class IpoptProblemWrapper(object):
 
         self.fun = fun
         self.jac = jac
+        self.callback = callback
         self.args = args
         self.kwargs = kwargs or {}
         self._constraint_funs = []
@@ -185,6 +196,9 @@ class IpoptProblemWrapper(object):
         self.nfev = 0
         self.njev = 0
         self.nit = 0
+
+        super(IpoptProblemWrapper, self).__init__(n=n, m=m, lb=lb, ub=ub, cl=cl, cu=cu)
+
 
     def evaluate_fun_with_grad(self, x):
         """ For backwards compatibility. """
@@ -241,6 +255,10 @@ class IpoptProblemWrapper(object):
                      ls_trials):
 
         self.nit = iter_count
+        iterate = self.get_current_iterate()
+        infeas = self.get_current_violations()
+        primal = iterate["x"]
+        self.callback(primal)
 
 
 def get_bounds(bounds):
@@ -396,7 +414,7 @@ def minimize_ipopt(fun,
       used to solve the problem.
     - Support for parameter `kwargs`: additional keyword arguments to be
       passed to the objective function, constraints, and their derivatives.
-    - Lack of support for `callback` and `hessp` with the default `method`.
+    - Lack of support for `hessp` with the default `method`.
 
     This function can be used to solve general nonlinear programming problems
     of the form:
@@ -431,10 +449,10 @@ def minimize_ipopt(fun,
     args : tuple, optional
         Extra arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, and ``hess``).
-    kwargs : :py:class:`dict`, optional
+    kwargs : dictionary, optional
         Extra keyword arguments passed to the objective function and its
         derivatives (``fun``, ``jac``, ``hess``).
-    method : :py:class:`str`, optional
+    method : str, optional
         If unspecified (default), Ipopt is used.
         :py:func:`scipy.optimize.minimize` methods can also be used.
     jac : callable, optional
@@ -449,7 +467,7 @@ def minimize_ipopt(fun,
         If `method` is one of the SciPy methods, this is a callable that
         produces the inner product of the Hessian and a vector. Otherwise, an
         error will be raised if a value other than ``None`` is provided.
-    bounds : sequence of `array-like` shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
+    bounds :  sequence of shape(n, ) or :py:class:`scipy.optimize.Bounds`, optional
         Simple bounds on decision variables. There are two ways to specify the
         bounds:
 
@@ -468,10 +486,10 @@ def minimize_ipopt(fun,
         constraint function ``fun`` must return a tuple ``(con_val, con_jac)``
         consisting of the evaluated constraint ``con_val`` and the evaluated
         Jacobian ``con_jac``.
-    tol : :py:class:`float`, optional (default=1e-8)
+    tol : float, optional (default=1e-8)
         The desired relative convergence tolerance, passed as an option to
         Ipopt. See [1]_ for details.
-    options : :py:class:`dict`, optional
+    options : dict, optional
         A dictionary of solver options.
 
         When `method` is unspecified (default: Ipopt), the options
@@ -484,9 +502,7 @@ def minimize_ipopt(fun,
         For other values of `method`, `options` is passed to the SciPy solver.
         See [2]_ for details.
     callback : callable, optional
-        This argument is ignored by the default `method` (Ipopt).
-        If `method` is one of the SciPy methods, this is a callable that is
-        called once per iteration. See [2]_ for details.
+        This is a callable that is called once per iteration. See [2]_ for details.
 
     References
     ----------
@@ -568,27 +584,26 @@ def minimize_ipopt(fun,
     if options is None:
         options = {}
     eps = options.pop('eps', 1e-8)
-
-    problem = IpoptProblemWrapper(fun,
-                                  args=args,
-                                  kwargs=kwargs,
-                                  jac=jac,
-                                  hess=hess,
-                                  hessp=hessp,
-                                  constraints=constraints,
-                                  eps=eps,
-                                  con_dims=con_dims,
-                                  sparse_jacs=sparse_jacs,
-                                  jac_nnz_row=jac_nnz_row,
-                                  jac_nnz_col=jac_nnz_col)
-
-    nlp = cyipopt.Problem(n=len(x0),
-                          m=len(cl),
-                          problem_obj=problem,
-                          lb=lb,
-                          ub=ub,
-                          cl=cl,
-                          cu=cu)
+    
+    nlp = IpoptProblemWrapper(n=len(x0),
+                              m=len(cl),
+                              lb=lb,
+                              ub=ub,
+                              cl=cl,
+                              cu=cu,
+                              fun=fun,
+                              args=args,
+                              kwargs=kwargs,
+                              jac=jac,
+                              hess=hess,
+                              hessp=hessp,
+                              constraints=constraints,
+                              callback=callback,
+                              eps=eps,
+                              con_dims=con_dims,
+                              sparse_jacs=sparse_jacs,
+                              jac_nnz_row=jac_nnz_row,
+                              jac_nnz_col=jac_nnz_col)
 
     # python3 compatibility
     convert_to_bytes(options)
@@ -620,9 +635,9 @@ def minimize_ipopt(fun,
                           message=info['status_msg'],
                           fun=info['obj_val'],
                           info=info,
-                          nfev=problem.nfev,
-                          njev=problem.njev,
-                          nit=problem.nit)
+                          nfev=nlp.nfev,
+                          njev=nlp.njev,
+                          nit=nlp.nit)
 
 
 def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
@@ -672,9 +687,6 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
 
     constraints = optimize._minimize.standardize_constraints(constraints, x0,
                                                              'old')
-
-    if method is None and callback is not None:
-        raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
 
     if tol is not None:
         tol = np.asarray(tol)[()]
