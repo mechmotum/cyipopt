@@ -75,6 +75,9 @@ class IpoptProblemWrapper(cyipopt.Problem):
         True, the constraint function `fun` is expected to return a tuple
         `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
         and the evaluated jacobian `con_jac`.
+    callback : callable, optional
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector.
     eps : float, optional
         Step size used in finite difference approximations of the objective
         function gradient and constraint Jacobian.
@@ -253,12 +256,9 @@ class IpoptProblemWrapper(cyipopt.Problem):
     def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
                      d_norm, regularization_size, alpha_du, alpha_pr,
                      ls_trials):
-
         self.nit = iter_count
         iterate = self.get_current_iterate()
-        infeas = self.get_current_violations()
-        primal = iterate["x"]
-        self.callback(primal)
+        self.callback(iterate["x"])
 
 
 def get_bounds(bounds):
@@ -502,7 +502,8 @@ def minimize_ipopt(fun,
         For other values of `method`, `options` is passed to the SciPy solver.
         See [2]_ for details.
     callback : callable, optional
-        This is a callable that is called once per iteration. See [2]_ for details.
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector. See [2]_ for details.
 
     References
     ----------
