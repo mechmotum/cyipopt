@@ -40,10 +40,10 @@ else:
         # coo_array was introduced with scipy 1.8
         from scipy.sparse import coo_matrix as coo_array
 
-import cyipopt
+from cyipopt import Problem
 
 
-class IpoptProblemWrapper(cyipopt.Problem):
+class IpoptProblemWrapper(object):
     """Class used to map a scipy minimize definition to a cyipopt problem.
 
     Parameters
@@ -75,9 +75,6 @@ class IpoptProblemWrapper(cyipopt.Problem):
         True, the constraint function `fun` is expected to return a tuple
         `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
         and the evaluated jacobian `con_jac`.
-    callback : callable, optional
-        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
-        current parameter vector.
     eps : float, optional
         Step size used in finite difference approximations of the objective
         function gradient and constraint Jacobian.
@@ -103,19 +100,11 @@ class IpoptProblemWrapper(cyipopt.Problem):
                  hess=None,
                  hessp=None,
                  constraints=(),
-                 callback=(),
                  eps=1e-8,
                  con_dims=(),
                  sparse_jacs=(),
                  jac_nnz_row=(),
-                 jac_nnz_col=(),
-                 # The following arguments are passed to the base class
-                 n=None,
-                 m=None,
-                 lb=None,
-                 ub=None,
-                 cl=None,
-                 cu=None):
+                 jac_nnz_col=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError()
@@ -134,8 +123,6 @@ class IpoptProblemWrapper(cyipopt.Problem):
             raise ValueError('`jac` must be callable or boolean.')
         if hess is not None and not callable(hess):
             raise ValueError('`hess` must be callable.')
-        if callback is not None and not callable(callback):
-            raise ValueError('`callback` must be callable.')
         if hessp is not None:
             raise NotImplementedError(
                 '`hessp` is not yet supported by Ipopt.`')
@@ -156,7 +143,6 @@ class IpoptProblemWrapper(cyipopt.Problem):
 
         self.fun = fun
         self.jac = jac
-        self.callback = callback
         self.args = args
         self.kwargs = kwargs or {}
         self._constraint_funs = []
@@ -200,15 +186,6 @@ class IpoptProblemWrapper(cyipopt.Problem):
         self.nfev = 0
         self.njev = 0
         self.nit = 0
-
-        # If n is provided, ensure that all other required parameters are also provided
-        required_params = [n, m, lb, ub, cl, cu]
-        if (any(param is not None for param in required_params) and not 
-            all(param is not None for param in required_params)):
-            raise ValueError('If any of n, m, lb, ub, cl, cu are provided, they all must be')
-        
-        if all(param is not None for param in required_params):
-            super(IpoptProblemWrapper, self).__init__(n=n, m=m, lb=lb, ub=ub, cl=cl, cu=cu)
 
     def evaluate_fun_with_grad(self, x):
         """ For backwards compatibility. """
@@ -265,9 +242,116 @@ class IpoptProblemWrapper(cyipopt.Problem):
                      ls_trials):
         self.nit = iter_count
 
-        if self.callback is not None and hasattr(self, 'get_current_iterate'):
+
+class IpoptProblem(IpoptProblemWrapper, Problem):
+    """Class inheriting from IpoptProblemWrapper and cyipopt Problem.
+    Used to map a scipy minimize definition to a cyipopt problem and support callbacks.
+
+    Parameters
+    ==========
+    fun : callable
+        The objective function to be minimized: ``fun(x, *args, **kwargs) ->
+        float``.
+    args : tuple, optional
+        Extra arguments passed to the objective function and its derivatives
+        (``fun``, ``jac``, ``hess``).
+    kwargs : :py:class:`dict`, optional
+        Extra keyword arguments passed to the objective function and its
+        derivatives (``fun``, ``jac``, ``hess``).
+    jac : callable, optional
+        The Jacobian (gradient) of the objective function:
+        ``jac(x, *args, **kwargs) -> ndarray, shape(n, )``.
+        If ``None``, SciPy's ``approx_fprime`` is used.
+    hess : callable, optional
+        If ``None``, the Hessian is computed using IPOPT's numerical methods.
+        Explicitly defined Hessians are not yet supported for this class.
+    hessp : callable, optional
+        If ``None``, the Hessian is computed using IPOPT's numerical methods.
+        Explicitly defined Hessians are not yet supported for this class.
+    constraints : {Constraint, :py:class:`dict`} or List of {Constraint, :py:class:`dict`}, optional
+        See :py:func:`scipy.optimize.minimize` for more information. Note that
+        the jacobian of each constraint corresponds to the `'jac'` key and must
+        be a callable function with signature ``jac(x) -> {ndarray,
+        coo_array}``. If the constraint's value of `'jac'` is a boolean and
+        True, the constraint function `fun` is expected to return a tuple
+        `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
+        and the evaluated jacobian `con_jac`.
+    callback : callable, optional
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector.
+    eps : float, optional
+        Step size used in finite difference approximations of the objective
+        function gradient and constraint Jacobian.
+    con_dims : array_like, optional
+        Dimensions p_1, ..., p_m of the m constraint functions
+        g_1, ..., g_m : R^n -> R^(p_i).
+    sparse_jacs: array_like, optional
+        If sparse_jacs[i] = True, the i-th constraint's jacobian is sparse.
+        Otherwise, the i-th constraint jacobian is assumed to be dense.
+    jac_nnz_row: array_like, optional
+        The row indices of the nonzero elements in the stacked
+        constraint jacobian matrix
+    jac_nnz_col: array_like, optional
+        The column indices of the nonzero elements in the stacked
+        constraint jacobian matrix
+    """
+    
+    def __init__(self,
+                 fun,
+                 n,
+                 m,
+                 lb,
+                 ub,
+                 cl,
+                 cu,
+                 args=(),
+                 kwargs=None,
+                 jac=None,
+                 hess=None,
+                 hessp=None,
+                 constraints=(),
+                 callback=(),
+                 eps=1e-8,
+                 con_dims=(),
+                 sparse_jacs=(),
+                 jac_nnz_row=(),
+                 jac_nnz_col=()):
+        # Explicitly call parent __init__'s
+        IpoptProblemWrapper.__init__(self,
+                                     fun=fun,
+                                     args=args,
+                                     kwargs=kwargs,
+                                     jac=jac,
+                                     hess=hess,
+                                     hessp=hessp,
+                                     constraints=constraints,
+                                     eps=eps,
+                                     con_dims=con_dims,
+                                     sparse_jacs=sparse_jacs,
+                                     jac_nnz_row=jac_nnz_row,
+                                     jac_nnz_col=jac_nnz_col)
+        Problem.__init__(self,
+                         n=n,
+                         m=m,
+                         lb=lb,
+                         ub=ub,
+                         cl=cl,
+                         cu=cu)
+
+        if callback is not None and not callable(callback):
+            raise ValueError('`callback` must be callable.')
+        self.callback = callback
+        
+
+    def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
+                     d_norm, regularization_size, alpha_du, alpha_pr,
+                     ls_trials):
+        self.nit = iter_count
+
+        if self.callback is not None:
             iterate = self.get_current_iterate()
-            self.callback(iterate["x"])
+            self.callback(iterate["x"]) 
+        
 
 
 def get_bounds(bounds):
@@ -595,25 +679,25 @@ def minimize_ipopt(fun,
         options = {}
     eps = options.pop('eps', 1e-8)
     
-    nlp = IpoptProblemWrapper(n=len(x0),
-                              m=len(cl),
-                              lb=lb,
-                              ub=ub,
-                              cl=cl,
-                              cu=cu,
-                              fun=fun,
-                              args=args,
-                              kwargs=kwargs,
-                              jac=jac,
-                              hess=hess,
-                              hessp=hessp,
-                              constraints=constraints,
-                              callback=callback,
-                              eps=eps,
-                              con_dims=con_dims,
-                              sparse_jacs=sparse_jacs,
-                              jac_nnz_row=jac_nnz_row,
-                              jac_nnz_col=jac_nnz_col)
+    nlp = IpoptProblem(fun=fun,
+                       n=len(x0),
+                       m=len(cl),
+                       lb=lb,
+                       ub=ub,
+                       cl=cl,
+                       cu=cu,       
+                       args=args,
+                       kwargs=kwargs,
+                       jac=jac,
+                       hess=hess,
+                       hessp=hessp,
+                       constraints=constraints,
+                       callback=callback,
+                       eps=eps,
+                       con_dims=con_dims,
+                       sparse_jacs=sparse_jacs,
+                       jac_nnz_row=jac_nnz_row,
+                       jac_nnz_col=jac_nnz_col)
 
     # python3 compatibility
     convert_to_bytes(options)
