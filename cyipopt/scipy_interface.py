@@ -243,7 +243,7 @@ class IpoptProblemWrapper(object):
         self.nit = iter_count
 
 
-class IpoptProblem(IpoptProblemWrapper, Problem):
+class IpoptProblem(Problem):
     """Class inheriting from IpoptProblemWrapper and cyipopt Problem.
     Used to map a scipy minimize definition to a cyipopt problem and support callbacks.
 
@@ -316,8 +316,8 @@ class IpoptProblem(IpoptProblemWrapper, Problem):
                  sparse_jacs=(),
                  jac_nnz_row=(),
                  jac_nnz_col=()):
-        # Explicitly call parent __init__'s
-        IpoptProblemWrapper.__init__(self,
+        # Instatiate the IpoptProblemWrapper
+        problem_wrapper = IpoptProblemWrapper(
                                      fun=fun,
                                      args=args,
                                      kwargs=kwargs,
@@ -330,9 +330,12 @@ class IpoptProblem(IpoptProblemWrapper, Problem):
                                      sparse_jacs=sparse_jacs,
                                      jac_nnz_row=jac_nnz_row,
                                      jac_nnz_col=jac_nnz_col)
-        Problem.__init__(self,
-                         n=n,
+        # Manually override the default intermediate method
+        problem_wrapper.intermediate = self.intermediate
+
+        super().__init__(n=n,
                          m=m,
+                         problem_obj=problem_wrapper,
                          lb=lb,
                          ub=ub,
                          cl=cl,
@@ -344,8 +347,8 @@ class IpoptProblem(IpoptProblemWrapper, Problem):
         
 
     def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
-                     d_norm, regularization_size, alpha_du, alpha_pr,
-                     ls_trials):
+                    d_norm, regularization_size, alpha_du, alpha_pr,
+                    ls_trials):
         self.nit = iter_count
 
         if self.callback is not None:
