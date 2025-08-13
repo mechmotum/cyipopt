@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - cython >=0.29.28
-  - ipopt >=3.12
+  - ipopt >=3.13
   - libblas * *netlib
   - numpy >=1.25
   - numpydoc >=1.2
