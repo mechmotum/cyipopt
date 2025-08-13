@@ -226,8 +226,8 @@ Compile Ipopt
 ~~~~~~~~~~~~~
 
 The Ipopt compilation instructions are derived from
-https://www.coin-or.org/Ipopt/documentation/node14.html. If you get errors,
-start there for help.
+https://coin-or.github.io/Ipopt/INSTALL.html. If you get errors, start there
+for help.
 
 Download Ipopt source code. Choose the version that you would like to have from
 <https://www.coin-or.org/download/source/Ipopt/>. For example::
