@@ -183,7 +183,7 @@ if __name__ == "__main__":
     # run.
     if sys.platform == "win32" and ipoptdir == "USECONDAFORGEIPOPT":
         print('Using Conda Forge Ipopt on Windows.')
-        ext_module_data = handle_ext_modules_win_32_conda_forge_ipopt()
+        ext_module_data = handle_ext_modules_general_os()
     elif sys.platform == "win32" and ipoptdir:
         print('Using Ipopt in {} directory on Windows.'.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
