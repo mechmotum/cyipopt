@@ -55,6 +55,6 @@ jobs:
         # also install scipy into these environments likely due to SciPy and
         # Ipopt needed different libfortrans.
         run: |
-          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython>=0.29.28"
+          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0,<1.16.0" "pytest>=6.2.5" "cython>=0.29.28"
           conda list
           pytest
