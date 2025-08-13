@@ -224,7 +224,10 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
 def test_minimize_ipopt_jac_with_scipy_methods(method):
     x0 = [0] * 4
     a0, b0, c0, d0 = 1, 2, 3, 4
-    atol, rtol = 5e-5, 5e-5
+    # NOTE : I had to bump atol from 5e-5 to 7e-5 when SciPy 1.16 was released.
+    # It included a new cobyla algorithm that seems to give a value further
+    # from zero.
+    atol, rtol = 7e-5, 5e-5
 
     def fun(x, a=0, e=0, b=0):
         assert a == a0
@@ -279,7 +282,7 @@ def test_minimize_ipopt_jac_with_scipy_methods(method):
                    'dogleg', 'trust-ncg', 'trust-krylov', 'trust-exact',
                    'trust-constr'}
     hess_methods = {'newton-cg', 'dogleg', 'trust-ncg', 'trust-krylov',
-                   'trust-exact', 'trust-constr'}
+                    'trust-exact', 'trust-constr'}
     hessp_methods = hess_methods - {'dogleg', 'trust-exact'}
     constr_methods = {'slsqp', 'trust-constr'}
 
@@ -357,7 +360,14 @@ def test_minimize_ipopt_bounds_tol_options():
     tol1, tol2 = 1e-3, 1e-9
     res1 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol1)
     res2 = cyipopt.minimize_ipopt(fun, x0, method='cobyla', tol=tol2)
-    assert abs(res2.x[0]) <= tol2 < abs(res1.x[0]) <= tol1
+    # NOTE : With the new cobyla algorithm in SciPy 1.16, the global optima is
+    # reached in very few iterations down to machine precision, so this
+    # assertion no longer works because both tolerances result in the same
+    # solution. So I've just changed it to check that the number of function
+    # evaluations decreases. I've opened this SciPy issue:
+    # https://github.com/scipy/scipy/issues/23461 in case it is a bug.
+    #assert abs(res2.x[0]) <= tol2 < abs(res1.x[0]) <= tol1
+    assert res1.nfev < res2.nfev
 
     # make sure `options` is passed to SciPy methods
     res = cyipopt.minimize_ipopt(fun, x0, method='slsqp')
