@@ -43,8 +43,7 @@ jobs:
       - run: pkg-config --libs --cflags ipopt
       - name: Install cyipopt
         run: |
-          rm pyproject.toml
-          python -m pip install --no-deps --no-build-isolation .
+          python -m pip install -v --no-deps --no-build-isolation .
           conda list
       - name: Test with pytest and run examples
         run: |
