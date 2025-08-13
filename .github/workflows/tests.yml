@@ -35,7 +35,7 @@ jobs:
           miniforge-version: latest
       - name: Install basic dependencies
         run: |
-          conda install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28" "pytest>=6.2.5"
+          conda install -q -y "lapack" "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28" "pytest>=6.2.5"
       - name: Test pkg-config
         run: pkg-config --libs --cflags ipopt
       - name: Install cyipopt
