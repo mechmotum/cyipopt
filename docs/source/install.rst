@@ -27,7 +27,7 @@ To begin installing from source you will need to install the following
 dependencies:
 
   * C/C++ compiler
-  * pkg-config [only for Linux and Mac]
+  * pkg-config
   * Ipopt >=3.12 [>= 3.13 on Windows]
   * Python 3.9+
   * setuptools >=44.1.1
@@ -96,9 +96,12 @@ directories.
 
 If using conda, you can install an IPOPT binary from Conda Forge::
 
-   $ conda.exe install -c conda-forge ipopt
+   $ conda.exe install -c conda-forge ipopt pkg-config
 
-The environment variable ``IPOPTWINDIR`` should then be set to ``USECONDAFORGEIPOPT``.
+The ``ipopt`` executable should be in your path and discoverable by
+``pkg-config``, i.e. this command should return a valid result::
+
+   $ pkg-config --libs --cflags ipopt
 
 Finally, execute::
 
