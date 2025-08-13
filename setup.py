@@ -163,10 +163,14 @@ if __name__ == "__main__":
         print('Using Ipopt in {} directory on Windows.'.format(ipoptdir))
         ext_module_data = handle_ext_modules_win_32_other_ipopt()
     elif sys.platform == "win32" and not ipoptdir:
-        ipoptdir = os.path.abspath(os.path.dirname(__file__))
-        msg = 'Using Ipopt adjacent to setup.py in {} on Windows.'
-        print(msg.format(ipoptdir))
-        ext_module_data = handle_ext_modules_win_32_other_ipopt()
+        try:
+            ipoptdir = os.path.abspath(os.path.dirname(__file__))
+            msg = 'Using Ipopt adjacent to setup.py in {} on Windows.'
+            print(msg.format(ipoptdir))
+            ext_module_data = handle_ext_modules_win_32_other_ipopt()
+        except FileNotFoundError:
+            print('Using Ipopt found with pkg-config.')
+            ext_module_data = handle_ext_modules_general_os()
     else:
         print('Using Ipopt found with pkg-config.')
         ext_module_data = handle_ext_modules_general_os()
