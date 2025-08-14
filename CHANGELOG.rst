@@ -3,8 +3,8 @@ CyIpopt Changelog
 =================
 
 :Info: Change log for CyIpopt releases.
-:Date: XXXX-XX-XX
-:Version: 1.6.0.dev0
+:Date: 2024-08-14
+:Version: 1.6.0
 
 GitHub holds releases, too
 --------------------------
@@ -35,13 +35,14 @@ Include sections:
 Version History
 ---------------
 
-[1.6.0.dev0] - XXXX-XX-XX
-~~~~~~~~~~~~~~~~~~~~~~~~~
+[1.6.0] - 2025-08-14
+~~~~~~~~~~~~~~~~~~~~
 
 Changed
 +++++++
 
 - Bumped minimal dependency versions to match versions in Ubuntu 24.04 LTS.
+  #294
 - Installing and linking to the Conda Forge Ipopt binary on Windows now
   requires pkg-config (same as Linux and Mac). It is no longer required to set
   ``IPOPTWINDIR=USECONDAFORGEIPOPT``; the flag is ignored. #293
@@ -52,14 +53,14 @@ Changed
 Removed
 +++++++
 
-- All cyipopt 1.1.0 deprecated features are now removed. #275
+- All cyipopt 1.1.0 deprecated features are now removed, including the ipopt
+  package. #275
 
 Fixed
 +++++
 
 - Bugs in warm start input checking fixed and documentation added. #271
 - Documentation on callbacks improved. #274
->>>>>>> master
 
 [1.5.0] - 2024-09-08
 ~~~~~~~~~~~~~~~~~~~~
