@@ -38,6 +38,13 @@ Version History
 [1.6.0.dev0] - XXXX-XX-XX
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Changed
++++++++
+
+- Installing and linking to the Conda Forge Ipopt binary on Windows now
+  requires pkg-config (same as Linux and Mac). It is no longer required to set
+  ``IPOPTWINDIR=USECONDAFORGEIPOPT``.
+
 [1.5.0] - 2024-09-08
 ~~~~~~~~~~~~~~~~~~~~
 

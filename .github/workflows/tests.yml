@@ -14,14 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO : Move to macos-latet which is an arm image, but then the old
+        # TODO : Move to macos-latest which is an arm image, but then the old
         # ipopts will not be available, see: https://github.com/actions/runner-images?tab=readme-ov-file#available-images
         os: [ubuntu-latest, macos-13, windows-latest]
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-        ipopt-version: ['3.12', '3.13', '3.14']
-        exclude:
-          - os: windows-latest
-            ipopt-version: '3.12'
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        ipopt-version: ['3.13', '3.14']
     defaults:
       run:
         shell: bash -l {0}
@@ -36,14 +33,18 @@ jobs:
           channels: conda-forge
           conda-remove-defaults: "true"
           miniforge-version: latest
-      - name: Install basic dependencies against generic blas/lapack
+      - name: Install basic dependencies
+        # NOTE : I had to return to installing the netlib packages, otherwise
+        # the lapack.pc file was not present with all versions of ipopt
+        # installed.
         run: |
-          conda install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28" "pytest>=6.2.5"
-      - run: echo "IPOPTWINDIR=USECONDAFORGEIPOPT" >> $GITHUB_ENV
+          conda install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28" "pytest>=6.2.5" "libblas=*=*_netlib"
+      - name: Test pkg-config
+        run: pkg-config --libs --cflags ipopt
       - name: Install cyipopt
         run: |
           rm pyproject.toml
-          python -m pip install --no-deps --no-build-isolation .
+          python -m pip install -v --no-deps --no-build-isolation .
           conda list
       - name: Test with pytest and run examples
         run: |
@@ -53,11 +54,7 @@ jobs:
           python examples/hs071.py
           python examples/exception_handling.py
       - name: Test with pytest and scipy, new ipopt
-        # cyipopt can build with these dependencies, but it seems impossible to
-        # also install scipy into these environments likely due to SciPy and
-        # Ipopt needed different libfortrans.
-        if: (matrix.ipopt-version != '3.12' && matrix.python-version != '3.11') || (matrix.ipopt-version != '3.12' && matrix.python-version != '3.10' && matrix.os != 'macos-latest')
         run: |
-          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython=0.29.*"
+          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython>=0.29.28"
           conda list
           pytest

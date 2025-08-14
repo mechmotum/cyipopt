@@ -107,7 +107,7 @@ class IpoptProblemWrapper(object):
                  jac_nnz_col=()):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
-            raise ImportError()
+            raise ImportError(msg)
         self.obj_hess = None
         self.last_x = None
 
