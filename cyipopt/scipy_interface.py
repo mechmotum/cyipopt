@@ -12,6 +12,7 @@ License: EPL 2.0
 import sys
 
 import numpy as np
+
 try:
     import scipy
 except ImportError:  # scipy is not installed
@@ -19,8 +20,8 @@ except ImportError:  # scipy is not installed
 else:
     SCIPY_INSTALLED = True
     del scipy
-    from scipy import optimize
     import scipy.sparse
+    from scipy import optimize
     try:
         from scipy.optimize import OptimizeResult
     except ImportError:
@@ -39,7 +40,7 @@ else:
         # coo_array was introduced with scipy 1.8
         from scipy.sparse import coo_matrix as coo_array
 
-import cyipopt
+from cyipopt import Problem
 
 
 class IpoptProblemWrapper(object):
@@ -239,8 +240,121 @@ class IpoptProblemWrapper(object):
     def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
                      d_norm, regularization_size, alpha_du, alpha_pr,
                      ls_trials):
-
         self.nit = iter_count
+
+
+class IpoptProblem(Problem):
+    """Class inheriting from IpoptProblemWrapper and cyipopt Problem.
+    Used to map a scipy minimize definition to a cyipopt problem and support callbacks.
+
+    Parameters
+    ==========
+    fun : callable
+        The objective function to be minimized: ``fun(x, *args, **kwargs) ->
+        float``.
+    args : tuple, optional
+        Extra arguments passed to the objective function and its derivatives
+        (``fun``, ``jac``, ``hess``).
+    kwargs : :py:class:`dict`, optional
+        Extra keyword arguments passed to the objective function and its
+        derivatives (``fun``, ``jac``, ``hess``).
+    jac : callable, optional
+        The Jacobian (gradient) of the objective function:
+        ``jac(x, *args, **kwargs) -> ndarray, shape(n, )``.
+        If ``None``, SciPy's ``approx_fprime`` is used.
+    hess : callable, optional
+        If ``None``, the Hessian is computed using IPOPT's numerical methods.
+        Explicitly defined Hessians are not yet supported for this class.
+    hessp : callable, optional
+        If ``None``, the Hessian is computed using IPOPT's numerical methods.
+        Explicitly defined Hessians are not yet supported for this class.
+    constraints : {Constraint, :py:class:`dict`} or List of {Constraint, :py:class:`dict`}, optional
+        See :py:func:`scipy.optimize.minimize` for more information. Note that
+        the jacobian of each constraint corresponds to the `'jac'` key and must
+        be a callable function with signature ``jac(x) -> {ndarray,
+        coo_array}``. If the constraint's value of `'jac'` is a boolean and
+        True, the constraint function `fun` is expected to return a tuple
+        `(con_val, con_jac)` consisting of the evaluated constraint `con_val`
+        and the evaluated jacobian `con_jac`.
+    callback : callable, optional
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector.
+    eps : float, optional
+        Step size used in finite difference approximations of the objective
+        function gradient and constraint Jacobian.
+    con_dims : array_like, optional
+        Dimensions p_1, ..., p_m of the m constraint functions
+        g_1, ..., g_m : R^n -> R^(p_i).
+    sparse_jacs: array_like, optional
+        If sparse_jacs[i] = True, the i-th constraint's jacobian is sparse.
+        Otherwise, the i-th constraint jacobian is assumed to be dense.
+    jac_nnz_row: array_like, optional
+        The row indices of the nonzero elements in the stacked
+        constraint jacobian matrix
+    jac_nnz_col: array_like, optional
+        The column indices of the nonzero elements in the stacked
+        constraint jacobian matrix
+    """
+    
+    def __init__(self,
+                 fun,
+                 n,
+                 m,
+                 lb,
+                 ub,
+                 cl,
+                 cu,
+                 args=(),
+                 kwargs=None,
+                 jac=None,
+                 hess=None,
+                 hessp=None,
+                 constraints=(),
+                 callback=(),
+                 eps=1e-8,
+                 con_dims=(),
+                 sparse_jacs=(),
+                 jac_nnz_row=(),
+                 jac_nnz_col=()):
+        # Instatiate the IpoptProblemWrapper
+        problem_wrapper = IpoptProblemWrapper(
+                                     fun=fun,
+                                     args=args,
+                                     kwargs=kwargs,
+                                     jac=jac,
+                                     hess=hess,
+                                     hessp=hessp,
+                                     constraints=constraints,
+                                     eps=eps,
+                                     con_dims=con_dims,
+                                     sparse_jacs=sparse_jacs,
+                                     jac_nnz_row=jac_nnz_row,
+                                     jac_nnz_col=jac_nnz_col)
+        # Manually override the default intermediate method
+        problem_wrapper.intermediate = self.intermediate
+
+        super().__init__(n=n,
+                         m=m,
+                         problem_obj=problem_wrapper,
+                         lb=lb,
+                         ub=ub,
+                         cl=cl,
+                         cu=cu)
+
+        if callback is not None and not callable(callback):
+            raise ValueError('`callback` must be callable.')
+        self.callback = callback
+        
+
+    def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
+                    d_norm, regularization_size, alpha_du, alpha_pr,
+                    ls_trials):
+        self.nit = iter_count
+
+        if self.callback is not None:
+            iterate = self.get_current_iterate()
+            self.callback(iterate["x"]) 
+        
 
 
 def get_bounds(bounds):
@@ -396,7 +510,7 @@ def minimize_ipopt(fun,
       used to solve the problem.
     - Support for parameter `kwargs`: additional keyword arguments to be
       passed to the objective function, constraints, and their derivatives.
-    - Lack of support for `callback` and `hessp` with the default `method`.
+    - Lack of support for `hessp` with the default `method`.
 
     This function can be used to solve general nonlinear programming problems
     of the form:
@@ -484,9 +598,8 @@ def minimize_ipopt(fun,
         For other values of `method`, `options` is passed to the SciPy solver.
         See [2]_ for details.
     callback : callable, optional
-        This argument is ignored by the default `method` (Ipopt).
-        If `method` is one of the SciPy methods, this is a callable that is
-        called once per iteration. See [2]_ for details.
+        Called after each iteration, as ``callback(xk)``, where ``xk`` is the
+        current parameter vector. See [2]_ for details.
 
     References
     ----------
@@ -568,27 +681,26 @@ def minimize_ipopt(fun,
     if options is None:
         options = {}
     eps = options.pop('eps', 1e-8)
-
-    problem = IpoptProblemWrapper(fun,
-                                  args=args,
-                                  kwargs=kwargs,
-                                  jac=jac,
-                                  hess=hess,
-                                  hessp=hessp,
-                                  constraints=constraints,
-                                  eps=eps,
-                                  con_dims=con_dims,
-                                  sparse_jacs=sparse_jacs,
-                                  jac_nnz_row=jac_nnz_row,
-                                  jac_nnz_col=jac_nnz_col)
-
-    nlp = cyipopt.Problem(n=len(x0),
-                          m=len(cl),
-                          problem_obj=problem,
-                          lb=lb,
-                          ub=ub,
-                          cl=cl,
-                          cu=cu)
+    
+    nlp = IpoptProblem(fun=fun,
+                       n=len(x0),
+                       m=len(cl),
+                       lb=lb,
+                       ub=ub,
+                       cl=cl,
+                       cu=cu,       
+                       args=args,
+                       kwargs=kwargs,
+                       jac=jac,
+                       hess=hess,
+                       hessp=hessp,
+                       constraints=constraints,
+                       callback=callback,
+                       eps=eps,
+                       con_dims=con_dims,
+                       sparse_jacs=sparse_jacs,
+                       jac_nnz_row=jac_nnz_row,
+                       jac_nnz_col=jac_nnz_col)
 
     # python3 compatibility
     convert_to_bytes(options)
@@ -620,9 +732,9 @@ def minimize_ipopt(fun,
                           message=info['status_msg'],
                           fun=info['obj_val'],
                           info=info,
-                          nfev=problem.nfev,
-                          njev=problem.njev,
-                          nit=problem.nit)
+                          nfev=nlp.nfev,
+                          njev=nlp.njev,
+                          nit=nlp.nit)
 
 
 def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
@@ -672,9 +784,6 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
 
     constraints = optimize._minimize.standardize_constraints(constraints, x0,
                                                              'old')
-
-    if method is None and callback is not None:
-        raise NotImplementedError('`callback` is not yet supported by Ipopt.`')
 
     if tol is not None:
         tol = np.asarray(tol)[()]
