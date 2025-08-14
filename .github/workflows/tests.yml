@@ -38,7 +38,7 @@ jobs:
         # the lapack.pc file was not present with all versions of ipopt
         # installed.
         run: |
-          conda install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "cython>=0.29.28" "pytest>=6.2.5" "libblas=*=*_netlib"
+          conda install -q -y "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.26.4" "pkg-config>=0.29.2" "setuptools>=68.1.2" "cython>=0.29.37" "pytest>=7.4.4" "libblas=*=*_netlib"
       - name: Test pkg-config
         run: pkg-config --libs --cflags ipopt
       - name: Install cyipopt
@@ -55,6 +55,6 @@ jobs:
           python examples/exception_handling.py
       - name: Test with pytest and scipy, new ipopt
         run: |
-          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.25" "pkg-config>=0.29.2" "setuptools>=44.1.1" "scipy>1.8.0" "pytest>=6.2.5" "cython>=0.29.28"
+          conda install -q -y -c conda-forge "ipopt=${{ matrix.ipopt-version }}" "numpy>=1.26.4" "pkg-config>=0.29.2" "setuptools>=68.1.2" "scipy>1.11.4" "pytest>=7.4.4" "cython>=0.29.37"
           conda list
           pytest
