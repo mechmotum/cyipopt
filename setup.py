@@ -37,7 +37,6 @@ import numpy as np
 
 exec(open("cyipopt/version.py", encoding="utf-8").read())
 PACKAGE_NAME = "cyipopt"
-DEPRECATED_PACKAGE_NAME = "ipopt"
 VERSION = __version__
 DESCRIPTION = "A Cython wrapper to the IPOPT optimization package"
 with open("README.rst", encoding="utf-8") as f:
@@ -192,7 +191,7 @@ if __name__ == "__main__":
           keywords=KEYWORDS,
           license=LICENSE,
           classifiers=CLASSIFIERS,
-          packages=[PACKAGE_NAME, DEPRECATED_PACKAGE_NAME],
+          packages=[PACKAGE_NAME],
           setup_requires=SETUP_REQUIRES,
           install_requires=INSTALL_REQUIRES,
           include_package_data=include_package_data,
