@@ -4,7 +4,7 @@ CyIpopt Changelog
 
 :Info: Change log for CyIpopt releases.
 :Date: 2024-08-14
-:Version: 1.6.0
+:Version: 1.6.1
 
 GitHub holds releases, too
 --------------------------
@@ -34,6 +34,14 @@ Include sections:
 
 Version History
 ---------------
+
+[1.6.1] - 2025-08-14
+~~~~~~~~~~~~~~~~~~~~
+
+Removed
++++++++
+
+- Removed unit test for ipopt package import.
 
 [1.6.0] - 2025-08-14
 ~~~~~~~~~~~~~~~~~~~~
