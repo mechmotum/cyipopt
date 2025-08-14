@@ -28,12 +28,12 @@ dependencies:
 
   * C/C++ compiler
   * pkg-config
-  * Ipopt >=3.12 [>= 3.13 on Windows]
-  * Python 3.9+
-  * setuptools >=44.1.1
-  * cython >=0.29.28
-  * NumPy >=1.25
-  * SciPy >=1.8 [optional]
+  * Ipopt >=3.13
+  * Python >=3.9
+  * setuptools >=68.1.2
+  * cython >=0.29.37
+  * NumPy >=1.26.4
+  * SciPy >=1.11.4 [optional]
 
 The binaries and header files of the Ipopt package can be obtained from
 http://www.coin-or.org/download/binary/Ipopt/. These include a version compiled

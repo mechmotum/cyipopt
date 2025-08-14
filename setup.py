@@ -25,9 +25,9 @@ from setuptools.extension import Extension
 # for more information.
 from setuptools import dist
 SETUP_REQUIRES = [
-    "cython>=0.29.28",
+    "cython>=0.29.37",
     "numpy>=1.25",
-    "setuptools>=44.1.1",
+    "setuptools>=68.1.2",
 ]
 dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
 
@@ -54,7 +54,7 @@ AUTHOR = "Jason K. Moore"
 EMAIL = "moorepants@gmail.com"
 URL = "https://github.com/mechmotum/cyipopt"
 INSTALL_REQUIRES = [
-    "numpy>=1.21.5",
+    "numpy>=1.26.4",
 ]
 LICENSE = "EPL-2.0"
 CLASSIFIERS = [

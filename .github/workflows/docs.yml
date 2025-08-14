@@ -14,14 +14,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.12']
+        python-version: ['3.13']
         ipopt-version: ['3.14']
     defaults:
       run:
         shell: bash -l {0}
     steps:
       - name: Checkout CyIpopt
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
@@ -31,11 +31,10 @@ jobs:
           conda-remove-defaults: "true"
           miniforge-version: latest
       - name: Install basic dependencies
-        run: conda install -y -v lapack "libblas=*=*netlib" "cython>=0.29.28" "ipopt=${{ matrix.ipopt-version }}" numpy>=1.25 pkg-config>=0.29.2 setuptools>=44.1.1 --file docs/requirements.txt
+        run: conda install -y -v lapack "libblas=*=*netlib" "cython>=0.29.37" "ipopt=${{ matrix.ipopt-version }}" numpy>=1.26.4 pkg-config>=0.29.2 setuptools>=68.1.2 --file docs/requirements.txt
       - name: Install CyIpopt
         run: |
-          rm pyproject.toml
-          python -m pip install .
+          python -m pip install --no-deps --no-build-isolation .
           conda list
       - name: Test building documentation
         run: cd docs && make clean && make html && cd ..

@@ -41,9 +41,10 @@ Version History
 Changed
 +++++++
 
+- Bumped minimal dependency versions to match versions in Ubuntu 24.04 LTS.
 - Installing and linking to the Conda Forge Ipopt binary on Windows now
   requires pkg-config (same as Linux and Mac). It is no longer required to set
-  ``IPOPTWINDIR=USECONDAFORGEIPOPT``.
+  ``IPOPTWINDIR=USECONDAFORGEIPOPT``; the flag is ignored.
 
 [1.5.0] - 2024-09-08
 ~~~~~~~~~~~~~~~~~~~~

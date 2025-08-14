@@ -2,14 +2,15 @@ name: cyipopt-dev
 channels:
   - conda-forge
 dependencies:
-  - cython >=0.29.28
+  # Versions matche Ubuntu 24.04 LTS
+  - cython >=0.29.37
   - ipopt >=3.13
   - libblas * *netlib
-  - numpy >=1.25
-  - numpydoc >=1.2
+  - numpy >=1.26.4
+  - numpydoc >=1.6.0
   - pkg-config >=0.29.2
-  - pytest >=6.2.5
+  - pytest >=7.4.4
   - python >=3.9
-  - scipy >=1.8
-  - setuptools >=44.1.1
-  - sphinx >=4.3.2
+  - scipy >=1.11.4
+  - setuptools >=68.1.2
+  - sphinx >=7.2.6
