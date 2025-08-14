@@ -22,5 +22,8 @@ jobs:
       - run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip" -OutFile "Ipopt-3.13.3-win64-msvs2019-md.zip"
       - run: 7z x Ipopt-3.13.3-win64-msvs2019-md.zip
       - run: mv Ipopt-3.13.3-win64-msvs2019-md/* .
-      - run: python -m pip install -v --no-deps --no-build-isolation .
+      # NOTE : If I use pip to install, then when running the example it says
+      # no dll is found.
+      #- run: python -m pip install -v --no-deps --no-build-isolation .
+      - run: python setup.py install
       - run: python examples/hs071.py
