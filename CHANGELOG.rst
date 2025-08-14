@@ -43,7 +43,21 @@ Changed
 
 - Installing and linking to the Conda Forge Ipopt binary on Windows now
   requires pkg-config (same as Linux and Mac). It is no longer required to set
-  ``IPOPTWINDIR=USECONDAFORGEIPOPT``.
+  ``IPOPTWINDIR=USECONDAFORGEIPOPT``. #293
+- When linking to Ipopt from a user specified directory on Windows, all dlls
+  are collected instead of those with specific names making the installation
+  robust to dll name changes in Ipopt versions. #288
+
+Removed
++++++++
+
+- All cyipopt 1.1.0 deprecated features are now removed. #275
+
+Fixed
++++++
+
+- Bugs in warm start input checking fixed and documentation added. #271
+- Documentation on callbacks improved. #274
 
 [1.5.0] - 2024-09-08
 ~~~~~~~~~~~~~~~~~~~~
