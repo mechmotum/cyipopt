@@ -11,7 +11,7 @@ License: EPL 2.0
 
 import sys
 import os.path
-from distutils.sysconfig import get_python_lib
+import sysconfig
 import subprocess as sp
 
 from setuptools import setup
@@ -138,7 +138,7 @@ def handle_ext_modules_win_32_other_ipopt():
                              include_dirs=IPOPT_INCLUDE_DIRS,
                              libraries=IPOPT_LIBS,
                              library_dirs=IPOPT_LIB_DIRS)]
-    DATA_FILES = [(get_python_lib(),
+    DATA_FILES = [(sysconfig.get_path('purelib'),
                   [os.path.join(IPOPT_DLL_DIRS[0], dll)
                    for dll in IPOPT_DLL])] if IPOPT_DLL else None
     include_package_data = False
