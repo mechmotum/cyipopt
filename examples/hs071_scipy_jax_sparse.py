@@ -1,4 +1,7 @@
+import functools
+
 from jax import config
+from scipy import sparse
 
 # Enable 64 bit floating point precision
 config.update("jax_enable_x64", True)
@@ -6,10 +9,10 @@ config.update("jax_enable_x64", True)
 # We use the CPU instead of GPU und mute all warnings if no GPU/TPU is found.
 config.update('jax_platform_name', 'cpu')
 
-from cyipopt import minimize_ipopt
-from jax import jit, grad, jacrev, jacfwd
 import jax.numpy as np
+from jax import grad, jacfwd, jacrev, jit
 
+from cyipopt import minimize_ipopt
 
 # Test the scipy interface on the Hock & Schittkowski test problem 71:
 #
@@ -34,6 +37,15 @@ def eq_constraints(x):
 def ineq_constrains(x):
     return np.prod(x) - 25
 
+def as_coo_array(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        dense = f(*args, **kwargs)
+        i, j = np.indices(dense.shape)
+        triplet = dense.flatten(), (i.flatten(), j.flatten())
+        return sparse.coo_array(triplet)
+    return wrapper
+
 
 # jit the functions
 obj_jit = jit(objective)
@@ -42,13 +54,13 @@ con_ineq_jit = jit(ineq_constrains)
 
 # build the derivatives and jit them
 obj_grad = jit(grad(obj_jit))  # objective gradient
-obj_hess = jit(jacrev(jacfwd(obj_jit)))  # objective hessian
+obj_hess = as_coo_array(jit(jacrev(jacfwd(obj_jit))))  # objective hessian
 con_eq_jac = jit(jacfwd(con_eq_jit))  # jacobian
 con_ineq_jac = jit(jacfwd(con_ineq_jit))  # jacobian
 con_eq_hess = jacrev(jacfwd(con_eq_jit)) # hessian
-con_eq_hessvp = jit(lambda x, v: con_eq_hess(x) * v[0]) # hessian vector-product
+con_eq_hessvp = as_coo_array(jit(lambda x, v: con_eq_hess(x) * v[0])) # hessian vector-product
 con_ineq_hess = jacrev(jacfwd(con_ineq_jit))  # hessian
-con_ineq_hessvp = jit(lambda x, v: con_ineq_hess(x) * v[0])  # hessian vector-product
+con_ineq_hessvp = as_coo_array(jit(lambda x, v: con_ineq_hess(x) * v[0]))  # hessian vector-product
 
 # constraints
 # Note that 'hess' is the hessian-vector-product
