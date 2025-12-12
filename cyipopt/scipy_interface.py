@@ -294,8 +294,10 @@ def get_bounds(bounds):
 
 def _get_sparse_hessian_structure(x0, args, kwargs, hess, constraints, 
                                   con_dims):
-    hess0 = hess(x0, *args, **kwargs)
-    sparse_hess = isinstance(hess0, coo_array)
+    sparse_hess = False
+    if callable(hess):
+        hess0 = hess(x0, *args, **kwargs)
+        sparse_hess = isinstance(hess0, coo_array)
     if not sparse_hess:
         hess_nnz_row, hess_nnz_col = np.tril_indices(np.size(x0))
         hess_tril = None
