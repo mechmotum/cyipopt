@@ -6,6 +6,7 @@ which requires SciPy.
 
 """
 
+import functools
 import re
 import sys
 
@@ -19,6 +20,12 @@ try:
     from scipy.optimize._minimize import MINIMIZE_METHODS
 except ImportError:
     MINIMIZE_METHODS = []
+
+@pytest.fixture(params=[True, False])
+def sparse_hess(request):
+    """Whether the hessian should be sparse or dense."""
+    return request.param
+
 
 @pytest.mark.skipif("scipy" in sys.modules,
                     reason="Test only valid if no Scipy available.")
@@ -161,8 +168,7 @@ def test_minimize_ipopt_nojac_constraints_if_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
-):
+def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(sparse_hess):
     """`minimize_ipopt` works with objective gradient and Hessian
        and constraint jacobians and Hessians."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
@@ -171,10 +177,11 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
         "type": "ineq",
         "fun": lambda x: -x[0]**2 - x[1]**2 + 2,
         "jac": lambda x: np.array([-2 * x[0], -2 * x[1]]),
-        "hess": lambda x, v: -2 * np.eye(2) * v[0]
+        "hess": as_coo_if(sparse_hess, lambda x, v: -2 * np.eye(2) * v[0])
     }
     bounds = [(-1.5, 1.5), (-1.5, 1.5)]
-    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, hess=rosen_hess,
+    res = cyipopt.minimize_ipopt(rosen, x0, jac=rosen_der, 
+                                 hess=as_coo_if(sparse_hess, rosen_hess),
                                  constraints=constr)
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun"), 0.0)
@@ -186,7 +193,7 @@ def test_minimize_ipopt_jac_and_hessians_constraints_if_scipy(
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
+def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs(sparse_hess):
     """Makes sure that args and kwargs can be passed to all user defined
     functions in minimize_ipopt."""
     from scipy.optimize import rosen, rosen_der, rosen_hess
@@ -196,17 +203,18 @@ def test_minimize_ipopt_jac_hessians_constraints_with_arg_kwargs():
     rosen_hess2 = lambda x, a, b=None: rosen_hess(x)*a*b
 
     x0 = [0.0, 0.0]
+    constr_hess = lambda x, v, a, b=None: -2 * np.eye(2) * v[0]*a*b
     constr = {
         "type": "ineq",
         "fun": lambda x, a, b=None: -x[0]**2 - x[1]**2 + 2*a*b,
         "jac": lambda x, a, b=None: np.array([-2 * x[0], -2 * x[1]])*a*b,
-        "hess": lambda x, v, a, b=None: -2 * np.eye(2) * v[0]*a*b,
+        "hess": as_coo_if(sparse_hess, constr_hess),
         "args": (1.0, ),
         "kwargs": {'b': 1.0},
     }
     res = cyipopt.minimize_ipopt(rosen2, x0,
                                  jac=rosen_der2,
-                                 hess=rosen_hess2,
+                                 hess=as_coo_if(sparse_hess, rosen_hess2),
                                  args=constr['args'],
                                  kwargs=constr['kwargs'],
                                  constraints=constr)
@@ -489,7 +497,7 @@ def test_minimize_ipopt_sparse_and_dense_jac_if_scipy():
 
 @pytest.mark.skipif("scipy" not in sys.modules,
                     reason="Test only valid if Scipy available.")
-def test_minimize_ipopt_hs071():
+def test_minimize_ipopt_hs071(sparse_hess):
     """ `minimize_ipopt` works with objective gradient and Hessian and
          constraint jacobians and Hessians.
 
@@ -538,20 +546,21 @@ def test_minimize_ipopt_hs071():
         "type": "eq",
         "fun": con_eq_and_jac,
         "jac": True,
-        "hess": con_eq_hess
+        "hess": as_coo_if(sparse_hess, con_eq_hess)
     }
     con2 = {
         "type": "ineq",
         "fun": con_ineq_and_jac,
         "jac": True,
-        "hess": con_ineq_hess
+        "hess": as_coo_if(sparse_hess, con_ineq_hess)
     }
     constrs = (con1, con2)
 
     x0 = np.array([1.0, 5.0, 5.0, 1.0])
     bnds = [(1, 5) for _ in range(x0.size)]
 
-    res = cyipopt.minimize_ipopt(obj_and_grad, jac=True, hess=obj_hess, x0=x0,
+    res = cyipopt.minimize_ipopt(obj_and_grad, jac=True, x0=x0,
+                                 hess=as_coo_if(sparse_hess, obj_hess),
                                  bounds=bnds, constraints=constrs)
     assert isinstance(res, dict)
     assert np.isclose(res.get("fun"), 17.01401727277449)
@@ -623,3 +632,23 @@ def test_gh115_eps_option():
     eps = 1e-9
     cyipopt.minimize_ipopt(f, x0=0, options={'eps': eps})
     np.testing.assert_equal(f.dx, eps)
+
+
+def as_coo(f):
+    """Decorator that converts a function's output to `coo_array`."""
+    try:
+        from scipy.sparse import coo_array
+    except ImportError:
+        from scipy.sparse import coo_matrix as coo_array
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        dense = f(*args, **kwargs)
+        i, j = np.indices(dense.shape)
+        triplet = dense.flatten(), (i.flatten(), j.flatten())
+        return coo_array(triplet)
+    return wrapper
+
+def as_coo_if(cond, f):
+    """If condition is true, make `f` return a `coo_array`"""
+    return as_coo(f) if cond else f
