@@ -1,3 +1,4 @@
+# This example requires jax version 0.4.29 or greater
 from jax import config
 
 # Enable 64 bit floating point precision
