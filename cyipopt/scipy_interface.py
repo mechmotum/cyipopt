@@ -291,6 +291,7 @@ def get_bounds(bounds):
 
 def _get_sparse_hessian_structure(x0, args, kwargs, hess, constraints, 
                                   con_dims):
+    """Return nonzero elements of langrangian hessian, when it is sparse."""
     sparse_hess = False
     if callable(hess):
         hess0 = hess(x0, *args, **kwargs)
