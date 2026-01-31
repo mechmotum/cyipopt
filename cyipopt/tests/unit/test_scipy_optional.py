@@ -622,7 +622,7 @@ def test_gh115_eps_option():
             f.x = x
         elif f.dx is None:
             f.dx = x - f.x
-        return x ** 2
+        return x[0] ** 2
 
     f.x, f.dx = None, None
     cyipopt.minimize_ipopt(f, x0=0)
