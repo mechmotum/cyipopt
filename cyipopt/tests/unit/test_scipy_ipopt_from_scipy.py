@@ -991,14 +991,14 @@ class TestTrustRegionConstr():
 
     def test_default_jac_and_hess(self):
         def fun(x):
-            return (x - 1) ** 2
+            return (x[0] - 1) ** 2
         bounds = [(-2, 2)]
         res = minimize(fun, x0=[-1.5], bounds=bounds, method=None)
         assert_array_almost_equal(res.x, 1, decimal=5)
 
     def test_default_hess(self):
         def fun(x):
-            return (x - 1) ** 2
+            return (x[0] - 1) ** 2
 
         def jac(x):
             return 2*(x-1)
@@ -1033,7 +1033,7 @@ class TestTrustRegionConstr():
         # Test the returned `OptimizeResult` contains keys consistent with
         # other solvers.
 
-        result = minimize(lambda x: x**2, [0], jac=lambda x: 2*x,
+        result = minimize(lambda x: x[0]**2, [0], jac=lambda x: 2*x,
                           hess=lambda x: 2, method=None)
         assert_(result.get('success'))
         assert result.get('nit', -1) == 0

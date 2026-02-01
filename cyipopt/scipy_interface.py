@@ -89,6 +89,14 @@ class IpoptProblemWrapper(object):
     jac_nnz_col: array_like, optional
         The column indices of the nonzero elements in the stacked
         constraint jacobian matrix
+    hess_tril: array_like, optional
+        An array of booleans that determines which data entries of the sparse
+        hessian matrices are at or below the main diagonal. Required when
+        `hess_nnz_row` and `hess_nnz_row` are both not None.
+    hess_nnz_row: array_like, optional
+        The row indices of the nonzero elements of the hessian matrix.
+    hess_nnz_col: array_like, optional
+        The column indices of the nonzero elements of the hessian matrix.
     """
 
     def __init__(self,
@@ -103,7 +111,10 @@ class IpoptProblemWrapper(object):
                  con_dims=(),
                  sparse_jacs=(),
                  jac_nnz_row=(),
-                 jac_nnz_col=()):
+                 jac_nnz_col=(),
+                 hess_tril=None, 
+                 hess_nnz_row=None,
+                 hess_nnz_col=None):
         if not SCIPY_INSTALLED:
             msg = 'Install SciPy to use the `IpoptProblemWrapper` class.'
             raise ImportError(msg)
@@ -181,6 +192,14 @@ class IpoptProblemWrapper(object):
             self._constraint_hessians.append(con_hessian)
             self._constraint_args.append(con_args)
             self._constraint_kwargs.append(con_kwargs)
+        self._hessian_is_sparse = (hess_nnz_row is not None 
+                                   and hess_nnz_col is not None)
+        self._hessian_tril = hess_tril
+        if self._hessian_is_sparse:
+            self.hessianstructure = lambda: (hess_nnz_row, hess_nnz_col)
+        if self._hessian_is_sparse and self._hessian_tril is None:
+            raise TypeError("`hess_tril` is required for sparse hessians")
+
         # Set up evaluation counts
         self.nfev = 0
         self.njev = 0
@@ -226,7 +245,8 @@ class IpoptProblemWrapper(object):
                 jac_values.append(dense_jac_val.ravel())
         return np.hstack(jac_values)
 
-    def hessian(self, x, lagrange, obj_factor):
+    def hessian_dense(self, x, lagrange, obj_factor):
+        """Compute dense hessian and return entries of its lower triangle."""
         H = obj_factor * self.obj_hess(x, *self.args, **self.kwargs)  # type: ignore
         # split the lagrangian multipliers for each constraint hessian
         lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
@@ -235,6 +255,24 @@ class IpoptProblemWrapper(object):
                                                self._constraint_kwargs, lagrs):
             H += hessian(x, lagr, *args, **kwargs)
         return H[np.tril_indices(x.size)]
+
+    def hessian_sparse(self, x, lagrange, obj_factor):
+        """Compute nonzero entries of the Hessian's lower triangle."""
+        data = [self.obj_hess(x, *self.args, **self.kwargs).data * obj_factor]
+        # split the lagrangian multipliers for each constraint hessian
+        lagrs = np.split(lagrange, np.cumsum(self._constraint_dims[:-1]))
+        for hessian, args, kwargs, lagr in zip(self._constraint_hessians,
+                                               self._constraint_args,
+                                               self._constraint_kwargs, lagrs):
+            data.append(hessian(x, lagr, *args, **kwargs).data)
+        return np.concatenate(data)[self._hessian_tril]
+
+    def hessian(self, x, lagrange, obj_factor):
+        """Compute values of the Hessian matrix."""
+        if self._hessian_is_sparse:
+            return self.hessian_sparse(x, lagrange, obj_factor)
+        else:
+            return self.hessian_dense(x, lagrange, obj_factor)
 
     def intermediate(self, alg_mod, iter_count, obj_value, inf_pr, inf_du, mu,
                      d_norm, regularization_size, alpha_du, alpha_pr,
@@ -251,6 +289,37 @@ def get_bounds(bounds):
         ub = [b[1] for b in bounds]
         return lb, ub
 
+def _get_sparse_hessian_structure(x0, args, kwargs, hess, constraints, 
+                                  con_dims):
+    """Return nonzero elements of Lagrangian Hessian, when it is sparse."""
+    sparse_hess = False
+    if callable(hess):
+        hess0 = hess(x0, *args, **kwargs)
+        sparse_hess = isinstance(hess0, coo_array)
+    if not sparse_hess:
+        return None, None, None
+    else:
+        coords = [hess0.coords]
+        if isinstance(constraints, dict):
+            constraints = (constraints, )
+        for con, m in zip(constraints, con_dims):
+            con_hess = con.get('hess', None)
+            if con_hess is None:
+                continue # An exception will be raised in the Wrapper
+            con_args = con.get('args', [])
+            con_kwargs = con.get('kwargs', {})
+            lagrange = np.ones(m)
+            con_hess0 = con_hess(x0, lagrange, *con_args, **con_kwargs)
+            if not isinstance(con_hess0, coo_array):
+                raise TypeError("The constraint hessians must be sparse if the "
+                                "objective function hessian is sparse.")
+            
+            coords.append(con_hess0.coords)
+        row, col = [np.concatenate(c) for c in zip(*coords)]
+        hess_tril = row >= col
+        hess_nnz_row = row[hess_tril]
+        hess_nnz_col = col[hess_tril]
+    return hess_tril, hess_nnz_row, hess_nnz_col
 
 def _get_sparse_jacobian_structure(constraints, x0):
     con_jac_is_sparse = []
@@ -565,6 +634,10 @@ def minimize_ipopt(fun,
     sparse_jacs, jac_nnz_row, jac_nnz_col = _get_sparse_jacobian_structure(
         constraints, x0)
 
+    res = _get_sparse_hessian_structure(x0, args, kwargs, hess, constraints, 
+                                        con_dims)
+    hess_tril, hess_nnz_row, hess_nnz_col = res
+
     if options is None:
         options = {}
     eps = options.pop('eps', 1e-8)
@@ -580,7 +653,10 @@ def minimize_ipopt(fun,
                                   con_dims=con_dims,
                                   sparse_jacs=sparse_jacs,
                                   jac_nnz_row=jac_nnz_row,
-                                  jac_nnz_col=jac_nnz_col)
+                                  jac_nnz_col=jac_nnz_col,
+                                  hess_tril=hess_tril, 
+                                  hess_nnz_row=hess_nnz_row, 
+                                  hess_nnz_col=hess_nnz_col)
 
     nlp = cyipopt.Problem(n=len(x0),
                           m=len(cl),
@@ -684,6 +760,7 @@ def _minimize_ipopt_iv(fun, x0, args, kwargs, method, jac, hess, hessp,
             tol = float(tol)
 
     options = dict() if options is None else options
+    kwargs = dict() if kwargs is None else kwargs    
     if not isinstance(options, dict):
         raise ValueError('`options` must be a dictionary.')
 

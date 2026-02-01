@@ -458,7 +458,7 @@ cdef class Problem:
                 log(msg, logging.INFO)
                 nele_hess = 0
             elif self.__n > 2**16:
-                msg = ("Number of varialbes is too large for using dense "
+                msg = ("Number of variables is too large for using dense "
                        "Hessian")
                 raise ValueError(msg)
 
