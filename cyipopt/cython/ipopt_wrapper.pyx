@@ -374,11 +374,12 @@ cdef class Problem:
         if ub is None:
             ub = INF * np.ones(n)
 
-        if len(lb) != len(ub) or len(lb) != n:
-            raise ValueError("lb and ub must either be None or have length n.")
+        if len(lb) != len(ub) or lb.shape != (n,):
+            raise ValueError("lb and ub must either be None or have shape (n,).")
 
-        cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.array(lb, dtype=DTYPEd).flatten()
-        cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.array(ub, dtype=DTYPEd).flatten()
+        # Does not make a copy if lb, ub are numpy arrays with correct dtype.
+        cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.ascontiguousarray(lb, dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.ascontiguousarray(ub, dtype=DTYPEd)
 
         #
         # Handle the constraints
@@ -407,8 +408,9 @@ cdef class Problem:
 
         self.__m = m
 
-        cdef np.ndarray[DTYPEd_t, ndim=1]  np_cl = np.array(cl, dtype=DTYPEd).flatten()
-        cdef np.ndarray[DTYPEd_t, ndim=1]  np_cu = np.array(cu, dtype=DTYPEd).flatten()
+        # Does not make a copy if cl, cu are numpy arrays with correct dtype.
+        cdef np.ndarray[DTYPEd_t, ndim=1]  np_cl = np.ascontiguousarray(cl, dtype=DTYPEd)
+        cdef np.ndarray[DTYPEd_t, ndim=1]  np_cu = np.ascontiguousarray(cu, dtype=DTYPEd)
 
         #
         # Handle the callbacks
