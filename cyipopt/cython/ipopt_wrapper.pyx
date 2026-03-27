@@ -374,7 +374,7 @@ cdef class Problem:
         if ub is None:
             ub = INF * np.ones(n)
 
-        if len(lb) != len(ub) or lb.shape != (n,):
+        if len(lb) != len(ub) or len(lb) != n:
             raise ValueError("lb and ub must either be None or have shape (n,).")
 
         # Does not make a copy if lb, ub are numpy arrays with correct dtype.
