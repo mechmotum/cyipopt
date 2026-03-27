@@ -375,7 +375,7 @@ cdef class Problem:
             ub = INF * np.ones(n)
 
         if len(lb) != len(ub) or len(lb) != n:
-            raise ValueError("lb and ub must either be None or have shape (n,).")
+            raise ValueError("lb and ub must either be None or have length n.")
 
         # Does not make a copy if lb, ub are numpy arrays with correct dtype.
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.ascontiguousarray(lb, dtype=DTYPEd)
