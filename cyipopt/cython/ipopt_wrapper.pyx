@@ -352,6 +352,8 @@ cdef class Problem:
     cdef public object __intermediate
     cdef public Index __n
     cdef public Index __m
+    cdef public object np_lb
+    cdef public object np_ub
 
     cdef public object __exception
     cdef Bool __in_ipopt_solve
@@ -380,6 +382,9 @@ cdef class Problem:
         # Does not make a copy if lb, ub are numpy arrays with correct dtype.
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_lb = np.ascontiguousarray(lb, dtype=DTYPEd)
         cdef np.ndarray[DTYPEd_t, ndim=1]  np_ub = np.ascontiguousarray(ub, dtype=DTYPEd)
+
+        self.np_lb = np_lb
+        self.np_ub = np_ub
 
         #
         # Handle the constraints

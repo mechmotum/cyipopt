@@ -7,15 +7,62 @@ import cyipopt
 def test_hs071_solve(hs071_initial_guess_fixture,
                      hs071_optimal_solution_fixture,
                      hs071_problem_instance_fixture):
-	"""Test hs071 test problem solves to the correct solution."""
-	x0 = hs071_initial_guess_fixture
-	nlp = hs071_problem_instance_fixture
-	x, info = nlp.solve(x0)
+    """Test hs071 test problem solves to the correct solution."""
 
-	expected_x, expected_J = hs071_optimal_solution_fixture
+    x0 = hs071_initial_guess_fixture
+    nlp = hs071_problem_instance_fixture
+    x, info = nlp.solve(x0)
 
-	np.testing.assert_almost_equal(info["obj_val"], expected_J)
-	np.testing.assert_allclose(x, expected_x)
+    expected_x, expected_J = hs071_optimal_solution_fixture
+
+    np.testing.assert_almost_equal(info["obj_val"], expected_J)
+    np.testing.assert_allclose(x, expected_x)
+
+
+def test_hs071_bounds_mutablity(
+    hs071_constraint_lower_bounds_fixture,
+    hs071_constraint_upper_bounds_fixture,
+    hs071_definition_instance_fixture,
+    hs071_initial_guess_fixture,
+    hs071_objective_fixture,
+    hs071_optimal_solution_fixture,
+    hs071_problem_instance_fixture,
+    hs071_variable_lower_bounds_fixture,
+    hs071_variable_upper_bounds_fixture,
+):
+    """Test hs071 test problem solves to the correct solution."""
+    x0 = hs071_initial_guess_fixture
+    expected_x, expected_J = hs071_optimal_solution_fixture
+
+    lb = np.array(hs071_variable_lower_bounds_fixture, dtype=np.float64)
+    ub = np.array(hs071_variable_upper_bounds_fixture, dtype=np.float64)
+    cl = np.array(hs071_constraint_lower_bounds_fixture, dtype=np.float64)
+    cu = np.array(hs071_constraint_upper_bounds_fixture, dtype=np.float64)
+
+    definition = hs071_definition_instance_fixture
+    definition.objective = hs071_objective_fixture
+    definition.intermediate = None
+    problem = _make_problem(definition, lb, ub, cl, cu)
+
+    print('running solve before bounds change')
+    solution1, info = problem.solve(x0)
+
+    print('The lb outside of problem is same as inside problem:')
+    print(lb is problem.np_lb)
+
+    np.testing.assert_allclose(solution1, expected_x)
+
+    # now change a value in the bounds
+    lb[0], lb[1], lb[2], lb[3] = 2.0, 2.0, 2.0, 2.0
+    ub[0], ub[1], ub[2], ub[3] = 4.0, 4.0, 4.0, 4.0
+
+    np.testing.assert_allclose(problem.np_lb, np.array([2.0, 2.0, 2.0, 2.0]))
+    np.testing.assert_allclose(problem.np_ub, np.array([4.0, 4.0, 4.0, 4.0]))
+
+    print('running solve after bounds change')
+    solution2, info = problem.solve(x0)
+
+    assert not np.allclose(solution2, expected_x)
 
 
 def test_hs071_warm_start(hs071_initial_guess_fixture,
