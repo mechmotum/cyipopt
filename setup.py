@@ -16,24 +16,8 @@ import subprocess as sp
 
 from setuptools import setup
 from setuptools.extension import Extension
-
-# install requirements before import
-# NOTE : NumPy 1.25 is the first release of NumPy that you can link to the
-# NumPy C-API and it will be guaranteed to be backward compatible back to NumPy
-# 1.19, thus we set the minimum NumPy build version to 1.25. See:
-# https://numpy.org/doc/stable/dev/depending_on_numpy.html#adding-a-dependency-on-numpy
-# for more information.
-from setuptools import dist
-SETUP_REQUIRES = [
-    "cython>=0.29.37",
-    "numpy>=1.25",
-    "setuptools>=68.1.2",
-]
-dist.Distribution().fetch_build_eggs(SETUP_REQUIRES)
-
 from Cython.Distutils import build_ext
 import numpy as np
-
 
 exec(open("cyipopt/version.py", encoding="utf-8").read())
 PACKAGE_NAME = "cyipopt"
