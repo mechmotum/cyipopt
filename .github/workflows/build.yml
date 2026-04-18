@@ -25,7 +25,7 @@ jobs:
           python-version: '3.13'
 
       - name: Download Ipopt
-        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "Ipopt.zip"
+        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "Ipopt.zip"
       
       - name: Extract Ipopt
         run: 7z x Ipopt.zip
