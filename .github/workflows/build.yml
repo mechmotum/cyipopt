@@ -31,7 +31,10 @@ jobs:
         run: Expand-Archive -Path "ipopt.zip" -DestinationPath "ipopt"
 
       - name: Move Ipopt files
-        run: mv ipopt/* .        
+        run: mv ipopt/* .
+
+      - name: List files for debugging
+        run: dir
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.16.2
