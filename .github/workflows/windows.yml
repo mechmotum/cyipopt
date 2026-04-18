@@ -1,6 +1,6 @@
 name: windows
 
-on: [pull_request]
+on: [push, pull_request]
 
 # cancels prior builds for this workflow when new commit is pushed
 concurrency:

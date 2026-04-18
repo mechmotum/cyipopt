@@ -1,6 +1,6 @@
-name: build
+name: build_wheels
 
-on: push
+on: [push, pull_request]
 
 # cancels prior builds for this workflow when new commit is pushed
 concurrency:
@@ -50,7 +50,7 @@ jobs:
           delvewheel repair wheelhouse\*.whl --add-path "${{ github.workspace }}\bin" --wheel-dir wheelhouse_repaired
 
       - name: Upload intermediate wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: wheels-${{ matrix.python }}
           path: ./wheelhouse_repaired/*.whl
@@ -61,14 +61,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download all intermediate wheels
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           pattern: wheels-*
           path: all_wheels
           merge-multiple: true 
 
       - name: Upload final combined artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cyipopt-wheels
           path: all_wheels/*.whl
