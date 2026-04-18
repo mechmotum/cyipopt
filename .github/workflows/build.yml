@@ -11,18 +11,18 @@ jobs:
   build:
     name: Build wheels on Windows with Ipopt binaries
     runs-on: windows-latest
-    strategy:
-      fail-fast: false
     env:
       IPOPTVERSION: [3.14.19]
       IPOPTARCH: [win64-msvs2022-md]
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v6
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: '3.14'
+          python-version: '3.13'
 
       - name: Download Ipopt
         run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "Ipopt.zip"
