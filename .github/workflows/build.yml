@@ -29,6 +29,8 @@ jobs:
           Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "ipopt.zip"
           Expand-Archive -Path "ipopt.zip" -DestinationPath "${{ github.workspace }}" -Force
 
+      - name
+
       - name: List files for debugging
         run: dir
 
