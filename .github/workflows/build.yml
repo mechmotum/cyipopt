@@ -42,7 +42,7 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS_WINDOWS: auto64
-          CIBW_SKIP: cp36-* cp37-* cp38-*
+          CIBW_SKIP: cp36-* cp37-* cp38-* pp* # skip Python 3.6, 3.7, 3.8 and PyPy
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Upload wheels
