@@ -8,14 +8,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build wheels on Windows with Ipopt binaries
+  build_wheels:
+    name: Build ${{ matrix.python }} on Windows
     runs-on: windows-latest
     env:
       IPOPTVERSION: 3.14.19
       IPOPTARCH: win64-msvs2022-md
     strategy:
       fail-fast: false
+      matrix:
+        python: [cp39-*, cp310-*, cp311-*, cp312-*, cp313-*, cp314-*]
     steps:
       - uses: actions/checkout@v6
 
@@ -39,17 +41,34 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS_WINDOWS: auto64
-          CIBW_SKIP: cp36-* cp37-* cp38-* pp* # skip Python 3.6, 3.7, 3.8 and PyPy
+          CIBW_BUILD: ${{ matrix.python }}
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Repair wheels with delvewheel
-        # Point delvewheel to the 'bin' folder where the downloaded DLLs live
         run: |
           mkdir wheelhouse_repaired
           delvewheel repair wheelhouse\*.whl --add-path "${{ github.workspace }}\bin" --wheel-dir wheelhouse_repaired
 
-      - name: Upload wheels
+      - name: Upload intermediate wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.python }}
+          path: ./wheelhouse_repaired/*.whl
+
+  combine_wheels:
+    name: Combine wheels into single artifact
+    needs: build_wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all intermediate wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: all_wheels
+          merge-multiple: true 
+
+      - name: Upload final combined artifact
         uses: actions/upload-artifact@v4
         with:
           name: cyipopt-wheels
-          path: ./wheelhouse_repaired/*.whl
+          path: all_wheels/*.whl
