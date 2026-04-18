@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: [cp39-*, cp310-*, cp311-*, cp312-*, cp313-*, cp314-*]
+        python: [cp39, cp310, cp311, cp312, cp313, cp314]
     steps:
       - uses: actions/checkout@v6
 
@@ -41,7 +41,7 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS_WINDOWS: auto64
-          CIBW_BUILD: ${{ matrix.python }}
+          CIBW_BUILD: ${{ matrix.python }}-*
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Repair wheels with delvewheel
