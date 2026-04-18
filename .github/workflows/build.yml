@@ -1,0 +1,48 @@
+name: windows
+
+on: push
+
+# cancels prior builds for this workflow when new commit is pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build wheels on Windows with Ipopt binaries
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install "numpy>=1.26.4" "cython>=0.29.37" "setuptools>=68.1.2"
+
+      - name: Download Ipopt
+        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F3.13.3/Ipopt-3.13.3-win64-msvs2019-md.zip" -OutFile "Ipopt-3.13.3-win64-msvs2019-md.zip"
+      
+      - name: Extract Ipopt
+        run: 7z x Ipopt-3.13.3-win64-msvs2019-md.zip
+      
+      - name: Move Ipopt files
+        run: mv Ipopt-3.13.3-win64-msvs2019-md/* .
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.2
+
+      - name: Build wheels
+        env:
+          CIBW_ARCHS_WINDOWS: auto32 auto64 ARM64
+        run: python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-package-wheels
+          path: ./wheelhouse/*.whl
