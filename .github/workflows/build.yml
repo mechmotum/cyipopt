@@ -12,8 +12,8 @@ jobs:
     name: Build wheels on Windows with Ipopt binaries
     runs-on: windows-latest
     env:
-      IPOPTVERSION: [3.14.19]
-      IPOPTARCH: [win64-msvs2022-md]
+      IPOPTVERSION: 3.14.19
+      IPOPTARCH: win64-msvs2022-md
     strategy:
       fail-fast: false
     steps:
