@@ -1,4 +1,4 @@
-name: windows
+name: build
 
 on: push
 
@@ -39,6 +39,7 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS_WINDOWS: auto32 auto64 ARM64
+          CIBW_SKIP: cp36-* cp37-* cp38-*
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Upload wheels
