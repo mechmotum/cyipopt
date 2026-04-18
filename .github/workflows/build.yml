@@ -30,9 +30,6 @@ jobs:
       - name: Extract Ipopt
         run: Expand-Archive -Path "ipopt.zip" -DestinationPath "ipopt"
 
-      - name: Move Ipopt files
-        run: mv ipopt/* .
-
       - name: List files for debugging
         run: dir
 
@@ -43,6 +40,7 @@ jobs:
         env:
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: cp36-* cp37-* cp38-*
+          CIBW_ENVIRONMENT: "IPOPT_DIR=ipopt"
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Upload wheels
