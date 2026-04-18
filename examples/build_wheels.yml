@@ -16,7 +16,7 @@ jobs:
       IPOPTARCH: win64-msvs2022-md
     strategy:
       fail-fast: false
-      matrix:
+      matrix: # Select only the python versions you want
         python: [cp39, cp310, cp311, cp312, cp313, cp314]
     steps:
       - uses: actions/checkout@v6

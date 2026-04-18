@@ -338,6 +338,41 @@ descriptions::
     This is Ipopt version 3.12.11, running with linear solver ma27.
     ...
 
+Building your own wheels for Windows
+------------------------------------
+
+If you do not want to or are unable to set up local C++ build environments, you 
+can build your own fully portable wheels by forking this repository. 
+
+There is a ready-to-use GitHub Actions workflow in ``examples/build_wheels.yml``.
+This script uses ``cibuildwheel`` to compile the Python wrappers and 
+``delvewheel`` to automatically bundle the necessary Ipopt DLLs directly into
+the wheel, making it 100% portable.
+
+
+1. Fork the ``cyipopt`` repository on GitHub to create your own copy.
+2. In your fork, copy the ``examples/build_wheels.yml`` file and place it in the
+   ``.github/workflows/`` directory.
+3. Edit the YAML file to specify the Python versions you want to build wheels
+   for
+::
+
+   strategy:
+     fail-fast: false
+     matrix: # Select only the python versions you want
+       python: [cp39, cp310, cp311, cp312, cp313, cp314]
+
+4. Go to the Actions tab in your forked repository and enable workflows.
+5. Commit the new YAML file to your repository to trigger the workflow. 
+6. Once the ``combine_wheels`` job finishes, click on the workflow run, scroll
+   down to the Artifacts section, and download the ``cyipopt-wheels`` zip
+   file.
+
+Extract the downloaded artifact. Inside, you will find ``.whl`` files for the 
+various Python versions you selected::
+
+   $ pip install path/to/cyipopt-1.7.0-cp311-cp311-win_amd64.whl
+
 Conda Forge binaries with HSL
 -----------------------------
 
