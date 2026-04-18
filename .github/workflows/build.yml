@@ -13,37 +13,37 @@ jobs:
     runs-on: windows-latest
     strategy:
       fail-fast: false
+    env:
+      IPOPTVERSION: [3.14.19]
+      IPOPTARCH: [win64-msvs2022-md]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: python -m pip install "numpy>=1.26.4" "cython>=0.29.37" "setuptools>=68.1.2"
+          python-version: '3.14'
 
       - name: Download Ipopt
-        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F3.14.19/Ipopt-3.14.19-win64-msvs2022-md.zip" -OutFile "Ipopt-3.14.19-win64-msvs2022-md.zip"
+        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "Ipopt.zip"
       
       - name: Extract Ipopt
-        run: 7z x Ipopt-3.14.19-win64-msvs2022-md.zip
+        run: 7z x Ipopt.zip
       
       - name: Move Ipopt files
-        run: mv Ipopt-3.14.19-win64-msvs2022-md/* .
+        run: mv Ipopt/* .
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.16.2
 
       - name: Build wheels
         env:
-          CIBW_ARCHS_WINDOWS: auto64 ARM64
+          CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: cp36-* cp37-* cp38-*
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: my-package-wheels
+          name: cyipopt-wheels
           path: ./wheelhouse/*.whl
