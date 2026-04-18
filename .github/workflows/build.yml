@@ -25,11 +25,13 @@ jobs:
           python-version: '3.13'
 
       - name: Download Ipopt
-        run: |
-          Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "ipopt.zip"
-          Expand-Archive -Path "ipopt.zip" -DestinationPath "${{ github.workspace }}" -Force
+        run: Invoke-WebRequest -Uri "https://github.com/coin-or/Ipopt/releases/download/releases%2F${{ env.IPOPTVERSION }}/Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip" -OutFile "Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip"
 
-      - name
+      - name: Extract Ipopt
+        run: 7z x Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}.zip
+      
+      - name: Move Ipopt files
+        run: mv Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}/* .
 
       - name: List files for debugging
         run: dir
@@ -41,7 +43,6 @@ jobs:
         env:
           CIBW_ARCHS_WINDOWS: auto64
           CIBW_SKIP: cp36-* cp37-* cp38-*
-          CIBW_ENVIRONMENT: "IPOPT_DIR=ipopt"
         run: python -m cibuildwheel --output-dir wheelhouse
 
       - name: Upload wheels
