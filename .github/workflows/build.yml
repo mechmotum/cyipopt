@@ -33,20 +33,24 @@ jobs:
       - name: Move Ipopt files
         run: mv Ipopt-${{ env.IPOPTVERSION }}-${{ env.IPOPTARCH }}/* .
 
-      - name: List files for debugging
-        run: dir
-
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==3.4.1
+        run: python -m pip install cibuildwheel==3.4.1 delvewheel
 
       - name: Build wheels
         env:
           CIBW_ARCHS_WINDOWS: auto64
-          CIBW_SKIP: cp36-* cp37-* cp38-* pp* # skip Python 3.6, 3.7, 3.8 and PyPy
+          # CIBW_SKIP: cp36-* cp37-* cp38-* pp* # skip Python 3.6, 3.7, 3.8 and PyPy
+          CIBW_BUILD: cp314-* # only build for Python 3.14
         run: python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Repair wheels with delvewheel
+        # Point delvewheel to the 'bin' folder where the downloaded DLLs live
+        run: |
+          mkdir wheelhouse_repaired
+          delvewheel repair wheelhouse\*.whl --add-path "${{ github.workspace }}\bin" --wheel-dir wheelhouse_repaired
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: cyipopt-wheels
-          path: ./wheelhouse/*.whl
+          path: ./wheelhouse_repaired/*.whl
